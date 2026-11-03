@@ -1,0 +1,74 @@
+{
+  "Landing": {
+    "badge": "Take back control of recurring spend",
+    "heroTitle1": "Stop subscription creep",
+    "heroTitle2": "before it drains you.",
+    "heroSubtitle": "Services raise prices quietly. Trials convert silently. Track your true monthly burn, spot hidden hikes, and trim the dead weight.",
+    "ctaPrimary": "Start My Ledger",
+    "ctaSecondary": "See Live Demo",
+    "noBankRequired": "100% private • No bank login required",
+    "stats": {
+      "avgCreep": "$74/mo",
+      "avgCreepLabel": "Average unnoticed yearly price hikes",
+      "zombies": "3.2",
+      "zombiesLabel": "Forgotten subs per person"
+    },
+    "features": {
+      "title": "Built for vigilance",
+      "subtitle": "Most budgeting apps show where your money went. We show what is quietly extracting it.",
+      "hikeTitle": "Stealth Hike Detection",
+      "hikeDesc": "Flag subscriptions that quietly nudged their prices up $2–$5 over the last 12 months.",
+      "normalizationTitle": "Cadence Normalization",
+      "normalizationDesc": "See annual, quarterly, and monthly charges leveled into one honest monthly burn rate.",
+      "zombieTitle": "Zombie Subscription Audit",
+      "zombieDesc": "Identify streaming services and SaaS tools you haven't opened in over 45 days."
+    },
+    "mockup": {
+      "monthlyBurn": "Monthly Burn",
+      "hikeAlert": "+$4.00 Price Hike",
+      "dueSoon": "Renews in 3 days"
+    }
+  },
+  "Dashboard": {
+    "title": "My Ledger",
+    "subtitle": "Track your recurring spend and audit unused subscriptions.",
+    "newSub": "Add Subscription",
+    "kpi": {
+      "monthly": "Total Monthly Burn",
+      "annual": "Projected Annual",
+      "zombies": "Zombie Subs",
+      "hikes": "Recent Hikes"
+    },
+    "table": {
+      "service": "Service",
+      "cost": "Cost",
+      "interval": "Billing",
+      "normalized": "Norm. /mo",
+      "renewal": "Next Renewal",
+      "status": "Status"
+    },
+    "badges": {
+      "hike": "Price Hiked",
+      "zombie": "Unused",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "emptyState": {
+      "title": "No subscriptions tracked yet",
+      "desc": "Start adding your recurring expenses to build your ledger."
+    }
+  },
+  "Auth": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to access your subscription ledger",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "magicLinkButton": "Send Magic Link",
+    "signInButton": "Sign In",
+    "signUpButton": "Create Account",
+    "or": "or continue with",
+    "magicLinkSent": "Check your email for the login link!",
+    "errorGeneric": "Authentication failed. Please check your details."
+  }
+}

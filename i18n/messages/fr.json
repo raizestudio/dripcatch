@@ -1,0 +1,74 @@
+{
+  "Landing": {
+    "badge": "Reprenez le contrôle de vos dépenses récurrentes",
+    "heroTitle1": "Arrêtez la dérive de vos abonnements",
+    "heroTitle2": "avant qu'elle ne vous ruine.",
+    "heroSubtitle": "Les hausses de prix sont discrètes. Les essais gratuits se transforment en pièges. Visualisez votre coût mensuel réel et éliminez le superflu.",
+    "ctaPrimary": "Créer mon registre",
+    "ctaSecondary": "Voir la démo",
+    "noBankRequired": "100% privé • Aucune connexion bancaire requise",
+    "stats": {
+      "avgCreep": "68 €/mois",
+      "avgCreepLabel": "Moyenne des hausses annuelles passées inaperçues",
+      "zombies": "3,2",
+      "zombiesLabel": "Abonnements oubliés par personne"
+    },
+    "features": {
+      "title": "Conçu pour la vigilance",
+      "subtitle": "Les apps de budget montrent où est parti votre argent. Nous montrons ce qui l'aspire discrètement.",
+      "hikeTitle": "Détection des hausses furtives",
+      "hikeDesc": "Repérez les services qui ont discrètement augmenté leur tarif de 2 à 5 € cette année.",
+      "normalizationTitle": "Normalisation des cycles",
+      "normalizationDesc": "Convertissez les factures annuelles et trimestrielles en un coût mensuel net et transparent.",
+      "zombieTitle": "Audit des abonnements fantômes",
+      "zombieDesc": "Identifiez les plateformes de streaming ou outils SaaS inutilisés depuis plus de 45 jours."
+    },
+    "mockup": {
+      "monthlyBurn": "Coût mensuel",
+      "hikeAlert": "+4,00 € de hausse",
+      "dueSoon": "Renouvellement dans 3j"
+    }
+  },
+  "Dashboard": {
+      "title": "Mon registre",
+      "subtitle": "Suivez vos dépenses récurrentes et auditez les abonnements inutilisés.",
+      "newSub": "Ajouter un abonnement",
+      "kpi": {
+        "monthly": "Coût mensuel total",
+        "annual": "Prévision annuelle",
+        "zombies": "Abonnements fantômes",
+        "hikes": "Hausses récentes"
+      },
+      "table": {
+        "service": "Service",
+        "cost": "Coût",
+        "interval": "Facturation",
+        "normalized": "Norm. /mois",
+        "renewal": "Prochain renouvellement",
+        "status": "Statut"
+      },
+      "badges": {
+        "hike": "Hausse de prix",
+        "zombie": "Inutilisé",
+        "monthly": "Mensuel",
+        "yearly": "Annuel"
+      },
+      "emptyState": {
+        "title": "Aucun abonnement enregistré",
+        "desc": "Ajoutez vos dépenses récurrentes pour commencer à alimenter votre registre."
+      }
+    },
+    "Auth": {
+        "title": "Bon retour",
+        "subtitle": "Connectez-vous pour accéder à votre registre",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "vous@exemple.com",
+        "passwordLabel": "Mot de passe",
+        "magicLinkButton": "Envoyer un lien magique",
+        "signInButton": "Se connecter",
+        "signUpButton": "Créer un compte",
+        "or": "ou continuer avec",
+        "magicLinkSent": "Vérifiez vos e-mails pour le lien de connexion !",
+        "errorGeneric": "Échec de l'authentification. Veuillez vérifier vos identifiants."
+      }
+}
