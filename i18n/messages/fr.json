@@ -30,45 +30,64 @@
     }
   },
   "Dashboard": {
-      "title": "Mon registre",
-      "subtitle": "Suivez vos dépenses récurrentes et auditez les abonnements inutilisés.",
-      "newSub": "Ajouter un abonnement",
-      "kpi": {
-        "monthly": "Coût mensuel total",
-        "annual": "Prévision annuelle",
-        "zombies": "Abonnements fantômes",
-        "hikes": "Hausses récentes"
-      },
-      "table": {
-        "service": "Service",
-        "cost": "Coût",
-        "interval": "Facturation",
-        "normalized": "Norm. /mois",
-        "renewal": "Prochain renouvellement",
-        "status": "Statut"
-      },
-      "badges": {
-        "hike": "Hausse de prix",
-        "zombie": "Inutilisé",
-        "monthly": "Mensuel",
-        "yearly": "Annuel"
-      },
-      "emptyState": {
-        "title": "Aucun abonnement enregistré",
-        "desc": "Ajoutez vos dépenses récurrentes pour commencer à alimenter votre registre."
-      }
+    "title": "Mon registre",
+    "subtitle": "Suivez vos dépenses récurrentes et auditez les abonnements inutilisés.",
+    "newSub": "Ajouter un abonnement",
+    "kpi": {
+      "monthly": "Coût mensuel total",
+      "annual": "Prévision annuelle",
+      "zombies": "Abonnements fantômes",
+      "hikes": "Hausses récentes"
     },
-    "Auth": {
-        "title": "Bon retour",
-        "subtitle": "Connectez-vous pour accéder à votre registre",
-        "emailLabel": "Adresse e-mail",
-        "emailPlaceholder": "vous@exemple.com",
-        "passwordLabel": "Mot de passe",
-        "magicLinkButton": "Envoyer un lien magique",
-        "signInButton": "Se connecter",
-        "signUpButton": "Créer un compte",
-        "or": "ou continuer avec",
-        "magicLinkSent": "Vérifiez vos e-mails pour le lien de connexion !",
-        "errorGeneric": "Échec de l'authentification. Veuillez vérifier vos identifiants."
-      }
+    "table": {
+      "service": "Service",
+      "cost": "Coût",
+      "interval": "Facturation",
+      "normalized": "Norm. /mois",
+      "renewal": "Prochain renouvellement",
+      "status": "Statut"
+    },
+    "badges": {
+      "hike": "Hausse de prix",
+      "zombie": "Inutilisé",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "quarterly": "Trimestriel",
+      "weekly": "Hebdomadaire"
+    },
+    "emptyState": {
+      "title": "Aucun abonnement enregistré",
+      "desc": "Ajoutez vos dépenses récurrentes pour commencer à alimenter votre registre."
+    },
+    "modal": {
+      "title": "Ajouter un abonnement",
+      "subtitle": "Choisissez un service populaire ou ajoutez une formule sur mesure.",
+      "selectService": "Choisir un service",
+      "customOption": "+ Service personnalisé",
+      "nameLabel": "Nom du service",
+      "planLabel": "Formule / Forfait",
+      "planPlaceholder": "ex. Standard, Famille, Pro",
+      "costLabel": "Montant",
+      "currencyLabel": "Devise",
+      "intervalLabel": "Fréquence",
+      "billingDateLabel": "Prochaine échéance",
+      "categoryLabel": "Catégorie",
+      "cancel": "Annuler",
+      "submit": "Enregistrer au registre",
+      "saving": "Enregistrement..."
+    }
+  },
+  "Auth": {
+    "title": "Bon retour",
+    "subtitle": "Connectez-vous pour accéder à votre registre",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "passwordLabel": "Mot de passe",
+    "magicLinkButton": "Envoyer un lien magique",
+    "signInButton": "Se connecter",
+    "signUpButton": "Créer un compte",
+    "or": "ou continuer avec",
+    "magicLinkSent": "Vérifiez vos e-mails pour le lien de connexion !",
+    "errorGeneric": "Échec de l'authentification. Veuillez vérifier vos identifiants."
+  }
 }

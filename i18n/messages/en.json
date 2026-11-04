@@ -51,11 +51,30 @@
       "hike": "Price Hiked",
       "zombie": "Unused",
       "monthly": "Monthly",
-      "yearly": "Yearly"
+      "yearly": "Yearly",
+      "quarterly": "Quarterly",
+      "weekly": "Weekly"
     },
     "emptyState": {
       "title": "No subscriptions tracked yet",
       "desc": "Start adding your recurring expenses to build your ledger."
+    },
+    "modal": {
+      "title": "Add Subscription",
+      "subtitle": "Select a common service or configure a custom one.",
+      "selectService": "Choose Service",
+      "customOption": "+ Custom Service",
+      "nameLabel": "Service Name",
+      "planLabel": "Plan / Tier",
+      "planPlaceholder": "e.g. Standard, Pro, Family",
+      "costLabel": "Cost",
+      "currencyLabel": "Currency",
+      "intervalLabel": "Cadence",
+      "billingDateLabel": "Next Billing Date",
+      "categoryLabel": "Category",
+      "cancel": "Cancel",
+      "submit": "Save to Ledger",
+      "saving": "Saving..."
     }
   },
   "Auth": {
