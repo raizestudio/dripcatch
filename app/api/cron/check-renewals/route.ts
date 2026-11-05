@@ -11,29 +11,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 2. Initialize Service Role Supabase Client (bypasses RLS to query across users)
+  // 2. Initialize Service Role Supabase Client
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // 3. Query active subscriptions joined with user_settings
+  // 3. Query active subscriptions
   const { data: subs, error: subsError } = await supabase
     .from("user_subscriptions")
-    .select(`
-      id,
-      user_id,
-      name,
-      cost,
-      currency,
-      interval,
-      next_billing_date,
-      is_zombie,
-      user_settings:user_id (
-        reminder_days,
-        base_currency
-      )
-    `)
+    .select(
+      "id, user_id, name, cost, currency, interval, next_billing_date, is_zombie"
+    )
     .eq("status", "active");
 
   if (subsError) {
@@ -41,8 +30,29 @@ export async function GET(request: Request) {
   }
 
   if (!subs || subs.length === 0) {
-    return NextResponse.json({ message: "No active subscriptions to evaluate." });
+    return NextResponse.json({
+      message: "No active subscriptions to evaluate.",
+    });
   }
+
+  // 4. Fetch settings for all relevant users in a single query
+  const userIds = Array.from(new Set(subs.map((s) => s.user_id)));
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("user_id, reminder_days, base_currency")
+    .in("user_id", userIds);
+
+  const settingsMap = new Map<
+    string,
+    { reminder_days: number; base_currency: string }
+  >();
+
+  settings?.forEach((s) => {
+    settingsMap.set(s.user_id, {
+      reminder_days: s.reminder_days ?? 3,
+      base_currency: s.base_currency ?? "EUR",
+    });
+  });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -65,12 +75,16 @@ export async function GET(request: Request) {
     const diffMs = renewalDate.getTime() - today.getTime();
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-    // Fall back to 3 days if settings don't exist yet
-    const reminderDays = (sub.user_settings as any)?.reminder_days ?? 3;
+    const userSetting = settingsMap.get(sub.user_id) ?? {
+      reminder_days: 3,
+      base_currency: "EUR",
+    };
 
-    // Trigger notification if today exactly matches their alert window or is renewal day
+    const reminderDays = userSetting.reminder_days;
+
+    // Trigger notification if renewal matches user's alert window or is due today
     if (diffDays === reminderDays || diffDays === 0) {
-      const currency = sub.currency || (sub.user_settings as any)?.base_currency || "EUR";
+      const currency = sub.currency || userSetting.base_currency;
       const formattedCost = `${Number(sub.cost).toFixed(2)} ${currency}`;
 
       const message =
@@ -90,10 +104,12 @@ export async function GET(request: Request) {
   }
 
   if (notificationsToInsert.length === 0) {
-    return NextResponse.json({ message: "Evaluated subscriptions, no alerts due today." });
+    return NextResponse.json({
+      message: "Evaluated subscriptions, no alerts due today.",
+    });
   }
 
-  // 4. Batch upsert using the unique deduplication index
+  // 5. Batch upsert using unique deduplication index
   const { error: insertError } = await supabase
     .from("notifications")
     .upsert(notificationsToInsert, {
