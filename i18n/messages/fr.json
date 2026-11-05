@@ -1,4 +1,10 @@
 {
+  "Nav": {
+    "signIn": "Connexion",
+    "signOut": "Déconnexion",
+    "ledger": "Mon registre",
+    "signedInAs": "Connecté en tant que"
+  },
   "Landing": {
     "badge": "Reprenez le contrôle de vos dépenses récurrentes",
     "heroTitle1": "Arrêtez la dérive de vos abonnements",
@@ -91,15 +97,28 @@
     },
     "analytics": {
       "title": "Flux de trésorerie & Prévisions",
-      "forecastSubtitle": "Sorties de fonds projetées sur 12 mois (prenant en compte les échéances annuelles).",
+      "forecastSubtitle": "Comparaison entre les coûts facturés et votre part nette réelle.",
       "categoryTitle": "Dépenses par catégorie",
-      "categorySubtitle": "Répartition mensuelle normalisée par catégorie.",
-      "active": "Services actifs",
-      "zombie": "Gaspillage fantôme",
-      "total": "Total prévisionnel",
+      "categorySubtitle": "Répartition mensuelle nette par catégorie.",
+      "yourShare": "Votre part",
+      "coveredByFriends": "Payé par vos proches",
+      "grossTotal": "Total facturé (Brut)",
+      "netTotal": "Votre charge réelle (Net)",
+      "splitSavingsPill": "Vous récupérez {amount}/mois grâce aux partages",
       "zombieWarningTitle": "Alerte de gaspillage",
-      "zombieWarningDesc": "Vous allez perdre {annualAmount}/an sur {count} abonnements fantômes. Les résilier vous fera économiser {monthlyAmount}/mois."
+      "zombieWarningDesc": "Vous allez perdre {annualAmount}/an sur {count} abonnements fantômes."
     }
+  },
+  "Splits": {
+    "toggle": "Partager cet abonnement avec d'autres",
+    "addPerson": "Ajouter une personne",
+    "namePlaceholder": "Nom ou e-mail",
+    "amountPlaceholder": "Part",
+    "netSummary": "Votre part nette :",
+    "grossLabel": "Coût total :",
+    "coveredLabel": "Payé par les autres :",
+    "splitBadge": "Partagé avec {count} personne",
+    "splitBadgePlural": "Partagé avec {count} personnes"
   },
   "Auth": {
     "title": "Bon retour",
@@ -112,6 +131,12 @@
     "signUpButton": "Créer un compte",
     "or": "ou continuer avec",
     "magicLinkSent": "Vérifiez vos e-mails pour le lien de connexion !",
-    "errorGeneric": "Échec de l'authentification. Veuillez vérifier vos identifiants."
+    "errorGeneric": "Échec de l'authentification. Veuillez vérifier vos identifiants.",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "minPasswordLength": "Le mot de passe doit contenir au moins 6 caractères.",
+    "passwordsMatch": "Les mots de passe correspondent",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   }
 }

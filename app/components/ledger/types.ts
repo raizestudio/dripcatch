@@ -1,3 +1,10 @@
+export interface SubscriptionSplit {
+  id?: string;
+  name: string;
+  email?: string | null;
+  amount: number;
+}
+
 export interface UserSubscriptionRow {
   id: string;
   name: string;
@@ -9,4 +16,5 @@ export interface UserSubscriptionRow {
   next_billing_date: string;
   is_zombie: boolean;
   status: string;
+  subscription_splits?: SubscriptionSplit[];
 }

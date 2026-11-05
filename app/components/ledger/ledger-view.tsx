@@ -8,19 +8,24 @@ import { LedgerTable } from "./ledger-table";
 import { LedgerEmptyState } from "./ledger-empty-state";
 import { AddSubscriptionModal, CatalogItem } from "./add-subscription-modal";
 import { LedgerAnalytics } from "./ledger-analytics";
+import { CurrencySwitcher } from "./currency-switcher";
 
 interface LedgerViewProps {
   subscriptions: UserSubscriptionRow[];
   catalog: CatalogItem[];
+  baseCurrency: string;
 }
 
-export function LedgerView({ subscriptions, catalog }: LedgerViewProps) {
+export function LedgerView({
+  subscriptions,
+  catalog,
+  baseCurrency,
+}: LedgerViewProps) {
   const t = useTranslations("Dashboard");
   const metrics = calculateLedgerMetrics(subscriptions);
 
   return (
     <div className="space-y-8">
-      {/* Header & Main Add Action */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-white">
@@ -30,22 +35,29 @@ export function LedgerView({ subscriptions, catalog }: LedgerViewProps) {
             {t("subtitle")}
           </p>
         </div>
-        <AddSubscriptionModal catalog={catalog} />
+
+        <div className="flex items-center gap-2.5">
+          <CurrencySwitcher currentCurrency={baseCurrency} />
+          <AddSubscriptionModal catalog={catalog} baseCurrency={baseCurrency} />
+        </div>
       </header>
 
-      {/* Top 4 KPI Metrics */}
-      <LedgerKpiCards {...metrics} />
+      <LedgerKpiCards {...metrics} baseCurrency={baseCurrency} />
 
-      {/* Charts & 12-Month Outflow Predictions */}
       {subscriptions.length > 0 && (
-        <LedgerAnalytics subscriptions={subscriptions} />
+        <LedgerAnalytics
+          subscriptions={subscriptions}
+          baseCurrency={baseCurrency}
+        />
       )}
 
-      {/* Dynamic Content: Empty State vs Ledger Table */}
       {subscriptions.length === 0 ? (
         <LedgerEmptyState catalog={catalog} />
       ) : (
-        <LedgerTable subscriptions={subscriptions} />
+        <LedgerTable
+          subscriptions={subscriptions}
+          baseCurrency={baseCurrency}
+        />
       )}
     </div>
   );

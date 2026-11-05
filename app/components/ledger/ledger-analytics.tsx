@@ -14,28 +14,32 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { AlertTriangle, TrendingDown } from "lucide-react";
+import { AlertTriangle, TrendingDown, Users } from "lucide-react";
 import { UserSubscriptionRow } from "./types";
 import {
   calculate12MonthForecast,
   calculateCategoryBreakdown,
   getNormalizedMonthly,
+  getSubNetCost,
 } from "./utils";
+import { formatCurrency } from "@/app/lib/currency";
 
 const PALETTE = [
-  "#10b981", // emerald
-  "#3b82f6", // blue
-  "#8b5cf6", // violet
-  "#f59e0b", // amber
-  "#ec4899", // pink
-  "#06b6d4", // cyan
-  "#64748b", // slate
+  "#10b981",
+  "#3b82f6",
+  "#8b5cf6",
+  "#f59e0b",
+  "#ec4899",
+  "#06b6d4",
+  "#64748b",
 ];
 
 export function LedgerAnalytics({
   subscriptions,
+  baseCurrency = "EUR",
 }: {
   subscriptions: UserSubscriptionRow[];
+  baseCurrency?: string;
 }) {
   const t = useTranslations("Dashboard");
   const { resolvedTheme } = useTheme();
@@ -51,11 +55,22 @@ export function LedgerAnalytics({
   const forecastData = calculate12MonthForecast(subscriptions);
   const categoryData = calculateCategoryBreakdown(subscriptions);
 
-  // Compute zombie leak summary
+  // Compute total monthly recovery from splits
+  const monthlyGross = subscriptions.reduce(
+    (acc, s) => acc + getNormalizedMonthly(Number(s.cost), s.interval),
+    0
+  );
+  const monthlyNet = subscriptions.reduce(
+    (acc, s) => acc + getNormalizedMonthly(getSubNetCost(s), s.interval),
+    0
+  );
+  const monthlyCovered = Math.max(0, monthlyGross - monthlyNet);
+
+  // Zombie analytics
   const zombieSubs = subscriptions.filter((s) => s.is_zombie);
   const zombieMonthlyLeak = zombieSubs.reduce(
-    (acc, s) => acc + getNormalizedMonthly(Number(s.cost), s.interval),
-    0,
+    (acc, s) => acc + getNormalizedMonthly(getSubNetCost(s), s.interval),
+    0
   );
   const zombieAnnualLeak = zombieMonthlyLeak * 12;
 
@@ -74,33 +89,59 @@ export function LedgerAnalytics({
               </p>
               <p className="text-xs text-amber-800 dark:text-amber-200/90">
                 {t("analytics.zombieWarningDesc", {
-                  annualAmount: `$${zombieAnnualLeak.toFixed(2)}`,
+                  annualAmount: formatCurrency(zombieAnnualLeak, baseCurrency),
                   count: zombieSubs.length,
-                  monthlyAmount: `$${zombieMonthlyLeak.toFixed(2)}`,
                 })}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 self-end sm:self-center font-mono text-sm font-bold text-amber-700 dark:text-amber-300">
             <TrendingDown className="h-4 w-4" />
-            <span>-${zombieMonthlyLeak.toFixed(2)}/mo</span>
+            <span>-{formatCurrency(zombieMonthlyLeak, baseCurrency)}/mo</span>
           </div>
         </div>
       )}
 
-      {/* Grid: 12-Month Cashflow Forecast + Category Share */}
+      {/* Main Analytics Grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* 12-Month Outflow Projection */}
+        {/* Outflow Comparison Bar Chart */}
         <div className="lg:col-span-2 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs transition-colors dark:border-zinc-800 dark:bg-zinc-900/50">
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold text-zinc-950 dark:text-white">
-              {t("analytics.title")}
-            </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              {t("analytics.forecastSubtitle")}
-            </p>
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-950 dark:text-white">
+                {t("analytics.title")}
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                {t("analytics.forecastSubtitle")}
+              </p>
+            </div>
+
+            {/* Split recovery pill if splits exist */}
+            {monthlyCovered > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 text-[11px] font-medium text-sky-600 dark:text-sky-400">
+                <Users className="h-3 w-3" />
+                {t("analytics.splitSavingsPill", {
+                  amount: formatCurrency(monthlyCovered, baseCurrency),
+                })}
+              </span>
+            )}
           </div>
 
+          {/* Chart Legend */}
+          <div className="mb-3 flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500" />
+              <span>{t("analytics.yourShare")}</span>
+            </div>
+            {monthlyCovered > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-xs bg-sky-500" />
+                <span>{t("analytics.coveredByFriends")}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Responsive BarChart */}
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -119,7 +160,7 @@ export function LedgerAnalytics({
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(val) => `$${val}`}
+                  tickFormatter={(val) => `${val}`}
                 />
                 <Tooltip
                   cursor={{
@@ -132,22 +173,33 @@ export function LedgerAnalytics({
                       const data = payload[0]
                         .payload as (typeof forecastData)[0];
                       return (
-                        <div className="rounded-lg border border-zinc-200 bg-white p-2.5 shadow-md dark:border-zinc-800 dark:bg-zinc-900 text-xs">
-                          <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
-                            {data.month} Outflow
+                        <div className="rounded-lg border border-zinc-200 bg-white p-3 shadow-md dark:border-zinc-800 dark:bg-zinc-900 text-xs">
+                          <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1.5">
+                            {data.month} Breakdown
                           </p>
-                          <div className="space-y-0.5 font-mono">
-                            <p className="text-emerald-600 dark:text-emerald-400">
-                              Active: ${data.active.toFixed(2)}
-                            </p>
-                            {data.zombie > 0 && (
-                              <p className="text-amber-600 dark:text-amber-400">
-                                Zombie: ${data.zombie.toFixed(2)}
-                              </p>
+                          <div className="space-y-1 font-mono text-[11px]">
+                            <div className="flex justify-between gap-4 text-emerald-600 dark:text-emerald-400">
+                              <span>{t("analytics.yourShare")}:</span>
+                              <span className="font-bold">
+                                {formatCurrency(data.net, baseCurrency)}
+                              </span>
+                            </div>
+
+                            {data.covered > 0 && (
+                              <div className="flex justify-between gap-4 text-sky-600 dark:text-sky-400">
+                                <span>{t("analytics.coveredByFriends")}:</span>
+                                <span>
+                                  +{formatCurrency(data.covered, baseCurrency)}
+                                </span>
+                              </div>
                             )}
-                            <p className="border-t border-zinc-200 dark:border-zinc-800 pt-1 font-bold text-zinc-900 dark:text-zinc-100">
-                              Total: ${data.total.toFixed(2)}
-                            </p>
+
+                            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-1 flex justify-between gap-4 text-zinc-900 dark:text-zinc-100 font-semibold">
+                              <span>{t("analytics.grossTotal")}:</span>
+                              <span>
+                                {formatCurrency(data.gross, baseCurrency)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -155,16 +207,17 @@ export function LedgerAnalytics({
                     return null;
                   }}
                 />
+                {/* Stacked Bars: Base is what you pay, Top is what friends pay */}
                 <Bar
-                  dataKey="active"
-                  stackId="a"
+                  dataKey="net"
+                  stackId="outflow"
                   fill="#10b981"
-                  radius={[0, 0, 0, 0]}
+                  radius={monthlyCovered > 0 ? [0, 0, 0, 0] : [4, 4, 0, 0]}
                 />
                 <Bar
-                  dataKey="zombie"
-                  stackId="a"
-                  fill="#f59e0b"
+                  dataKey="covered"
+                  stackId="outflow"
+                  fill="#0ea5e9"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -172,7 +225,7 @@ export function LedgerAnalytics({
           </div>
         </div>
 
-        {/* Category Breakdown */}
+        {/* Category Breakdown Donut */}
         <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs transition-colors dark:border-zinc-800 dark:bg-zinc-900/50 flex flex-col justify-between">
           <div>
             <h2 className="text-sm font-semibold text-zinc-950 dark:text-white">
@@ -213,7 +266,8 @@ export function LedgerAnalytics({
                               {item.category}:
                             </span>{" "}
                             <span className="font-mono text-zinc-600 dark:text-zinc-300">
-                              ${item.amount.toFixed(2)}/mo ({item.percentage}%)
+                              {formatCurrency(item.amount, baseCurrency)}/mo (
+                              {item.percentage}%)
                             </span>
                           </div>
                         );
@@ -226,7 +280,6 @@ export function LedgerAnalytics({
             </div>
           </div>
 
-          {/* Compact Category Legend */}
           <div className="mt-2 space-y-1.5 max-h-24 overflow-y-auto pr-1">
             {categoryData.slice(0, 4).map((cat, idx) => (
               <div
@@ -236,7 +289,9 @@ export function LedgerAnalytics({
                 <div className="flex items-center gap-1.5 truncate">
                   <div
                     className="h-2 w-2 rounded-full shrink-0"
-                    style={{ backgroundColor: PALETTE[idx % PALETTE.length] }}
+                    style={{
+                      backgroundColor: PALETTE[idx % PALETTE.length],
+                    }}
                   />
                   <span className="truncate">{cat.category}</span>
                 </div>

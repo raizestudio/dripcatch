@@ -4,22 +4,52 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/app/lib/supabase/client";
-import { Flame, Loader2, ArrowRight } from "lucide-react";
+import { useLocale } from "next-intl";
+import {
+  Flame,
+  Loader2,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function LoginPage() {
   const t = useTranslations("Auth");
   const router = useRouter();
   const supabase = createClient();
+  const locale = useLocale();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Real-time validations
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const isPasswordValid = password.length >= 6;
+  const isConfirmValid = isSignUp
+    ? confirmPassword.length >= 6 && confirmPassword === password
+    : true;
+  const isFormValid = isEmailValid && isPasswordValid && isConfirmValid;
+
+  // Inline alert triggers
+  const showPasswordLengthWarning = password.length > 0 && password.length < 6;
+  const showMismatchWarning =
+    isSignUp && confirmPassword.length > 0 && password !== confirmPassword;
+  const showMatchSuccess =
+    isSignUp && confirmPassword.length >= 6 && password === confirmPassword;
+
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();
+    if (!isFormValid) return;
+
     setLoading(true);
     setError(null);
     setMessage(null);
@@ -27,17 +57,17 @@ export default function LoginPage() {
     try {
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${locale}/ledger`,
           },
         });
         if (error) throw error;
         setMessage(t("magicLinkSent"));
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
         });
         if (error) throw error;
@@ -51,37 +81,49 @@ export default function LoginPage() {
     }
   }
 
+  function handleModeToggle() {
+    setIsSignUp((prev) => !prev);
+    setError(null);
+    setMessage(null);
+    setConfirmPassword("");
+  }
+
   return (
     <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm space-y-6">
         {/* Brand Header */}
         <div className="space-y-2 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <Flame className="h-5 w-5" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
+          <h1 className="text-xl font-bold tracking-tight text-zinc-950 dark:text-white">
             {t("title")}
           </h1>
-          <p className="text-xs text-zinc-400">{t("subtitle")}</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            {t("subtitle")}
+          </p>
         </div>
 
         {/* Auth Form Card */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 shadow-xl backdrop-blur-sm">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl transition-colors dark:border-zinc-800 dark:bg-zinc-900/50 backdrop-blur-sm">
           <form onSubmit={handleAuth} className="space-y-4">
             {error && (
-              <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-400">
-                {error}
+              <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
             {message && (
-              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-400">
-                {message}
+              <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span>{message}</span>
               </div>
             )}
 
+            {/* Email Field */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 {t("emailLabel")}
               </label>
               <input
@@ -90,27 +132,111 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t("emailPlaceholder")}
-                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-600"
               />
             </div>
 
+            {/* Password Field */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 {t("passwordLabel")}
               </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full rounded-lg border bg-zinc-50 py-2 pr-10 pl-3 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-hidden dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-600 transition-colors ${
+                    showPasswordLengthWarning
+                      ? "border-amber-500/60 focus:border-amber-500"
+                      : "border-zinc-200 focus:border-emerald-500 dark:border-zinc-800"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={
+                    showPassword ? t("hidePassword") : t("showPassword")
+                  }
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-200 focus:outline-hidden"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
+              {/* Password Length Hint */}
+              {showPasswordLengthWarning && (
+                <p className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400">
+                  <AlertCircle className="h-3 w-3 shrink-0" />
+                  <span>{t("minPasswordLength")}</span>
+                </p>
+              )}
             </div>
 
+            {/* Confirm Password (Sign-Up only) */}
+            {isSignUp && (
+              <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("confirmPasswordLabel")}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`w-full rounded-lg border bg-zinc-50 py-2 pr-10 pl-3 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-hidden dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-600 transition-colors ${
+                      showMismatchWarning
+                        ? "border-rose-500/60 focus:border-rose-500"
+                        : showMatchSuccess
+                          ? "border-emerald-500/60 focus:border-emerald-500"
+                          : "border-zinc-200 focus:border-emerald-500 dark:border-zinc-800"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={
+                      showConfirmPassword
+                        ? t("hidePassword")
+                        : t("showPassword")
+                    }
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-200 focus:outline-hidden"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Confirm Password Alerts */}
+                {showMismatchWarning && (
+                  <p className="flex items-center gap-1 text-[11px] text-rose-600 dark:text-rose-400">
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    <span>{t("passwordMismatch")}</span>
+                  </p>
+                )}
+                {showMatchSuccess && (
+                  <p className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" />
+                    <span>{t("passwordsMatch")}</span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Action Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 font-semibold text-xs text-zinc-950 shadow transition hover:bg-emerald-400 active:scale-98 disabled:opacity-50"
+              disabled={loading || !isFormValid}
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 text-xs font-semibold text-zinc-950 shadow-md transition hover:bg-emerald-400 active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-500"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -129,12 +255,8 @@ export default function LoginPage() {
           <div className="mt-5 text-center">
             <button
               type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError(null);
-                setMessage(null);
-              }}
-              className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+              onClick={handleModeToggle}
+              className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
             >
               {isSignUp
                 ? "Already have an account? Sign in"

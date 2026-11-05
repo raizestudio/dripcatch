@@ -4,6 +4,7 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   /* config options here */
+
   experimental: {
     agentFeedback: true,
   },

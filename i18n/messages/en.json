@@ -1,4 +1,10 @@
 {
+  "Nav": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "ledger": "Ledger",
+    "signedInAs": "Signed in as"
+  },
   "Landing": {
     "badge": "Take back control of recurring spend",
     "heroTitle1": "Stop subscription creep",
@@ -90,16 +96,29 @@
       "subtitle": "Adjust pricing, cadence, or flag as unused."
     },
     "analytics": {
-      "title": "Cashflow & Forecast",
-      "forecastSubtitle": "Projected outflows across the next 12 months (factoring in annual renewal cliffs).",
+      "title": "Cashflow & Outflow Forecast",
+      "forecastSubtitle": "Comparing total invoiced costs vs your real out-of-pocket share.",
       "categoryTitle": "Spend by Category",
-      "categorySubtitle": "Normalized monthly share per category.",
-      "active": "Active Services",
-      "zombie": "Zombie Drain",
-      "total": "Total Outflow",
+      "categorySubtitle": "Normalized monthly net share per category.",
+      "yourShare": "You Pay",
+      "coveredByFriends": "Covered by Friends",
+      "grossTotal": "Total Invoiced (Gross)",
+      "netTotal": "Your Out-of-Pocket (Net)",
+      "splitSavingsPill": "You recover {amount}/mo through splits",
       "zombieWarningTitle": "Zombie Waste Prediction",
-      "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions. Canceling them preserves {monthlyAmount}/mo."
+      "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions."
     }
+  },
+  "Splits": {
+    "toggle": "Split this subscription with others",
+    "addPerson": "Add Person",
+    "namePlaceholder": "Name or email",
+    "amountPlaceholder": "Pays",
+    "netSummary": "Your net share:",
+    "grossLabel": "Gross cost:",
+    "coveredLabel": "Covered by others:",
+    "splitBadge": "Split with {count} person",
+    "splitBadgePlural": "Split with {count} people"
   },
   "Auth": {
     "title": "Welcome back",
@@ -112,6 +131,12 @@
     "signUpButton": "Create Account",
     "or": "or continue with",
     "magicLinkSent": "Check your email for the login link!",
-    "errorGeneric": "Authentication failed. Please check your details."
+    "errorGeneric": "Authentication failed. Please check your details.",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
+    "minPasswordLength": "Password must be at least 6 characters.",
+    "passwordsMatch": "Passwords match",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   }
 }
