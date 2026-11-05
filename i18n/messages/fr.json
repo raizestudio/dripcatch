@@ -75,6 +75,30 @@
       "cancel": "Annuler",
       "submit": "Enregistrer au registre",
       "saving": "Enregistrement..."
+    },
+    "actions": {
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "deleteConfirm": "Voulez-vous vraiment supprimer cet abonnement ?",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "markZombie": "Marquer comme inutilisé / abonnement fantôme"
+    },
+    "editModal": {
+      "title": "Modifier l'abonnement",
+      "subtitle": "Ajustez le tarif, la fréquence ou signalez le service comme inutilisé."
+    },
+    "analytics": {
+      "title": "Flux de trésorerie & Prévisions",
+      "forecastSubtitle": "Sorties de fonds projetées sur 12 mois (prenant en compte les échéances annuelles).",
+      "categoryTitle": "Dépenses par catégorie",
+      "categorySubtitle": "Répartition mensuelle normalisée par catégorie.",
+      "active": "Services actifs",
+      "zombie": "Gaspillage fantôme",
+      "total": "Total prévisionnel",
+      "zombieWarningTitle": "Alerte de gaspillage",
+      "zombieWarningDesc": "Vous allez perdre {annualAmount}/an sur {count} abonnements fantômes. Les résilier vous fera économiser {monthlyAmount}/mois."
     }
   },
   "Auth": {

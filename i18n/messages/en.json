@@ -75,6 +75,30 @@
       "cancel": "Cancel",
       "submit": "Save to Ledger",
       "saving": "Saving..."
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to remove this subscription?",
+      "saving": "Saving...",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "markZombie": "Mark as unused / zombie subscription"
+    },
+    "editModal": {
+      "title": "Edit Subscription",
+      "subtitle": "Adjust pricing, cadence, or flag as unused."
+    },
+    "analytics": {
+      "title": "Cashflow & Forecast",
+      "forecastSubtitle": "Projected outflows across the next 12 months (factoring in annual renewal cliffs).",
+      "categoryTitle": "Spend by Category",
+      "categorySubtitle": "Normalized monthly share per category.",
+      "active": "Active Services",
+      "zombie": "Zombie Drain",
+      "total": "Total Outflow",
+      "zombieWarningTitle": "Zombie Waste Prediction",
+      "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions. Canceling them preserves {monthlyAmount}/mo."
     }
   },
   "Auth": {
