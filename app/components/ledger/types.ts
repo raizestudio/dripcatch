@@ -3,6 +3,7 @@ export interface SubscriptionSplit {
   name: string;
   email?: string | null;
   amount: number;
+  status: "pending" | "accepted" | "rejected";
 }
 
 export interface UserSubscriptionRow {

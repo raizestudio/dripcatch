@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2, Loader2, Users } from "lucide-react";
+import { Trash2, Loader2, Users, Shield } from "lucide-react";
 import { deleteSubscription } from "@/app/actions/subscriptions";
 import { UserSubscriptionRow } from "./types";
 import { getNormalizedMonthly, getSubNetCost } from "./utils";
@@ -12,9 +12,11 @@ import { EditSubscriptionModal } from "./edit-subscription-modal";
 export function LedgerTable({
   subscriptions,
   baseCurrency,
+  currentUserId,
 }: {
   subscriptions: UserSubscriptionRow[];
   baseCurrency: string;
+  currentUserId?: string;
 }) {
   const t = useTranslations("Dashboard");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -57,15 +59,41 @@ export function LedgerTable({
           </thead>
           <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
             {subscriptions.map((sub) => {
+              const splits = sub.subscription_splits || (sub as any).splits || [];
+              const hasSplits = splits.length > 0;
+
+              // Reliable owner detection:
+              const isOwner =
+                typeof (sub as any).is_owner === "boolean"
+                  ? (sub as any).is_owner
+                  : currentUserId
+                  ? sub.user_id === currentUserId
+                  : splits.length === 0;
+
               const costNum = Number(sub.cost);
               const originalCostNum = sub.original_cost
                 ? Number(sub.original_cost)
                 : costNum;
 
-              // Splits and Net Calculations
-              const splits = sub.subscription_splits || [];
-              const hasSplits = splits.length > 0;
-              const netCost = getSubNetCost(sub);
+              // NET PERSONAL COST:
+              let netCost: number;
+              if (!isOwner) {
+                if ((sub as any).effective_cost !== undefined) {
+                  netCost = Number((sub as any).effective_cost);
+                } else {
+                  const mySplit = splits.find(
+                    (s: any) => currentUserId && s.user_id === currentUserId
+                  );
+                  netCost = mySplit
+                    ? Number(mySplit.amount)
+                    : splits[0]
+                    ? Number(splits[0].amount)
+                    : costNum;
+                }
+              } else {
+                netCost = (sub as any).effective_cost ?? getSubNetCost(sub, currentUserId);
+              }
+
               const normalizedNetMonthly = getNormalizedMonthly(
                 netCost,
                 sub.interval
@@ -86,19 +114,37 @@ export function LedgerTable({
                         {sub.name}
                       </span>
 
-                      {/* Split Badge */}
-                      {hasSplits && (
-                        <span
-                          title={splits
-                            .map((s) => `${s.name}: ${formatCurrency(s.amount, baseCurrency)}`)
-                            .join(", ")}
-                          className="inline-flex items-center gap-1 rounded border border-blue-500/20 bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 cursor-help"
-                        >
+                      {/* Participant: Shared with you Badge */}
+                      {!isOwner && (
+                        <span className="inline-flex items-center gap-1 rounded border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-sky-600 dark:text-sky-400">
                           <Users className="h-3 w-3" />
-                          {splits.length === 1
-                            ? splits[0].name
-                            : `${splits.length} people`}
+                          Shared with you
                         </span>
+                      )}
+
+                      {/* Owner: Split Status Badges */}
+                      {isOwner && hasSplits && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          {splits.map((s: any) => (
+                            <span
+                              key={s.id}
+                              title={`${s.name} (${s.email || "Offline"}): ${formatCurrency(s.amount, baseCurrency)} - Status: ${s.status}`}
+                              className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold ${
+                                s.status === "accepted"
+                                  ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                  : s.status === "rejected"
+                                  ? "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400 line-through"
+                                  : "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                              }`}
+                            >
+                              <Users className="h-3 w-3" />
+                              {s.name}
+                              <span className="text-[9px] opacity-75 font-normal">
+                                ({s.status})
+                              </span>
+                            </span>
+                          ))}
+                        </div>
                       )}
 
                       {/* Hike Badge */}
@@ -126,9 +172,18 @@ export function LedgerTable({
                     </span>
                   </td>
 
-                  {/* Outflow Cost (Net vs Gross) */}
+                  {/* Outflow Cost (Personal Share vs Total) */}
                   <td className="px-4 py-3.5 text-right font-mono tabular-nums">
-                    {hasSplits ? (
+                    {!isOwner ? (
+                      <div className="flex flex-col items-end">
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                          {formatCurrency(netCost, baseCurrency)}
+                        </span>
+                        <span className="text-[10px] text-zinc-400">
+                          Plan: {formatCurrency(costNum, baseCurrency)}
+                        </span>
+                      </div>
+                    ) : hasSplits ? (
                       <div className="flex flex-col items-end">
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                           {formatCurrency(netCost, baseCurrency)}
@@ -155,27 +210,34 @@ export function LedgerTable({
                     {sub.next_billing_date}
                   </td>
 
-                  {/* Row Actions */}
+                  {/* Row Actions: Owner can edit/delete; Participant gets View-only */}
                   <td className="px-4 py-3.5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <EditSubscriptionModal
-                        subscription={sub}
-                        baseCurrency={baseCurrency}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(sub.id)}
-                        disabled={isDeleting}
-                        aria-label={t("actions.delete")}
-                        className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-rose-500/10 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
-                      >
-                        {isDeleting ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
-                      </button>
-                    </div>
+                    {isOwner ? (
+                      <div className="flex items-center justify-end gap-1">
+                        <EditSubscriptionModal
+                          subscription={sub}
+                          baseCurrency={baseCurrency}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(sub.id)}
+                          disabled={isDeleting}
+                          aria-label={t("actions.delete")}
+                          className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-rose-500/10 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400 dark:text-zinc-500 select-none">
+                        <Shield className="h-3 w-3" />
+                        View only
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

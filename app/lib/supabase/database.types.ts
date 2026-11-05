@@ -89,6 +89,7 @@ export type Database = {
           is_read: boolean
           message: string
           scheduled_for: string
+          split_id: string | null
           subscription_id: string | null
           title: string
           type: string
@@ -100,6 +101,7 @@ export type Database = {
           is_read?: boolean
           message: string
           scheduled_for: string
+          split_id?: string | null
           subscription_id?: string | null
           title: string
           type?: string
@@ -111,12 +113,20 @@ export type Database = {
           is_read?: boolean
           message?: string
           scheduled_for?: string
+          split_id?: string | null
           subscription_id?: string | null
           title?: string
           type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_split_id_fkey"
+            columns: ["split_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_splits"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_subscription_id_fkey"
             columns: ["subscription_id"]
@@ -168,6 +178,7 @@ export type Database = {
           email: string | null
           id: string
           name: string
+          status: string
           subscription_id: string
           user_id: string | null
         }
@@ -177,6 +188,7 @@ export type Database = {
           email?: string | null
           id?: string
           name: string
+          status?: string
           subscription_id: string
           user_id?: string | null
         }
@@ -186,6 +198,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string
+          status?: string
           subscription_id?: string
           user_id?: string | null
         }
@@ -306,7 +319,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_subscription_participant: {
+        Args: { sub_id: string; u_email: string; u_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

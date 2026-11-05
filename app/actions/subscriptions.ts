@@ -1,63 +1,207 @@
-"use server"
+// app/actions/subscriptions.ts
+"use server";
 
-import { revalidatePath } from "next/cache"
-import { createClient } from "@/app/lib/supabase/server"
+import { after } from "next/server";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/app/lib/supabase/server";
+import { sendSplitInvitationEmail } from "@/app/lib/mail";
+
+export interface UserSubscriptionRow {
+  id: string;
+  user_id: string;
+  name: string;
+  category: string;
+  cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  original_cost: number | null;
+  next_billing_date: string;
+  is_zombie: boolean;
+  status: "active" | "paused" | "cancelled";
+  is_owner?: boolean;
+  effective_cost?: number;
+  subscription_splits?: {
+    id: string;
+    name: string;
+    email?: string | null;
+    amount: number;
+    user_id?: string | null;
+  }[];
+}
 
 export interface SubscriptionSplitInput {
-  name: string
-  email?: string | null
-  amount: number
+  name: string;
+  email?: string | null;
+  amount: number;
 }
 
 export interface AddSubscriptionInput {
-  name: string
-  category: string
-  catalog_id?: string | null
-  plan_id?: string | null
-  cost: number
-  currency: string
-  interval: "weekly" | "monthly" | "quarterly" | "yearly"
-  next_billing_date: string
-  splits?: SubscriptionSplitInput[]
+  name: string;
+  category: string;
+  catalog_id?: string | null;
+  plan_id?: string | null;
+  cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  next_billing_date: string;
+  splits?: SubscriptionSplitInput[];
 }
 
 export interface UpdateSubscriptionInput {
-  name: string
-  category: string
-  cost: number
-  currency: string
-  interval: "weekly" | "monthly" | "quarterly" | "yearly"
-  next_billing_date: string
-  is_zombie: boolean
-  splits?: SubscriptionSplitInput[]
+  name: string;
+  category: string;
+  cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  next_billing_date: string;
+  is_zombie: boolean;
+  splits?: SubscriptionSplitInput[];
+}
+
+export interface SubscriptionSplitItem {
+  id: string;
+  name: string;
+  email?: string | null;
+  amount: number;
+  user_id?: string | null;
+  status: "pending" | "accepted" | "rejected";
+}
+
+export interface SharedSubscriptionRow {
+  id: string;
+  user_id: string;
+  name: string;
+  category: string;
+  cost: number;
+  effective_cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  next_billing_date: string;
+  is_zombie: boolean;
+  status: "active" | "paused" | "cancelled";
+  is_owner: boolean;
+  splits: SubscriptionSplitItem[];
+  subscription_splits: SubscriptionSplitItem[];
 }
 
 type ActionResponse<T = void> =
-  | { success: true; data?: T }
-  | { success: false; error: string }
+  { success: true; data?: T } | { success: false; error: string };
+
+export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("user_subscriptions")
+    .select(
+      `
+        id,
+        user_id,
+        name,
+        category,
+        cost,
+        currency,
+        interval,
+        next_billing_date,
+        is_zombie,
+        status,
+        subscription_splits (
+          id,
+          name,
+          email,
+          amount,
+          user_id,
+          status
+        )
+      `,
+    )
+    .order("next_billing_date", { ascending: true });
+
+  if (error || !data) return [];
+
+  return data
+    .filter((sub: any) => {
+      if (sub.user_id === user.id) return true;
+      const mySplit = sub.subscription_splits?.find(
+        (s: any) =>
+          s.user_id === user.id ||
+          (s.email &&
+            user.email &&
+            s.email.toLowerCase() === user.email.toLowerCase()),
+      );
+      return mySplit && mySplit.status === "accepted";
+    })
+    .map((sub: any) => {
+      const isOwner = sub.user_id === user.id;
+      const splits: SubscriptionSplitItem[] = sub.subscription_splits || [];
+      const totalCost = Number(sub.cost);
+
+      let effectiveCost = totalCost;
+
+      if (isOwner) {
+        const coveredByAccepted = splits
+          .filter((s) => s.status === "accepted")
+          .reduce((acc, s) => acc + Number(s.amount), 0);
+        effectiveCost = Math.max(0, totalCost - coveredByAccepted);
+      } else {
+        const userSplit = splits.find(
+          (s) =>
+            s.user_id === user.id ||
+            (s.email &&
+              user.email &&
+              s.email.toLowerCase() === user.email.toLowerCase()),
+        );
+        effectiveCost = userSplit
+          ? Number(userSplit.amount)
+          : splits.length > 0
+            ? Number(splits[0].amount)
+            : totalCost;
+      }
+
+      return {
+        id: sub.id,
+        user_id: sub.user_id,
+        name: sub.name,
+        category: sub.category,
+        cost: totalCost,
+        effective_cost: effectiveCost,
+        currency: sub.currency,
+        interval: sub.interval,
+        next_billing_date: sub.next_billing_date,
+        is_zombie: sub.is_zombie,
+        status: sub.status,
+        is_owner: isOwner,
+        splits,
+        subscription_splits: splits,
+      };
+    });
+}
 
 export async function createSubscription(
-  input: AddSubscriptionInput
+  input: AddSubscriptionInput,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const supabase = await createClient()
-
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: "Unauthorized. Please log in." }
+      return { success: false, error: "Unauthorized. Please log in." };
     }
 
     if (!input.name?.trim()) {
-      return { success: false, error: "Subscription name is required." }
+      return { success: false, error: "Subscription name is required." };
     }
 
-    const cleanCost = Math.max(0, Number(input.cost) || 0)
+    const cleanCost = Math.max(0, Number(input.cost) || 0);
 
-    // 1. Create the base subscription
+    // 1. Create root subscription
     const { data: sub, error: insertError } = await supabase
       .from("user_subscriptions")
       .insert({
@@ -69,18 +213,18 @@ export async function createSubscription(
         cost: cleanCost,
         currency: input.currency || "EUR",
         interval: input.interval || "monthly",
-        original_cost: cleanCost, // Set initial cost for price-hike detection
+        original_cost: cleanCost,
         next_billing_date: input.next_billing_date,
         status: "active",
       })
       .select("id")
-      .single()
+      .single();
 
     if (insertError) {
-      return { success: false, error: insertError.message }
+      return { success: false, error: insertError.message };
     }
 
-    // 2. Insert splits if provided
+    // 2. Insert splits
     if (input.splits && input.splits.length > 0) {
       const validSplits = input.splits
         .filter((s) => s.name?.trim() && Number(s.amount) > 0)
@@ -89,48 +233,75 @@ export async function createSubscription(
           name: s.name.trim(),
           email: s.email?.trim() || null,
           amount: Math.max(0, Number(s.amount)),
-        }))
+        }));
 
       if (validSplits.length > 0) {
-        const { error: splitsError } = await supabase
+        const { data: insertedSplits, error: splitsError } = await supabase
           .from("subscription_splits")
           .insert(validSplits)
+          .select("id, name, email, amount, user_id");
 
         if (splitsError) {
-          return { success: false, error: splitsError.message }
+          return { success: false, error: splitsError.message };
+        }
+
+        // 3. Email unregistered invitees in background
+        const unassignedInvites = (insertedSplits || []).filter(
+          (split) => split.email && !split.user_id,
+        );
+
+        if (unassignedInvites.length > 0) {
+          after(async () => {
+            for (const split of unassignedInvites) {
+              try {
+                await sendSplitInvitationEmail({
+                  toEmail: split.email!,
+                  recipientName: split.name,
+                  inviterEmail: user.email || "A friend",
+                  subscriptionName: input.name.trim(),
+                  amount: Number(split.amount),
+                  currency: input.currency || "EUR",
+                });
+              } catch (err) {
+                console.error(
+                  `Failed to send invite email to ${split.email}:`,
+                  err,
+                );
+              }
+            }
+          });
         }
       }
     }
 
-    revalidatePath("/[locale]/ledger", "page")
-    return { success: true, data: { id: sub.id } }
+    revalidatePath("/[locale]/ledger", "page");
+    return { success: true, data: { id: sub.id } };
   } catch (err: any) {
     return {
       success: false,
       error: err.message || "An unexpected error occurred.",
-    }
+    };
   }
 }
 
 export async function updateSubscription(
   id: string,
-  input: UpdateSubscriptionInput
+  input: UpdateSubscriptionInput,
 ): Promise<ActionResponse> {
   try {
-    const supabase = await createClient()
-
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: "Unauthorized. Please log in." }
+      return { success: false, error: "Unauthorized. Please log in." };
     }
 
-    const cleanCost = Math.max(0, Number(input.cost) || 0)
+    const cleanCost = Math.max(0, Number(input.cost) || 0);
 
-    // 1. Update the subscription row (keeps original_cost untouched)
+    // 1. Update root subscription
     const { error: updateError } = await supabase
       .from("user_subscriptions")
       .update({
@@ -144,22 +315,21 @@ export async function updateSubscription(
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("user_id", user.id)
+      .eq("user_id", user.id);
 
     if (updateError) {
-      return { success: false, error: updateError.message }
+      return { success: false, error: updateError.message };
     }
 
-    // 2. Sync splits if passed in the update payload
+    // 2. Re-sync splits if provided
     if (input.splits !== undefined) {
-      // Clear existing splits for this subscription
       const { error: deleteError } = await supabase
         .from("subscription_splits")
         .delete()
-        .eq("subscription_id", id)
+        .eq("subscription_id", id);
 
       if (deleteError) {
-        return { success: false, error: deleteError.message }
+        return { success: false, error: deleteError.message };
       }
 
       const validSplits = input.splits
@@ -169,59 +339,127 @@ export async function updateSubscription(
           name: s.name.trim(),
           email: s.email?.trim() || null,
           amount: Math.max(0, Number(s.amount)),
-        }))
+        }));
 
       if (validSplits.length > 0) {
-        const { error: insertSplitsError } = await supabase
-          .from("subscription_splits")
-          .insert(validSplits)
+        const { data: insertedSplits, error: insertSplitsError } =
+          await supabase
+            .from("subscription_splits")
+            .insert(validSplits)
+            .select("id, name, email, amount, user_id");
 
         if (insertSplitsError) {
-          return { success: false, error: insertSplitsError.message }
+          return { success: false, error: insertSplitsError.message };
+        }
+
+        const unassignedInvites = (insertedSplits || []).filter(
+          (split) => split.email && !split.user_id,
+        );
+
+        if (unassignedInvites.length > 0) {
+          after(async () => {
+            for (const split of unassignedInvites) {
+              try {
+                await sendSplitInvitationEmail({
+                  toEmail: split.email!,
+                  recipientName: split.name,
+                  inviterEmail: user.email || "A friend",
+                  subscriptionName: input.name.trim(),
+                  amount: Number(split.amount),
+                  currency: input.currency || "EUR",
+                });
+              } catch (err) {
+                console.error(
+                  `Failed to send invite email to ${split.email}:`,
+                  err,
+                );
+              }
+            }
+          });
         }
       }
     }
 
-    revalidatePath("/[locale]/ledger", "page")
-    return { success: true }
+    revalidatePath("/[locale]/ledger", "page");
+    return { success: true };
   } catch (err: any) {
     return {
       success: false,
       error: err.message || "An unexpected error occurred.",
-    }
+    };
   }
 }
 
 export async function deleteSubscription(id: string): Promise<ActionResponse> {
   try {
-    const supabase = await createClient()
-
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: "Unauthorized. Please log in." }
+      return { success: false, error: "Unauthorized. Please log in." };
     }
 
-    // Cascade delete in Postgres will automatically clean up subscription_splits
     const { error: deleteError } = await supabase
       .from("user_subscriptions")
       .delete()
       .eq("id", id)
-      .eq("user_id", user.id)
+      .eq("user_id", user.id);
 
     if (deleteError) {
-      return { success: false, error: deleteError.message }
+      return { success: false, error: deleteError.message };
     }
 
-    revalidatePath("/[locale]/ledger", "page")
-    return { success: true }
+    revalidatePath("/[locale]/ledger", "page");
+    return { success: true };
   } catch (err: any) {
     return {
       success: false,
       error: err.message || "An unexpected error occurred.",
+    };
+  }
+}
+
+export async function respondToSplitInvitation(
+  splitId: string,
+  accept: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Unauthorized" };
     }
+
+    const nextStatus = accept ? "accepted" : "rejected";
+
+    // Update status and claim user_id
+    const { error: splitError } = await supabase
+      .from("subscription_splits")
+      .update({
+        status: nextStatus,
+        user_id: user.id,
+      })
+      .eq("id", splitId);
+
+    if (splitError) return { success: false, error: splitError.message };
+
+    // Mark invite notification as read
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("split_id", splitId)
+      .eq("user_id", user.id);
+
+    revalidatePath("/[locale]/ledger", "page");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to respond." };
   }
 }

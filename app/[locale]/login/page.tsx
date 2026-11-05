@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/app/lib/supabase/client";
@@ -13,23 +14,34 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle2,
+  MailCheck,
 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const t = useTranslations("Auth");
   const router = useRouter();
   const supabase = createClient();
   const locale = useLocale();
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState("");
+  const emailParam = searchParams.get("email");
+  const signupParam = searchParams.get("signup");
+
+  const [email, setEmail] = useState(emailParam || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(signupParam === "true");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync params if URL changes dynamically
+  useEffect(() => {
+    if (emailParam) setEmail(emailParam);
+    if (signupParam === "true") setIsSignUp(true);
+  }, [emailParam, signupParam]);
 
   // Real-time validations
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -106,6 +118,14 @@ export default function LoginPage() {
 
         {/* Auth Form Card */}
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl transition-colors dark:border-zinc-800 dark:bg-zinc-900/50 backdrop-blur-sm">
+          {/* Invited User Banner */}
+          {emailParam && isSignUp && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs text-emerald-600 dark:text-emerald-400">
+              <MailCheck className="h-4 w-4 shrink-0" />
+              <span>Create your password to claim your shared subscription.</span>
+            </div>
+          )}
+
           <form onSubmit={handleAuth} className="space-y-4">
             {error && (
               <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-400">
@@ -266,5 +286,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

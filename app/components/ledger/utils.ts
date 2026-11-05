@@ -1,12 +1,44 @@
 import { UserSubscriptionRow } from "./types";
 
-export function getSubNetCost(sub: UserSubscriptionRow): number {
-  const totalCost = Number(sub.cost);
-  const splitsTotal = (sub.subscription_splits || []).reduce(
-    (acc, split) => acc + Number(split.amount || 0),
-    0,
-  );
-  return Math.max(0, totalCost - splitsTotal);
+export function getSubNetCost(sub: any, currentUserId?: string): number {
+  const cost = Number(sub.cost);
+  const splits = sub.subscription_splits || sub.splits || [];
+
+  // 1. If effective_cost was already computed by getSubscriptions(), use it directly
+  if (sub.effective_cost !== undefined) {
+    return Number(sub.effective_cost);
+  }
+
+  // 2. Determine ownership reliably
+  let isOwner = true;
+  if (typeof sub.is_owner === "boolean") {
+    isOwner = sub.is_owner;
+  } else if (currentUserId) {
+    isOwner = sub.user_id === currentUserId;
+  } else if (sub.is_owner === undefined && splits.length > 0) {
+    // If undefined but splits exist, look for participant split
+    isOwner = false;
+  }
+
+  // 3. For participant: their cost is their specific split amount
+  if (!isOwner) {
+    if (currentUserId && splits.length > 0) {
+      const mySplit = splits.find(
+        (s: any) =>
+          s.user_id === currentUserId ||
+          (s.email && sub.user_email && s.email.toLowerCase() === sub.user_email.toLowerCase())
+      );
+      if (mySplit) return Number(mySplit.amount);
+    }
+    return splits.length > 0 ? Number(splits[0].amount) : cost;
+  }
+
+  // 4. For owner: their expense is total minus accepted splits
+  const covered = splits
+    .filter((s: any) => s.status === undefined || s.status === "accepted")
+    .reduce((acc: number, s: any) => acc + Number(s.amount), 0);
+
+  return Math.max(0, cost - covered);
 }
 
 export function getNormalizedMonthly(cost: number, interval: string): number {
@@ -23,22 +55,32 @@ export function getNormalizedMonthly(cost: number, interval: string): number {
   }
 }
 
-export function calculateLedgerMetrics(subscriptions: UserSubscriptionRow[]) {
-  // Gross total (what services charge on paper)
+export function calculateLedgerMetrics(
+  subscriptions: UserSubscriptionRow[],
+  currentUserId?: string
+) {
+  // Gross total (Plan total for owner; personal share for participant)
   const grossMonthlyBurn = subscriptions.reduce((acc, sub) => {
-    return acc + getNormalizedMonthly(Number(sub.cost), sub.interval);
+    const isOwner =
+      typeof (sub as any).is_owner === "boolean"
+        ? (sub as any).is_owner
+        : currentUserId
+        ? sub.user_id === currentUserId
+        : true;
+    const baseCost = isOwner ? Number(sub.cost) : getSubNetCost(sub, currentUserId);
+    return acc + getNormalizedMonthly(baseCost, sub.interval);
   }, 0);
 
   // Net monthly burn (what you actually pay out of pocket after splits)
   const monthlyBurn = subscriptions.reduce((acc, sub) => {
-    return acc + getNormalizedMonthly(getSubNetCost(sub), sub.interval);
+    return acc + getNormalizedMonthly(getSubNetCost(sub, currentUserId), sub.interval);
   }, 0);
 
-  const totalMonthlyRecovered = grossMonthlyBurn - monthlyBurn;
+  const totalMonthlyRecovered = Math.max(0, grossMonthlyBurn - monthlyBurn);
   const projectedAnnual = monthlyBurn * 12;
   const zombiesCount = subscriptions.filter((s) => s.is_zombie).length;
   const hikesCount = subscriptions.filter(
-    (s) => s.original_cost && Number(s.cost) > Number(s.original_cost),
+    (s) => s.original_cost && Number(s.cost) > Number(s.original_cost)
   ).length;
 
   return {
@@ -53,14 +95,15 @@ export function calculateLedgerMetrics(subscriptions: UserSubscriptionRow[]) {
 
 export interface MonthlyForecastPoint {
   month: string;
-  gross: number;    // Total invoiced cost
-  net: number;      // What you actually pay out of pocket
-  covered: number;  // Offset covered by friends/splits
-  zombie: number;   // Inactive/waste portion
+  gross: number;
+  net: number;
+  covered: number;
+  zombie: number;
 }
 
 export function calculate12MonthForecast(
-  subscriptions: UserSubscriptionRow[]
+  subscriptions: UserSubscriptionRow[],
+  currentUserId?: string
 ): MonthlyForecastPoint[] {
   const points: MonthlyForecastPoint[] = [];
   const now = new Date();
@@ -74,8 +117,15 @@ export function calculate12MonthForecast(
     let monthZombie = 0;
 
     subscriptions.forEach((sub) => {
-      const grossCost = Number(sub.cost);
-      const netCost = getSubNetCost(sub);
+      const isOwner =
+        typeof (sub as any).is_owner === "boolean"
+          ? (sub as any).is_owner
+          : currentUserId
+          ? sub.user_id === currentUserId
+          : true;
+
+      const netCost = getSubNetCost(sub, currentUserId);
+      const grossCost = isOwner ? Number(sub.cost) : netCost;
       let willCharge = false;
 
       if (sub.interval === "monthly") {
@@ -129,12 +179,14 @@ export interface CategoryBreakdownPoint {
 
 export function calculateCategoryBreakdown(
   subscriptions: UserSubscriptionRow[],
+  currentUserId?: string
 ): CategoryBreakdownPoint[] {
   const totals: Record<string, number> = {};
   let totalAll = 0;
 
   subscriptions.forEach((sub) => {
-    const normalized = getNormalizedMonthly(Number(sub.cost), sub.interval);
+    const net = getSubNetCost(sub, currentUserId);
+    const normalized = getNormalizedMonthly(net, sub.interval);
     totals[sub.category] = (totals[sub.category] || 0) + normalized;
     totalAll += normalized;
   });

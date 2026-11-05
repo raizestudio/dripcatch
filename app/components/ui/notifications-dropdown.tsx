@@ -1,3 +1,4 @@
+// app/components/ui/notifications-dropdown.tsx
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -8,10 +9,12 @@ import {
   Calendar,
   Ghost,
   TrendingUp,
+  UserPlus,
   Check,
   CheckCheck,
   Trash2,
   Loader2,
+  X,
 } from "lucide-react";
 import {
   getUserNotifications,
@@ -21,6 +24,7 @@ import {
   DBNotification,
 } from "@/app/actions/notifications";
 import { getUserSettings, updateReminderDays } from "@/app/actions/settings";
+import { respondToSplitInvitation } from "@/app/actions/subscriptions";
 
 const REMINDER_OPTIONS = [1, 2, 5, 10, 15];
 
@@ -34,6 +38,7 @@ export function NotificationsDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [reminderDays, setReminderDays] = useState(3);
   const [isPending, startTransition] = useTransition();
+  const [respondingId, setRespondingId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   async function loadData() {
@@ -50,6 +55,21 @@ export function NotificationsDropdown() {
     }
   }
 
+  async function handleInvitationResponse(
+    e: React.MouseEvent,
+    splitId: string,
+    accept: boolean,
+  ) {
+    e.stopPropagation();
+    setRespondingId(splitId);
+    try {
+      await respondToSplitInvitation(splitId, accept);
+      await loadData();
+    } finally {
+      setRespondingId(null);
+    }
+  }
+
   useEffect(() => {
     loadData();
   }, []);
@@ -57,7 +77,10 @@ export function NotificationsDropdown() {
   // Close on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -74,7 +97,7 @@ export function NotificationsDropdown() {
   async function handleItemClick(notif: DBNotification) {
     if (!notif.is_read) {
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n))
+        prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n)),
       );
       setUnreadCount((c) => Math.max(0, c - 1));
       await markNotificationAsRead(notif.id);
@@ -170,7 +193,9 @@ export function NotificationsDropdown() {
                   {t("daysSuffix")}
                 </button>
               ))}
-              {isPending && <Loader2 className="h-2.5 w-2.5 animate-spin text-zinc-400" />}
+              {isPending && (
+                <Loader2 className="h-2.5 w-2.5 animate-spin text-zinc-400" />
+              )}
             </div>
           </div>
 
@@ -202,9 +227,18 @@ export function NotificationsDropdown() {
                 >
                   {/* Category Icon */}
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    {item.type === "renewal" && <Calendar className="h-3.5 w-3.5" />}
-                    {item.type === "zombie" && <Ghost className="h-3.5 w-3.5" />}
-                    {item.type === "hike" && <TrendingUp className="h-3.5 w-3.5" />}
+                    {item.type === "renewal" && (
+                      <Calendar className="h-3.5 w-3.5" />
+                    )}
+                    {item.type === "zombie" && (
+                      <Ghost className="h-3.5 w-3.5" />
+                    )}
+                    {item.type === "hike" && (
+                      <TrendingUp className="h-3.5 w-3.5" />
+                    )}
+                    {item.type === "split_invite" && (
+                      <UserPlus className="h-3.5 w-3.5 text-blue-500" />
+                    )}
                   </div>
 
                   {/* Notification Content */}
@@ -220,9 +254,43 @@ export function NotificationsDropdown() {
                     <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">
                       {item.message}
                     </p>
+
+                    {/* Split Invitation Action Buttons */}
+                    {item.type === "split_invite" &&
+                      item.split_id &&
+                      !item.is_read && (
+                        <div className="mt-2.5 flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={respondingId === item.split_id}
+                            onClick={(e) =>
+                              handleInvitationResponse(e, item.split_id!, true)
+                            }
+                            className="inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2.5 py-1 text-[11px] font-semibold text-zinc-950 transition hover:bg-emerald-400 disabled:opacity-50"
+                          >
+                            {respondingId === item.split_id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                            Accept
+                          </button>
+                          <button
+                            type="button"
+                            disabled={respondingId === item.split_id}
+                            onClick={(e) =>
+                              handleInvitationResponse(e, item.split_id!, false)
+                            }
+                            className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-white px-2 py-1 text-[11px] font-medium text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 disabled:opacity-50"
+                          >
+                            <X className="h-3 w-3" />
+                            Decline
+                          </button>
+                        </div>
+                      )}
                   </div>
 
-                  {/* Delete Button */}
+                  {/* Delete Notification Button */}
                   <button
                     type="button"
                     onClick={(e) => handleDelete(e, item.id)}

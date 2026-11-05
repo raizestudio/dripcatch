@@ -33,12 +33,15 @@ export function EditSubscriptionModal({
   );
   const [isZombie, setIsZombie] = useState(subscription.is_zombie);
 
-  // Splits State
+  // Splits State (now includes email)
   const initialSplits = subscription.subscription_splits || [];
   const [isSplitEnabled, setIsSplitEnabled] = useState(initialSplits.length > 0);
-  const [splits, setSplits] = useState<{ name: string; amount: string }[]>(
+  const [splits, setSplits] = useState<
+    { name: string; email: string; amount: string }[]
+  >(
     initialSplits.map((s) => ({
       name: s.name,
+      email: s.email || "",
       amount: s.amount.toString(),
     }))
   );
@@ -64,6 +67,7 @@ export function EditSubscriptionModal({
     setSplits(
       existingSplits.map((s) => ({
         name: s.name,
+        email: s.email || "",
         amount: s.amount.toString(),
       }))
     );
@@ -71,10 +75,14 @@ export function EditSubscriptionModal({
   }
 
   function addSplitPerson() {
-    setSplits((prev) => [...prev, { name: "", amount: "" }]);
+    setSplits((prev) => [...prev, { name: "", email: "", amount: "" }]);
   }
 
-  function updateSplit(index: number, field: "name" | "amount", value: string) {
+  function updateSplit(
+    index: number,
+    field: "name" | "email" | "amount",
+    value: string
+  ) {
     setSplits((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
@@ -107,6 +115,7 @@ export function EditSubscriptionModal({
             .filter((s) => s.name.trim() && parseFloat(s.amount) > 0)
             .map((s) => ({
               name: s.name.trim(),
+              email: s.email?.trim() || null,
               amount: parseFloat(s.amount),
             }))
         : [],
@@ -271,6 +280,7 @@ export function EditSubscriptionModal({
                 <div className="space-y-2.5 pt-1">
                   {splits.map((split, index) => (
                     <div key={index} className="flex items-center gap-2">
+                      {/* Name */}
                       <input
                         type="text"
                         required
@@ -279,9 +289,22 @@ export function EditSubscriptionModal({
                           updateSplit(index, "name", e.target.value)
                         }
                         placeholder={tSplits("namePlaceholder")}
+                        className="w-1/3 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                      />
+
+                      {/* Email (Optional, links DripCatch account) */}
+                      <input
+                        type="email"
+                        value={split.email}
+                        onChange={(e) =>
+                          updateSplit(index, "email", e.target.value)
+                        }
+                        placeholder="Account email (optional)"
                         className="flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                       />
-                      <div className="relative w-28">
+
+                      {/* Amount */}
+                      <div className="relative w-24">
                         <span className="pointer-events-none absolute top-1.5 left-2 text-xs text-zinc-400">
                           {baseCurrency}
                         </span>
@@ -295,9 +318,10 @@ export function EditSubscriptionModal({
                             updateSplit(index, "amount", e.target.value)
                           }
                           placeholder="0.00"
-                          className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pr-2 pl-9 font-mono text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pr-2 pl-8 font-mono text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                         />
                       </div>
+
                       <button
                         type="button"
                         onClick={() => removeSplit(index)}

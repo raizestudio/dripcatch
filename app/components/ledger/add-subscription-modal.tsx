@@ -1,3 +1,4 @@
+// app/components/ledger/add-subscription-modal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -52,7 +53,9 @@ export function AddSubscriptionModal({
 
   // Splits State
   const [isSplitEnabled, setIsSplitEnabled] = useState(false);
-  const [splits, setSplits] = useState<{ name: string; amount: string }[]>([]);
+  const [splits, setSplits] = useState<
+    { name: string; email: string; amount: string }[]
+  >([]);
 
   const [nextBillingDate, setNextBillingDate] = useState("");
 
@@ -63,7 +66,7 @@ export function AddSubscriptionModal({
   const totalCostNum = parseFloat(cost) || 0;
   const totalCovered = splits.reduce(
     (acc, s) => acc + (parseFloat(s.amount) || 0),
-    0
+    0,
   );
   const isOverSplit = isSplitEnabled && totalCovered > totalCostNum;
   const yourNetCost = Math.max(0, totalCostNum - totalCovered);
@@ -127,7 +130,7 @@ export function AddSubscriptionModal({
     setIsCustomPlan(false);
     setSelectedPlanId(planId);
     const plan = selectedCatalogItem?.catalog_subscription_plans.find(
-      (p) => p.id === planId
+      (p) => p.id === planId,
     );
     if (plan) {
       setPlanName(plan.name);
@@ -151,12 +154,16 @@ export function AddSubscriptionModal({
   }
 
   function addSplitPerson() {
-    setSplits((prev) => [...prev, { name: "", amount: "" }]);
+    setSplits((prev) => [...prev, { name: "", email: "", amount: "" }]);
   }
 
-  function updateSplit(index: number, field: "name" | "amount", value: string) {
+  function updateSplit(
+    index: number,
+    field: "name" | "email" | "amount",
+    value: string,
+  ) {
     setSplits((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   }
 
@@ -188,6 +195,7 @@ export function AddSubscriptionModal({
             .filter((s) => s.name.trim() && parseFloat(s.amount) > 0)
             .map((s) => ({
               name: s.name.trim(),
+              email: s.email?.trim() || null, // ✅ Include email
               amount: parseFloat(s.amount),
             }))
         : [],
@@ -404,6 +412,7 @@ export function AddSubscriptionModal({
                 <div className="space-y-2.5 pt-1">
                   {splits.map((split, index) => (
                     <div key={index} className="flex items-center gap-2">
+                      {/* Name */}
                       <input
                         type="text"
                         required
@@ -411,10 +420,23 @@ export function AddSubscriptionModal({
                         onChange={(e) =>
                           updateSplit(index, "name", e.target.value)
                         }
-                        placeholder={tSplits("namePlaceholder")}
+                        placeholder="Name (e.g. Alex)"
+                        className="w-1/3 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                      />
+
+                      {/* Email (Optional, links DripCatch account) */}
+                      <input
+                        type="email"
+                        value={split.email}
+                        onChange={(e) =>
+                          updateSplit(index, "email", e.target.value)
+                        }
+                        placeholder="Account email (optional)"
                         className="flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                       />
-                      <div className="relative w-28">
+
+                      {/* Amount */}
+                      <div className="relative w-24">
                         <span className="pointer-events-none absolute top-1.5 left-2 text-xs text-zinc-400">
                           {baseCurrency}
                         </span>
@@ -428,9 +450,10 @@ export function AddSubscriptionModal({
                             updateSplit(index, "amount", e.target.value)
                           }
                           placeholder="0.00"
-                          className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pr-2 pl-9 font-mono text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pr-2 pl-8 font-mono text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                         />
                       </div>
+
                       <button
                         type="button"
                         onClick={() => removeSplit(index)}
