@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { connection } from "next/server";
 import { createClient } from "@/app/lib/supabase/server";
 import { getUserSettings } from "@/app/actions/settings";
+import { getSubscriptions } from "@/app/actions/subscriptions";
 import { CatalogItem } from "@/app/components/ledger/add-subscription-modal";
 import { UserSubscriptionRow } from "@/app/components/ledger/types";
 import { LedgerView } from "@/app/components/ledger/ledger-view";
@@ -20,22 +21,9 @@ export default async function LedgerPage({
 
   const supabase = await createClient();
 
-  const [{ data: userSubsData }, { data: catalogData }, settings] =
+  const [userSubsData, { data: catalogData }, settings] =
     await Promise.all([
-      supabase
-        .from("user_subscriptions")
-        .select(
-          `
-                *,
-                subscription_splits (
-                  id,
-                  name,
-                  email,
-                  amount
-                )
-              `,
-        )
-        .order("created_at", { ascending: false }),
+      getSubscriptions(),
       supabase
         .from("catalog_subscriptions")
         .select(
@@ -57,7 +45,7 @@ export default async function LedgerPage({
       getUserSettings(),
     ]);
 
-  const subscriptions = (userSubsData as UserSubscriptionRow[]) || [];
+  const subscriptions = (userSubsData as unknown as UserSubscriptionRow[]) || [];
   const catalog = (catalogData as unknown as CatalogItem[]) || [];
 
   return (
