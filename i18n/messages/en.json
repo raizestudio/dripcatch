@@ -138,5 +138,15 @@
     "passwordsMatch": "Passwords match",
     "showPassword": "Show password",
     "hidePassword": "Hide password"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No alerts right now",
+    "emptySubtitle": "You are all caught up on your renewals.",
+    "markAllRead": "Mark all read",
+    "alertWindow": "Alert me",
+    "daysBefore": "days before",
+    "dayBefore": "day before",
+    "daysSuffix": "d"
   }
 }

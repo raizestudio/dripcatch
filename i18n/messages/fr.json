@@ -138,5 +138,15 @@
     "passwordsMatch": "Les mots de passe correspondent",
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "Aucune alerte pour l'instant",
+    "emptySubtitle": "Tous vos renouvellements sont sous contrôle.",
+    "markAllRead": "Tout marquer comme lu",
+    "alertWindow": "M'alerter",
+    "daysBefore": "jours avant",
+    "dayBefore": "jour avant",
+    "daysSuffix": "j"
   }
 }
