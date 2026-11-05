@@ -52,7 +52,7 @@ export function LedgerView({
       )}
 
       {subscriptions.length === 0 ? (
-        <LedgerEmptyState catalog={catalog} />
+        <LedgerEmptyState catalog={catalog} baseCurrency={baseCurrency} />
       ) : (
         <LedgerTable
           subscriptions={subscriptions}
