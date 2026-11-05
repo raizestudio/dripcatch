@@ -104,6 +104,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         name,
         category,
         cost,
+        original_cost,
         currency,
         interval,
         next_billing_date,
