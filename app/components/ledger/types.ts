@@ -8,6 +8,7 @@ export interface SubscriptionSplit {
 
 export interface UserSubscriptionRow {
   id: string;
+  user_id: string;
   name: string;
   category: string;
   cost: number;
