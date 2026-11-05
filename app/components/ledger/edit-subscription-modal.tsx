@@ -3,55 +3,133 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Pencil, X, Loader2 } from "lucide-react";
+import { Pencil, X, Loader2, AlertCircle } from "lucide-react";
 import { updateSubscription } from "@/app/actions/subscriptions";
 import { UserSubscriptionRow } from "./types";
 
+interface EditSubscriptionModalProps {
+  subscription: UserSubscriptionRow;
+  baseCurrency?: string;
+}
+
 export function EditSubscriptionModal({
   subscription,
-}: {
-  subscription: UserSubscriptionRow;
-}) {
+  baseCurrency = "EUR",
+}: EditSubscriptionModalProps) {
   const t = useTranslations("Dashboard");
+  const tSplits = useTranslations("Splits");
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Form State
   const [name, setName] = useState(subscription.name);
   const [category, setCategory] = useState(subscription.category);
   const [cost, setCost] = useState(subscription.cost.toString());
-  const [currency, setCurrency] = useState(subscription.currency || "USD");
   const [interval, setInterval] = useState(subscription.interval);
   const [nextBillingDate, setNextBillingDate] = useState(
-    subscription.next_billing_date,
+    subscription.next_billing_date
   );
   const [isZombie, setIsZombie] = useState(subscription.is_zombie);
 
+  // Splits State
+  const initialSplits = subscription.subscription_splits || [];
+  const [isSplitEnabled, setIsSplitEnabled] = useState(initialSplits.length > 0);
+  const [splits, setSplits] = useState<{ name: string; amount: string }[]>(
+    initialSplits.map((s) => ({
+      name: s.name,
+      amount: s.amount.toString(),
+    }))
+  );
+
+  const totalCostNum = parseFloat(cost) || 0;
+  const totalCovered = splits.reduce(
+    (acc, s) => acc + (parseFloat(s.amount) || 0),
+    0
+  );
+  const isOverSplit = isSplitEnabled && totalCovered > totalCostNum;
+  const yourNetCost = Math.max(0, totalCostNum - totalCovered);
+
+  function resetState() {
+    setName(subscription.name);
+    setCategory(subscription.category);
+    setCost(subscription.cost.toString());
+    setInterval(subscription.interval);
+    setNextBillingDate(subscription.next_billing_date);
+    setIsZombie(subscription.is_zombie);
+
+    const existingSplits = subscription.subscription_splits || [];
+    setIsSplitEnabled(existingSplits.length > 0);
+    setSplits(
+      existingSplits.map((s) => ({
+        name: s.name,
+        amount: s.amount.toString(),
+      }))
+    );
+    setError(null);
+  }
+
+  function addSplitPerson() {
+    setSplits((prev) => [...prev, { name: "", amount: "" }]);
+  }
+
+  function updateSplit(index: number, field: "name" | "amount", value: string) {
+    setSplits((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
+  }
+
+  function removeSplit(index: number) {
+    setSplits((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
+    if (isOverSplit) {
+      setError("Split amounts cannot exceed the total subscription cost.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    try {
-      await updateSubscription(subscription.id, {
-        name,
-        category,
-        cost: parseFloat(cost),
-        currency,
-        interval,
-        next_billing_date: nextBillingDate,
-        is_zombie: isZombie,
-      });
-      setOpen(false);
-    } catch (err: any) {
-      setError(err.message || "Failed to update subscription");
-    } finally {
-      setLoading(false);
+    const res = await updateSubscription(subscription.id, {
+      name: name.trim(),
+      category,
+      cost: parseFloat(cost),
+      currency: baseCurrency,
+      interval,
+      next_billing_date: nextBillingDate,
+      is_zombie: isZombie,
+      splits: isSplitEnabled
+        ? splits
+            .filter((s) => s.name.trim() && parseFloat(s.amount) > 0)
+            .map((s) => ({
+              name: s.name.trim(),
+              amount: parseFloat(s.amount),
+            }))
+        : [],
+    });
+
+    setLoading(false);
+
+    if (!res.success) {
+      setError(res.error);
+      return;
     }
+
+    setOpen(false);
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) resetState();
+      }}
+    >
       <Dialog.Trigger asChild>
         <button
           aria-label={t("actions.edit")}
@@ -85,11 +163,13 @@ export function EditSubscriptionModal({
 
           <form onSubmit={handleUpdate} className="mt-4 space-y-4">
             {error && (
-              <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2.5 text-xs text-rose-600 dark:text-rose-400">
-                {error}
+              <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/10 p-2.5 text-xs text-rose-600 dark:text-rose-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
+            {/* Name */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 {t("modal.nameLabel")}
@@ -103,10 +183,11 @@ export function EditSubscriptionModal({
               />
             </div>
 
+            {/* Cost & Interval */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  {t("modal.costLabel")}
+                  {t("modal.costLabel")} ({baseCurrency})
                 </label>
                 <input
                   type="number"
@@ -136,6 +217,7 @@ export function EditSubscriptionModal({
               </div>
             </div>
 
+            {/* Category & Next Billing Date */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
@@ -164,19 +246,112 @@ export function EditSubscriptionModal({
               </div>
             </div>
 
-            {/* Zombie subscription toggle */}
-            <label className="flex items-center gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 transition-colors dark:border-zinc-800 dark:bg-zinc-950 cursor-pointer">
+            {/* Split Configurator */}
+            <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50/50 p-3.5 dark:border-zinc-800 dark:bg-zinc-950/50">
+              <div className="flex items-center justify-between">
+                <label className="flex cursor-pointer items-center gap-2 select-none">
+                  <input
+                    type="checkbox"
+                    checked={isSplitEnabled}
+                    onChange={(e) => {
+                      setIsSplitEnabled(e.target.checked);
+                      if (e.target.checked && splits.length === 0) {
+                        addSplitPerson();
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
+                  />
+                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                    {tSplits("toggle")}
+                  </span>
+                </label>
+              </div>
+
+              {isSplitEnabled && (
+                <div className="space-y-2.5 pt-1">
+                  {splits.map((split, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        required
+                        value={split.name}
+                        onChange={(e) =>
+                          updateSplit(index, "name", e.target.value)
+                        }
+                        placeholder={tSplits("namePlaceholder")}
+                        className="flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                      />
+                      <div className="relative w-28">
+                        <span className="pointer-events-none absolute top-1.5 left-2 text-xs text-zinc-400">
+                          {baseCurrency}
+                        </span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          required
+                          value={split.amount}
+                          onChange={(e) =>
+                            updateSplit(index, "amount", e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pr-2 pl-9 font-mono text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeSplit(index)}
+                        className="rounded p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+
+                  <div className="flex items-center justify-between pt-1">
+                    <button
+                      type="button"
+                      onClick={addSplitPerson}
+                      className="text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                    >
+                      + {tSplits("addPerson")}
+                    </button>
+
+                    {totalCostNum > 0 && splits.length > 0 && (
+                      <div className="text-right text-xs">
+                        <span className="text-zinc-500">
+                          {tSplits("netSummary")}{" "}
+                        </span>
+                        <span
+                          className={`font-mono font-bold ${
+                            isOverSplit
+                              ? "text-rose-500"
+                              : "text-emerald-600 dark:text-emerald-400"
+                          }`}
+                        >
+                          {yourNetCost.toFixed(2)} {baseCurrency}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Zombie Flag */}
+            <label className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 transition-colors dark:border-zinc-800 dark:bg-zinc-950">
               <input
                 type="checkbox"
                 checked={isZombie}
                 onChange={(e) => setIsZombie(e.target.checked)}
                 className="h-4 w-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
               />
-              <span className="text-xs text-zinc-700 dark:text-zinc-300 select-none">
+              <span className="select-none text-xs text-zinc-700 dark:text-zinc-300">
                 {t("actions.markZombie")}
               </span>
             </label>
 
+            {/* Actions */}
             <div className="flex justify-end gap-2 pt-2">
               <Dialog.Close asChild>
                 <button
@@ -188,8 +363,8 @@ export function EditSubscriptionModal({
               </Dialog.Close>
               <button
                 type="submit"
-                disabled={loading}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-zinc-950 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                disabled={loading || isOverSplit}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-zinc-950 shadow-md shadow-emerald-500/10 transition hover:bg-emerald-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 <span>{loading ? t("actions.saving") : t("actions.save")}</span>
