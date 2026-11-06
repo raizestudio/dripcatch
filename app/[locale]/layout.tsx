@@ -25,7 +25,6 @@ export async function generateMetadata({
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dripcatch.eu";
 
-  // Build hreflang alternates dynamically from routing.locales
   const languageAlternates = routing.locales.reduce<Record<string, string>>(
     (acc, loc) => {
       acc[loc] = `${baseUrl}/${loc}`;
@@ -69,14 +68,14 @@ export async function generateMetadata({
       siteName: "DripCatch",
       locale: locale === "fr" ? "fr_FR" : "en_US",
       type: "website",
-      images: [
-        {
-          url: "/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: "DripCatch - Subscription & Shared Expense Tracker",
-        },
-      ],
+      // images: [
+      //   {
+      //     url: "/og-image.png",
+      //     width: 1200,
+      //     height: 630,
+      //     alt: "DripCatch - Subscription & Shared Expense Tracker",
+      //   },
+      // ],
     },
     twitter: {
       card: "summary_large_image",
@@ -85,7 +84,7 @@ export async function generateMetadata({
         template: `%s | DripCatch`,
       },
       description: t("description"),
-      images: ["/og-image.png"],
+      // images: ["/og-image.png"],
     },
     robots: {
       index: true,
