@@ -1,7 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 export const alt = "DripCatch — Subscription & Shared Expense Tracker";
 export const size = {
   width: 1200,
