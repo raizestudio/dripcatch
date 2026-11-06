@@ -7,35 +7,7 @@ export const size = {
 };
 export const contentType = "image/png";
 
-export default async function Image({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const isFrench = locale === "fr";
-
-  const headline = isFrench
-    ? "Maîtrisez vos abonnements. Partagez équitablement."
-    : "Stop subscription bleed. Split costs fairly.";
-
-  const subline = isFrench
-    ? "Suivez vos dépenses récurrentes, éliminez les abonnements oubliés et partagez le coût réel avec vos proches."
-    : "Track recurring expenses, eliminate forgotten zombie subs, and split real net costs with friends.";
-
-  const card1 = {
-    tag: isFrench ? "Partage Équitable" : "Shared Splits",
-    desc: isFrench ? "Chacun ne voit que sa part" : "Everyone only tracks their share",
-  };
-  const card2 = {
-    tag: isFrench ? "Détection Zombie" : "Zombie Detection",
-    desc: isFrench ? "Flaggez les services inutilisés" : "Flag and cut unused services",
-  };
-  const card3 = {
-    tag: isFrench ? "Alerte Hausse" : "Price Hike Alerts",
-    desc: isFrench ? "Détectez les hausses discrètes" : "Catch stealth cost increases",
-  };
-
+export default function Image() {
   return new ImageResponse(
     (
       <div
@@ -51,7 +23,6 @@ export default async function Image({
           position: "relative",
         }}
       >
-        {/* Subtle radial emerald background glow */}
         <div
           style={{
             position: "absolute",
@@ -65,7 +36,6 @@ export default async function Image({
           }}
         />
 
-        {/* Top Header: Brand + Domain Pill */}
         <div
           style={{
             display: "flex",
@@ -88,7 +58,6 @@ export default async function Image({
                 border: "1px solid rgba(16, 185, 129, 0.3)",
               }}
             >
-              {/* Flame SVG */}
               <svg
                 width="26"
                 height="26"
@@ -141,7 +110,6 @@ export default async function Image({
           </div>
         </div>
 
-        {/* Center: Hero Typography */}
         <div
           style={{
             display: "flex",
@@ -161,7 +129,7 @@ export default async function Image({
               margin: 0,
             }}
           >
-            {headline}
+            Stop subscription bleed. Split costs fairly.
           </h1>
           <p
             style={{
@@ -171,11 +139,10 @@ export default async function Image({
               margin: 0,
             }}
           >
-            {subline}
+            Track recurring expenses, eliminate forgotten zombie subs, and split real net costs with friends.
           </p>
         </div>
 
-        {/* Bottom: Feature Cards */}
         <div
           style={{
             display: "flex",
@@ -184,7 +151,6 @@ export default async function Image({
             zIndex: 10,
           }}
         >
-          {/* Card 1 */}
           <div
             style={{
               flex: 1,
@@ -197,25 +163,22 @@ export default async function Image({
               borderRadius: "16px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span
-                style={{
-                  color: "#10b981",
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                {card1.tag}
-              </span>
-            </div>
+            <span
+              style={{
+                color: "#10b981",
+                fontSize: "15px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Shared Splits
+            </span>
             <span style={{ color: "#71717a", fontSize: "14px" }}>
-              {card1.desc}
+              Everyone only tracks their share
             </span>
           </div>
 
-          {/* Card 2 */}
           <div
             style={{
               flex: 1,
@@ -228,25 +191,22 @@ export default async function Image({
               borderRadius: "16px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span
-                style={{
-                  color: "#f59e0b",
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                {card2.tag}
-              </span>
-            </div>
+            <span
+              style={{
+                color: "#f59e0b",
+                fontSize: "15px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Zombie Detection
+            </span>
             <span style={{ color: "#71717a", fontSize: "14px" }}>
-              {card2.desc}
+              Flag and cut unused services
             </span>
           </div>
 
-          {/* Card 3 */}
           <div
             style={{
               flex: 1,
@@ -259,21 +219,19 @@ export default async function Image({
               borderRadius: "16px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span
-                style={{
-                  color: "#f43f5e",
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                {card3.tag}
-              </span>
-            </div>
+            <span
+              style={{
+                color: "#f43f5e",
+                fontSize: "15px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Price Hike Alerts
+            </span>
             <span style={{ color: "#71717a", fontSize: "14px" }}>
-              {card3.desc}
+              Catch stealth cost increases
             </span>
           </div>
         </div>

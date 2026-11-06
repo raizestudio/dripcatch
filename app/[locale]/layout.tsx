@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
@@ -15,95 +15,47 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "Metadata" });
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dripcatch.eu";
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dripcatch.eu";
-
-  const languageAlternates = routing.locales.reduce<Record<string, string>>(
-    (acc, loc) => {
-      acc[loc] = `${baseUrl}/${loc}`;
-      return acc;
-    },
-    { "x-default": `${baseUrl}/${routing.defaultLocale}` },
-  );
-
-  return {
-    metadataBase: new URL(baseUrl),
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "DripCatch — Subscription & Shared Expense Tracker",
+    template: "%s | DripCatch",
+  },
+  description:
+    "Track recurring subscriptions, eliminate zombie expenses, detect unexpected price hikes, and split costs seamlessly with friends.",
+  applicationName: "DripCatch",
+  authors: [{ name: "DripCatch", url: baseUrl }],
+  creator: "DripCatch",
+  publisher: "DripCatch",
+  openGraph: {
     title: {
-      default: t("title"),
-      template: `%s | DripCatch`,
+      default: "DripCatch — Subscription & Shared Expense Tracker",
+      template: "%s | DripCatch",
     },
-    description: t("description"),
-    applicationName: "DripCatch",
-    authors: [{ name: "DripCatch", url: baseUrl }],
-    creator: "DripCatch",
-    publisher: "DripCatch",
-    keywords: [
-      "subscription tracker",
-      "split subscriptions",
-      "shared expenses",
-      "subscription manager",
-      "track recurring expenses",
-      "zombie subscription detector",
-      "price hike alert",
-      "dripcatch",
-    ],
-    alternates: {
-      canonical: `${baseUrl}/${locale}`,
-      languages: languageAlternates,
+    description:
+      "Track recurring subscriptions, eliminate zombie expenses, detect unexpected price hikes, and split costs seamlessly with friends.",
+    siteName: "DripCatch",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: {
+      default: "DripCatch — Subscription & Shared Expense Tracker",
+      template: "%s | DripCatch",
     },
-    openGraph: {
-      title: {
-        default: t("title"),
-        template: `%s | DripCatch`,
-      },
-      description: t("description"),
-      url: `${baseUrl}/${locale}`,
-      siteName: "DripCatch",
-      locale: locale === "fr" ? "fr_FR" : "en_US",
-      type: "website",
-      // images: [
-      //   {
-      //     url: "/og-image.png",
-      //     width: 1200,
-      //     height: 630,
-      //     alt: "DripCatch - Subscription & Shared Expense Tracker",
-      //   },
-      // ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: {
-        default: t("title"),
-        template: `%s | DripCatch`,
-      },
-      description: t("description"),
-      // images: ["/og-image.png"],
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
-    icons: {
-      icon: "/favicon.ico",
-      shortcut: "/favicon.ico",
-      apple: "/apple-touch-icon.png",
-    },
-  };
-}
+    description:
+      "Track recurring subscriptions, eliminate zombie expenses, detect unexpected price hikes, and split costs seamlessly with friends.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 
 export default async function LocaleLayout({
   children,
