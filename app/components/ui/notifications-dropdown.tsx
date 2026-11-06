@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { createClient } from "@/app/lib/supabase/client";
 import {
   Bell,
   Calendar,
@@ -32,6 +33,7 @@ export function NotificationsDropdown() {
   const t = useTranslations("Notifications");
   const router = useRouter();
 
+  const [hasUser, setHasUser] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<DBNotification[]>([]);
@@ -71,7 +73,47 @@ export function NotificationsDropdown() {
   }
 
   useEffect(() => {
-    loadData();
+    const supabase = createClient();
+    let isMounted = true;
+
+    async function checkAuthAndLoad() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!isMounted) return;
+
+      if (!user) {
+        setHasUser(false);
+        setLoading(false);
+        return;
+      }
+
+      setHasUser(true);
+      await loadData();
+    }
+
+    checkAuthAndLoad();
+
+    // Listen for auth state changes (e.g. login, sign out)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      if (!session?.user) {
+        setHasUser(false);
+        setNotifications([]);
+        setUnreadCount(0);
+      } else {
+        setHasUser(true);
+        loadData();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Close on outside click
@@ -87,6 +129,11 @@ export function NotificationsDropdown() {
     if (open) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
+
+  // If not authenticated, do not render the bell icon
+  if (hasUser === false) {
+    return null;
+  }
 
   async function handleMarkAllRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));

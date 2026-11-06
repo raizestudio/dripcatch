@@ -1,11 +1,17 @@
 import { Link } from "@/i18n/navigation";
 import { Flame } from "lucide-react";
+import { createClient } from "@/app/lib/supabase/server";
 import { LocaleSwitcher } from "@/app/components/ui/locale-switcher";
 import { ThemeToggle } from "@/app/components/ui/theme-toggle";
 import { UserNav } from "@/app/components/ui/user-nav";
 import { NotificationsDropdown } from "@/app/components/ui/notifications-dropdown";
 
-export function Navbar() {
+export async function Navbar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <nav className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/80 dark:border-zinc-800/80 dark:bg-zinc-950/80 backdrop-blur-md transition-colors">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
@@ -21,7 +27,7 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <NotificationsDropdown />
+          {user && <NotificationsDropdown />}
           <ThemeToggle />
           <LocaleSwitcher />
           <UserNav />
