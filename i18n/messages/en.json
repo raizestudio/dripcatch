@@ -1,4 +1,8 @@
 {
+  "Metadata": {
+    "title": "DripCatch — Subscription & Shared Expense Tracker",
+    "description": "Track recurring subscriptions, eliminate zombie expenses, detect unexpected price hikes, and split costs seamlessly with friends."
+  },
   "Nav": {
     "signIn": "Sign In",
     "signOut": "Sign Out",

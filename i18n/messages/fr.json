@@ -1,4 +1,8 @@
 {
+  "Metadata": {
+    "title": "DripCatch — Gestionnaire d'abonnements et de dépenses partagées",
+    "description": "Suivez vos abonnements récurrents, éliminez les abonnements oubliés, détectez les hausses de prix et partagez vos frais simplement."
+  },
   "Nav": {
     "signIn": "Connexion",
     "signOut": "Déconnexion",
