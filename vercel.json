@@ -1,8 +1,10 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/check-renewals",
-      "schedule": "0 8 * * *"
+  "schedules": {
+    "renewals": {
+      "schedule": "0 8 * * *",
+      "path": "/api/schedule/check-renewals",
+      "requestMethod": "GET",
+      "timezone": "Europe/Paris"
     }
-  ]
+  }
 }

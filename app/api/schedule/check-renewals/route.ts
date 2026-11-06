@@ -126,3 +126,5 @@ export async function GET(request: Request) {
     created: notificationsToInsert.length,
   });
 }
+
+export { GET as POST };
