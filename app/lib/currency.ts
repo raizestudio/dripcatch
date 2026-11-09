@@ -4,6 +4,15 @@ export interface CurrencyMeta {
   label: string;
 }
 
+export const DEFAULT_CURRENCIES: Record<string, string> = {
+  en: "USD",
+  fr: "EUR",
+};
+
+export function getCurrencyForLocale(locale: string): string {
+  return DEFAULT_CURRENCIES[locale] || "EUR";
+}
+
 export const SUPPORTED_CURRENCIES: CurrencyMeta[] = [
   { code: "EUR", symbol: "€", label: "EUR (€) - Euro" },
   { code: "USD", symbol: "$", label: "USD ($) - US Dollar" },
@@ -17,7 +26,7 @@ export const SUPPORTED_CURRENCIES: CurrencyMeta[] = [
 export function formatCurrency(
   amount: number,
   currencyCode: string = "EUR",
-  locale: string = "en"
+  locale: string = "en",
 ): string {
   try {
     return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {

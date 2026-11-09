@@ -1,7 +1,7 @@
 // app/components/ledger/add-subscription-modal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Plus, X, Loader2, AlertCircle } from "lucide-react";
@@ -51,17 +51,15 @@ export function AddSubscriptionModal({
   const [planName, setPlanName] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
 
+  // Dates: Initialized to empty strings to keep SSR/prerender deterministic
+  const [firstBilledDate, setFirstBilledDate] = useState("");
+  const [nextBillingDate, setNextBillingDate] = useState("");
+
   // Splits State
   const [isSplitEnabled, setIsSplitEnabled] = useState(false);
   const [splits, setSplits] = useState<
     { name: string; email: string; amount: string }[]
   >([]);
-
-  const [nextBillingDate, setNextBillingDate] = useState("");
-
-  useEffect(() => {
-    setNextBillingDate(new Date().toISOString().split("T")[0]);
-  }, []);
 
   const totalCostNum = parseFloat(cost) || 0;
   const totalCovered = splits.reduce(
@@ -83,7 +81,20 @@ export function AddSubscriptionModal({
     setIsSplitEnabled(false);
     setSplits([]);
     setError(null);
-    setNextBillingDate(new Date().toISOString().split("T")[0]);
+    setFirstBilledDate("");
+    setNextBillingDate("");
+  }
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      // Generated client-side only during user interaction
+      const today = new Date().toISOString().split("T")[0];
+      setFirstBilledDate((prev) => prev || today);
+      setNextBillingDate((prev) => prev || today);
+    } else {
+      resetForm();
+    }
   }
 
   function handleCatalogChange(catalogId: string) {
@@ -181,6 +192,7 @@ export function AddSubscriptionModal({
     setLoading(true);
     setError(null);
 
+    const today = new Date().toISOString().split("T")[0];
     const res = await createSubscription({
       catalog_id: selectedCatalogId || null,
       plan_id: isCustomPlan ? null : selectedPlanId || null,
@@ -189,13 +201,14 @@ export function AddSubscriptionModal({
       cost: parseFloat(cost),
       currency: baseCurrency,
       interval,
-      next_billing_date: nextBillingDate,
+      first_billed_date: firstBilledDate || today,
+      next_billing_date: nextBillingDate || today,
       splits: isSplitEnabled
         ? splits
             .filter((s) => s.name.trim() && parseFloat(s.amount) > 0)
             .map((s) => ({
               name: s.name.trim(),
-              email: s.email?.trim() || null, // ✅ Include email
+              email: s.email?.trim() || null,
               amount: parseFloat(s.amount),
             }))
         : [],
@@ -213,13 +226,7 @@ export function AddSubscriptionModal({
   }
 
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-        if (!nextOpen) resetForm();
-      }}
-    >
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Trigger asChild>
         <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 text-sm font-semibold text-zinc-950 shadow-md shadow-emerald-500/10 transition hover:bg-emerald-400 active:scale-95">
           <Plus className="h-4 w-4" />
@@ -373,18 +380,33 @@ export function AddSubscriptionModal({
               </div>
             </div>
 
-            {/* Next Billing Date */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                {t("modal.billingDateLabel")}
-              </label>
-              <input
-                type="date"
-                required
-                value={nextBillingDate}
-                onChange={(e) => setNextBillingDate(e.target.value)}
-                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
-              />
+            {/* Billing Dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("modal.firstBilledDateLabel")}
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={firstBilledDate}
+                  onChange={(e) => setFirstBilledDate(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("modal.billingDateLabel")}
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={nextBillingDate}
+                  onChange={(e) => setNextBillingDate(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                />
+              </div>
             </div>
 
             {/* Split Configurator */}
@@ -412,7 +434,6 @@ export function AddSubscriptionModal({
                 <div className="space-y-2.5 pt-1">
                   {splits.map((split, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      {/* Name */}
                       <input
                         type="text"
                         required
@@ -424,7 +445,6 @@ export function AddSubscriptionModal({
                         className="w-1/3 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                       />
 
-                      {/* Email (Optional, links DripCatch account) */}
                       <input
                         type="email"
                         value={split.email}
@@ -435,7 +455,6 @@ export function AddSubscriptionModal({
                         className="flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                       />
 
-                      {/* Amount */}
                       <div className="relative w-24">
                         <span className="pointer-events-none absolute top-1.5 left-2 text-xs text-zinc-400">
                           {baseCurrency}

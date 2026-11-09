@@ -18,7 +18,7 @@
     "ctaSecondary": "See Live Demo",
     "noBankRequired": "100% private • No bank login required",
     "stats": {
-      "avgCreep": "$74/mo",
+      "avgCreep": "+{amount, number, currency}/mo",
       "avgCreepLabel": "Average unnoticed yearly price hikes",
       "zombies": "3.2",
       "zombiesLabel": "Forgotten subs per person"
@@ -54,6 +54,7 @@
       "cost": "Cost",
       "interval": "Billing",
       "normalized": "Norm. /mo",
+      "firstBill": "First Bill",
       "renewal": "Next Renewal",
       "status": "Status"
     },
@@ -80,6 +81,7 @@
       "costLabel": "Cost",
       "currencyLabel": "Currency",
       "intervalLabel": "Cadence",
+      "firstBilledDateLabel": "First Billing Date",
       "billingDateLabel": "Next Billing Date",
       "categoryLabel": "Category",
       "cancel": "Cancel",

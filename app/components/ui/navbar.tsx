@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Link } from "@/i18n/navigation";
 import { Flame } from "lucide-react";
 import { createClient } from "@/app/lib/supabase/server";
@@ -7,6 +8,7 @@ import { UserNav } from "@/app/components/ui/user-nav";
 import { NotificationsDropdown } from "@/app/components/ui/notifications-dropdown";
 
 export async function Navbar() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import {
@@ -12,7 +12,7 @@ import {
   Tooltip,
   PieChart,
   Pie,
-  Cell,
+  Sector,
 } from "recharts";
 import { AlertTriangle, TrendingDown, Users } from "lucide-react";
 import { UserSubscriptionRow } from "./types";
@@ -34,6 +34,8 @@ const PALETTE = [
   "#64748b",
 ];
 
+const emptySubscribe = () => () => {};
+
 export function LedgerAnalytics({
   subscriptions,
   baseCurrency = "EUR",
@@ -43,34 +45,45 @@ export function LedgerAnalytics({
 }) {
   const t = useTranslations("Dashboard");
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   if (!mounted || subscriptions.length === 0) return null;
 
   const isDark = resolvedTheme === "dark";
-  const forecastData = calculate12MonthForecast(subscriptions);
-  const categoryData = calculateCategoryBreakdown(subscriptions);
+  const todayStr = new Date().toISOString().split("T")[0];
 
-  // Compute total monthly recovery from splits
-  const monthlyGross = subscriptions.reduce(
-    (acc, s) => acc + getNormalizedMonthly(Number(s.cost), s.interval),
-    0
+  // Subscriptions that have already had their first bill as of today
+  const activeBilledSubs = subscriptions.filter(
+    (s) => !s.first_billed_date || s.first_billed_date <= todayStr,
   );
-  const monthlyNet = subscriptions.reduce(
+
+  // 12-month forecast evaluates all subscriptions month-by-month
+  const forecastData = calculate12MonthForecast(subscriptions);
+
+  // Category breakdown shows current monthly distribution of active subscriptions
+  const categoryData = calculateCategoryBreakdown(activeBilledSubs);
+
+  // Current monthly totals (excluding future subscriptions)
+  const monthlyGross = activeBilledSubs.reduce(
+    (acc, s) => acc + getNormalizedMonthly(Number(s.cost), s.interval),
+    0,
+  );
+  const monthlyNet = activeBilledSubs.reduce(
     (acc, s) => acc + getNormalizedMonthly(getSubNetCost(s), s.interval),
-    0
+    0,
   );
   const monthlyCovered = Math.max(0, monthlyGross - monthlyNet);
 
-  // Zombie analytics
-  const zombieSubs = subscriptions.filter((s) => s.is_zombie);
+  // Zombie analytics for currently active subscriptions
+  const zombieSubs = activeBilledSubs.filter((s) => s.is_zombie);
   const zombieMonthlyLeak = zombieSubs.reduce(
     (acc, s) => acc + getNormalizedMonthly(getSubNetCost(s), s.interval),
-    0
+    0,
   );
   const zombieAnnualLeak = zombieMonthlyLeak * 12;
 
@@ -116,7 +129,6 @@ export function LedgerAnalytics({
               </p>
             </div>
 
-            {/* Split recovery pill if splits exist */}
             {monthlyCovered > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 text-[11px] font-medium text-sky-600 dark:text-sky-400">
                 <Users className="h-3 w-3" />
@@ -207,7 +219,6 @@ export function LedgerAnalytics({
                     return null;
                   }}
                 />
-                {/* Stacked Bars: Base is what you pay, Top is what friends pay */}
                 <Bar
                   dataKey="net"
                   stackId="outflow"
@@ -247,14 +258,13 @@ export function LedgerAnalytics({
                     innerRadius={38}
                     outerRadius={62}
                     paddingAngle={3}
-                  >
-                    {categoryData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={PALETTE[index % PALETTE.length]}
+                    shape={(props) => (
+                      <Sector
+                        {...props}
+                        fill={PALETTE[(props.index ?? 0) % PALETTE.length]}
                       />
-                    ))}
-                  </Pie>
+                    )}
+                  />
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {

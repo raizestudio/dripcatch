@@ -50,6 +50,9 @@ export function LedgerTable({
                 {t("table.normalized")}
               </th>
               <th className="px-4 py-3 text-right font-medium">
+                {t("table.firstBill")}
+              </th>
+              <th className="px-4 py-3 text-right font-medium">
                 {t("table.renewal")}
               </th>
               <th className="px-4 py-3 text-right font-medium">
@@ -59,7 +62,8 @@ export function LedgerTable({
           </thead>
           <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
             {subscriptions.map((sub) => {
-              const splits = sub.subscription_splits || (sub as any).splits || [];
+              const splits =
+                sub.subscription_splits || (sub as any).splits || [];
               const hasSplits = splits.length > 0;
 
               // Reliable owner detection:
@@ -67,8 +71,8 @@ export function LedgerTable({
                 typeof (sub as any).is_owner === "boolean"
                   ? (sub as any).is_owner
                   : currentUserId
-                  ? sub.user_id === currentUserId
-                  : splits.length === 0;
+                    ? sub.user_id === currentUserId
+                    : splits.length === 0;
 
               const costNum = Number(sub.cost);
               const originalCostNum = sub.original_cost
@@ -82,21 +86,23 @@ export function LedgerTable({
                   netCost = Number((sub as any).effective_cost);
                 } else {
                   const mySplit = splits.find(
-                    (s: any) => currentUserId && s.user_id === currentUserId
+                    (s: any) => currentUserId && s.user_id === currentUserId,
                   );
                   netCost = mySplit
                     ? Number(mySplit.amount)
                     : splits[0]
-                    ? Number(splits[0].amount)
-                    : costNum;
+                      ? Number(splits[0].amount)
+                      : costNum;
                 }
               } else {
-                netCost = (sub as any).effective_cost ?? getSubNetCost(sub, currentUserId);
+                netCost =
+                  (sub as any).effective_cost ??
+                  getSubNetCost(sub, currentUserId);
               }
 
               const normalizedNetMonthly = getNormalizedMonthly(
                 netCost,
-                sub.interval
+                sub.interval,
               );
 
               const hasHike = originalCostNum < costNum;
@@ -133,8 +139,8 @@ export function LedgerTable({
                                 s.status === "accepted"
                                   ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                   : s.status === "rejected"
-                                  ? "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400 line-through"
-                                  : "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                    ? "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400 line-through"
+                                    : "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
                               }`}
                             >
                               <Users className="h-3 w-3" />
@@ -150,7 +156,11 @@ export function LedgerTable({
                       {/* Hike Badge */}
                       {hasHike && (
                         <span className="inline-flex items-center rounded border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                          +{formatCurrency(costNum - originalCostNum, baseCurrency)}{" "}
+                          +
+                          {formatCurrency(
+                            costNum - originalCostNum,
+                            baseCurrency,
+                          )}{" "}
                           {t("badges.hike")}
                         </span>
                       )}
@@ -162,7 +172,9 @@ export function LedgerTable({
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-zinc-500">{sub.category}</p>
+                    <p className="mt-0.5 text-xs text-zinc-500">
+                      {sub.category}
+                    </p>
                   </td>
 
                   {/* Interval */}
@@ -202,7 +214,14 @@ export function LedgerTable({
                   {/* Normalized Net Out-of-Pocket / Month */}
                   <td className="px-4 py-3.5 text-right font-mono tabular-nums text-zinc-600 dark:text-zinc-300">
                     {formatCurrency(normalizedNetMonthly, baseCurrency)}
-                    <span className="text-[10px] text-zinc-400 font-sans">/mo</span>
+                    <span className="text-[10px] text-zinc-400 font-sans">
+                      /mo
+                    </span>
+                  </td>
+
+                  {/* First Bill Date */}
+                  <td className="px-4 py-3.5 text-right font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                    {sub.first_billed_date}
                   </td>
 
                   {/* Renewal Date */}

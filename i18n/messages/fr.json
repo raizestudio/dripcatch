@@ -18,7 +18,7 @@
     "ctaSecondary": "Voir la démo",
     "noBankRequired": "100% privé • Aucune connexion bancaire requise",
     "stats": {
-      "avgCreep": "68 €/mois",
+      "avgCreep": "+{amount, number, currency}/mois",
       "avgCreepLabel": "Moyenne des hausses annuelles passées inaperçues",
       "zombies": "3,2",
       "zombiesLabel": "Abonnements oubliés par personne"
@@ -54,6 +54,7 @@
       "cost": "Coût",
       "interval": "Facturation",
       "normalized": "Norm. /mois",
+      "firstBill": "Première facturation",
       "renewal": "Prochain renouvellement",
       "status": "Statut"
     },
@@ -80,6 +81,7 @@
       "costLabel": "Montant",
       "currencyLabel": "Devise",
       "intervalLabel": "Fréquence",
+      "firstBilledDateLabel": "Première facture",
       "billingDateLabel": "Prochaine échéance",
       "categoryLabel": "Catégorie",
       "cancel": "Annuler",

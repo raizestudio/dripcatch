@@ -8,7 +8,7 @@ export function Stats() {
       <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 text-center">
         <div className="p-4">
           <p className="font-mono text-3xl font-extrabold tabular-nums text-amber-600 dark:text-amber-400 sm:text-4xl">
-            {t("stats.avgCreep")}
+            {t("stats.avgCreep", { amount: 38 })}
           </p>
           <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400 sm:text-sm">
             {t("stats.avgCreepLabel")}

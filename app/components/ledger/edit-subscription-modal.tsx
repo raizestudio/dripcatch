@@ -28,14 +28,19 @@ export function EditSubscriptionModal({
   const [category, setCategory] = useState(subscription.category);
   const [cost, setCost] = useState(subscription.cost.toString());
   const [interval, setInterval] = useState(subscription.interval);
+  const [firstBilledDate, setFirstBilledDate] = useState(
+    subscription.first_billed_date || subscription.next_billing_date || "",
+  );
   const [nextBillingDate, setNextBillingDate] = useState(
-    subscription.next_billing_date
+    subscription.next_billing_date || "",
   );
   const [isZombie, setIsZombie] = useState(subscription.is_zombie);
 
-  // Splits State (now includes email)
+  // Splits State
   const initialSplits = subscription.subscription_splits || [];
-  const [isSplitEnabled, setIsSplitEnabled] = useState(initialSplits.length > 0);
+  const [isSplitEnabled, setIsSplitEnabled] = useState(
+    initialSplits.length > 0,
+  );
   const [splits, setSplits] = useState<
     { name: string; email: string; amount: string }[]
   >(
@@ -43,13 +48,13 @@ export function EditSubscriptionModal({
       name: s.name,
       email: s.email || "",
       amount: s.amount.toString(),
-    }))
+    })),
   );
 
   const totalCostNum = parseFloat(cost) || 0;
   const totalCovered = splits.reduce(
     (acc, s) => acc + (parseFloat(s.amount) || 0),
-    0
+    0,
   );
   const isOverSplit = isSplitEnabled && totalCovered > totalCostNum;
   const yourNetCost = Math.max(0, totalCostNum - totalCovered);
@@ -59,7 +64,10 @@ export function EditSubscriptionModal({
     setCategory(subscription.category);
     setCost(subscription.cost.toString());
     setInterval(subscription.interval);
-    setNextBillingDate(subscription.next_billing_date);
+    setFirstBilledDate(
+      subscription.first_billed_date || subscription.next_billing_date || "",
+    );
+    setNextBillingDate(subscription.next_billing_date || "");
     setIsZombie(subscription.is_zombie);
 
     const existingSplits = subscription.subscription_splits || [];
@@ -69,7 +77,7 @@ export function EditSubscriptionModal({
         name: s.name,
         email: s.email || "",
         amount: s.amount.toString(),
-      }))
+      })),
     );
     setError(null);
   }
@@ -81,10 +89,10 @@ export function EditSubscriptionModal({
   function updateSplit(
     index: number,
     field: "name" | "email" | "amount",
-    value: string
+    value: string,
   ) {
     setSplits((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   }
 
@@ -108,6 +116,7 @@ export function EditSubscriptionModal({
       cost: parseFloat(cost),
       currency: baseCurrency,
       interval,
+      first_billed_date: firstBilledDate || nextBillingDate,
       next_billing_date: nextBillingDate,
       is_zombie: isZombie,
       splits: isSplitEnabled
@@ -192,6 +201,20 @@ export function EditSubscriptionModal({
               />
             </div>
 
+            {/* Category */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                {t("modal.categoryLabel")}
+              </label>
+              <input
+                type="text"
+                required
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+              />
+            </div>
+
             {/* Cost & Interval */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
@@ -226,17 +249,17 @@ export function EditSubscriptionModal({
               </div>
             </div>
 
-            {/* Category & Next Billing Date */}
+            {/* Billing Dates: First Billed Date & Next Billing Date */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  {t("modal.categoryLabel")}
+                  {t("modal.firstBilledDateLabel")}
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   required
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={firstBilledDate}
+                  onChange={(e) => setFirstBilledDate(e.target.value)}
                   className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 />
               </div>
@@ -292,7 +315,7 @@ export function EditSubscriptionModal({
                         className="w-1/3 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                       />
 
-                      {/* Email (Optional, links DripCatch account) */}
+                      {/* Email */}
                       <input
                         type="email"
                         value={split.email}

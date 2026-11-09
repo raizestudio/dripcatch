@@ -15,6 +15,7 @@ export interface UserSubscriptionRow {
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
   original_cost: number | null;
+  first_billed_date: string;
   next_billing_date: string;
   is_zombie: boolean;
   status: "active" | "paused" | "cancelled";
@@ -43,6 +44,7 @@ export interface AddSubscriptionInput {
   cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  first_billed_date: string;
   next_billing_date: string;
   splits?: SubscriptionSplitInput[];
 }
@@ -53,6 +55,7 @@ export interface UpdateSubscriptionInput {
   cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  first_billed_date: string;
   next_billing_date: string;
   is_zombie: boolean;
   splits?: SubscriptionSplitInput[];
@@ -76,6 +79,7 @@ export interface SharedSubscriptionRow {
   effective_cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  first_billed_date: string;
   next_billing_date: string;
   is_zombie: boolean;
   status: "active" | "paused" | "cancelled";
@@ -86,6 +90,16 @@ export interface SharedSubscriptionRow {
 
 type ActionResponse<T = void> =
   { success: true; data?: T } | { success: false; error: string };
+
+function sanitizeDate(
+  dateStr?: string | null,
+  fallback?: string | null,
+): string | null {
+  const trimmed = dateStr?.trim();
+  if (trimmed) return trimmed;
+  const fallbackTrimmed = fallback?.trim();
+  return fallbackTrimmed || null;
+}
 
 export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
   const supabase = await createClient();
@@ -107,6 +121,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         original_cost,
         currency,
         interval,
+        first_billed_date,
         next_billing_date,
         is_zombie,
         status,
@@ -122,7 +137,10 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
     )
     .order("next_billing_date", { ascending: true });
 
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) console.error("Error fetching subscriptions:", error.message);
+    return [];
+  }
 
   return data
     .filter((sub: any) => {
@@ -172,6 +190,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         effective_cost: effectiveCost,
         currency: sub.currency,
         interval: sub.interval,
+        first_billed_date: sub.first_billed_date || sub.next_billing_date,
         next_billing_date: sub.next_billing_date,
         is_zombie: sub.is_zombie,
         status: sub.status,
@@ -201,6 +220,11 @@ export async function createSubscription(
     }
 
     const cleanCost = Math.max(0, Number(input.cost) || 0);
+    const resolvedNextBilling = sanitizeDate(input.next_billing_date);
+    const resolvedFirstBilled = sanitizeDate(
+      input.first_billed_date,
+      resolvedNextBilling,
+    );
 
     // 1. Create root subscription
     const { data: sub, error: insertError } = await supabase
@@ -215,7 +239,8 @@ export async function createSubscription(
         currency: input.currency || "EUR",
         interval: input.interval || "monthly",
         original_cost: cleanCost,
-        next_billing_date: input.next_billing_date,
+        first_billed_date: resolvedFirstBilled,
+        next_billing_date: resolvedNextBilling,
         status: "active",
       })
       .select("id")
@@ -301,6 +326,11 @@ export async function updateSubscription(
     }
 
     const cleanCost = Math.max(0, Number(input.cost) || 0);
+    const resolvedNextBilling = sanitizeDate(input.next_billing_date);
+    const resolvedFirstBilled = sanitizeDate(
+      input.first_billed_date,
+      resolvedNextBilling,
+    );
 
     // 1. Update root subscription
     const { error: updateError } = await supabase
@@ -311,7 +341,8 @@ export async function updateSubscription(
         cost: cleanCost,
         currency: input.currency || "EUR",
         interval: input.interval,
-        next_billing_date: input.next_billing_date,
+        first_billed_date: resolvedFirstBilled,
+        next_billing_date: resolvedNextBilling,
         is_zombie: input.is_zombie,
         updated_at: new Date().toISOString(),
       })
@@ -440,7 +471,6 @@ export async function respondToSplitInvitation(
 
     const nextStatus = accept ? "accepted" : "rejected";
 
-    // Update status and claim user_id
     const { error: splitError } = await supabase
       .from("subscription_splits")
       .update({
@@ -451,7 +481,6 @@ export async function respondToSplitInvitation(
 
     if (splitError) return { success: false, error: splitError.message };
 
-    // Mark invite notification as read
     await supabase
       .from("notifications")
       .update({ is_read: true })
