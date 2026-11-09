@@ -89,16 +89,18 @@ export interface SharedSubscriptionRow {
 }
 
 type ActionResponse<T = void> =
-  { success: true; data?: T } | { success: false; error: string };
+  | { success: true; data?: T }
+  | { success: false; error: string };
 
-function sanitizeDate(
-  dateStr?: string | null,
-  fallback?: string | null,
-): string | null {
+/**
+ * Ensures non-null string date for PostgreSQL columns configured with NOT NULL
+ */
+function resolveDate(dateStr?: string | null, fallback?: string): string {
   const trimmed = dateStr?.trim();
   if (trimmed) return trimmed;
   const fallbackTrimmed = fallback?.trim();
-  return fallbackTrimmed || null;
+  if (fallbackTrimmed) return fallbackTrimmed;
+  return new Date().toISOString().split("T")[0];
 }
 
 export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
@@ -133,7 +135,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
           user_id,
           status
         )
-      `,
+      `
     )
     .order("next_billing_date", { ascending: true });
 
@@ -150,7 +152,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
           s.user_id === user.id ||
           (s.email &&
             user.email &&
-            s.email.toLowerCase() === user.email.toLowerCase()),
+            s.email.toLowerCase() === user.email.toLowerCase())
       );
       return mySplit && mySplit.status === "accepted";
     })
@@ -172,13 +174,13 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
             s.user_id === user.id ||
             (s.email &&
               user.email &&
-              s.email.toLowerCase() === user.email.toLowerCase()),
+              s.email.toLowerCase() === user.email.toLowerCase())
         );
         effectiveCost = userSplit
           ? Number(userSplit.amount)
           : splits.length > 0
-            ? Number(splits[0].amount)
-            : totalCost;
+          ? Number(splits[0].amount)
+          : totalCost;
       }
 
       return {
@@ -190,7 +192,8 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         effective_cost: effectiveCost,
         currency: sub.currency,
         interval: sub.interval,
-        first_billed_date: sub.first_billed_date || sub.next_billing_date,
+        first_billed_date:
+          sub.first_billed_date || sub.next_billing_date || new Date().toISOString().split("T")[0],
         next_billing_date: sub.next_billing_date,
         is_zombie: sub.is_zombie,
         status: sub.status,
@@ -202,7 +205,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
 }
 
 export async function createSubscription(
-  input: AddSubscriptionInput,
+  input: AddSubscriptionInput
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     const supabase = await createClient();
@@ -220,10 +223,10 @@ export async function createSubscription(
     }
 
     const cleanCost = Math.max(0, Number(input.cost) || 0);
-    const resolvedNextBilling = sanitizeDate(input.next_billing_date);
-    const resolvedFirstBilled = sanitizeDate(
+    const resolvedNextBilling = resolveDate(input.next_billing_date);
+    const resolvedFirstBilled = resolveDate(
       input.first_billed_date,
-      resolvedNextBilling,
+      resolvedNextBilling
     );
 
     // 1. Create root subscription
@@ -273,7 +276,7 @@ export async function createSubscription(
 
         // 3. Email unregistered invitees in background
         const unassignedInvites = (insertedSplits || []).filter(
-          (split) => split.email && !split.user_id,
+          (split) => split.email && !split.user_id
         );
 
         if (unassignedInvites.length > 0) {
@@ -291,7 +294,7 @@ export async function createSubscription(
               } catch (err) {
                 console.error(
                   `Failed to send invite email to ${split.email}:`,
-                  err,
+                  err
                 );
               }
             }
@@ -312,7 +315,7 @@ export async function createSubscription(
 
 export async function updateSubscription(
   id: string,
-  input: UpdateSubscriptionInput,
+  input: UpdateSubscriptionInput
 ): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
@@ -326,10 +329,10 @@ export async function updateSubscription(
     }
 
     const cleanCost = Math.max(0, Number(input.cost) || 0);
-    const resolvedNextBilling = sanitizeDate(input.next_billing_date);
-    const resolvedFirstBilled = sanitizeDate(
+    const resolvedNextBilling = resolveDate(input.next_billing_date);
+    const resolvedFirstBilled = resolveDate(
       input.first_billed_date,
-      resolvedNextBilling,
+      resolvedNextBilling
     );
 
     // 1. Update root subscription
@@ -385,7 +388,7 @@ export async function updateSubscription(
         }
 
         const unassignedInvites = (insertedSplits || []).filter(
-          (split) => split.email && !split.user_id,
+          (split) => split.email && !split.user_id
         );
 
         if (unassignedInvites.length > 0) {
@@ -403,7 +406,7 @@ export async function updateSubscription(
               } catch (err) {
                 console.error(
                   `Failed to send invite email to ${split.email}:`,
-                  err,
+                  err
                 );
               }
             }
@@ -456,7 +459,7 @@ export async function deleteSubscription(id: string): Promise<ActionResponse> {
 
 export async function respondToSplitInvitation(
   splitId: string,
-  accept: boolean,
+  accept: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createClient();
