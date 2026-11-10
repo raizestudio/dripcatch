@@ -163,10 +163,12 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
       let effectiveCost = totalCost;
 
       if (isOwner) {
-        const coveredByAccepted = splits
-          .filter((s) => s.status === "accepted")
+        // Count both accepted and pending splits (ignore only rejected)
+        const coveredBySplits = splits
+          .filter((s) => s.status !== "rejected")
           .reduce((acc, s) => acc + Number(s.amount), 0);
-        effectiveCost = Math.max(0, totalCost - coveredByAccepted);
+
+        effectiveCost = Math.max(0, totalCost - coveredBySplits);
       } else {
         const userSplit = splits.find(
           (s) =>
@@ -258,26 +260,32 @@ export async function createSubscription(
     if (input.splits && input.splits.length > 0) {
       const validSplits = input.splits
         .filter((s) => s.name?.trim() && Number(s.amount) > 0)
-        .map((s) => ({
-          subscription_id: sub.id,
-          name: s.name.trim(),
-          email: s.email?.trim() || null,
-          amount: Math.max(0, Number(s.amount)),
-        }));
+        .map((s) => {
+          const hasEmail = Boolean(s.email?.trim());
+          return {
+            subscription_id: sub.id,
+            name: s.name.trim(),
+            email: s.email?.trim() || null,
+            amount: Math.max(0, Number(s.amount)),
+            // Manual splits without an email are accepted by default
+            status: hasEmail ? "pending" : "accepted",
+          };
+        });
 
       if (validSplits.length > 0) {
         const { data: insertedSplits, error: splitsError } = await supabase
           .from("subscription_splits")
           .insert(validSplits)
-          .select("id, name, email, amount, user_id");
+          .select("id, name, email, amount, user_id, status");
 
         if (splitsError) {
           return { success: false, error: splitsError.message };
         }
 
-        // 3. Email unregistered invitees in background
+        // 3. Email only pending invitees with an email
         const unassignedInvites = (insertedSplits || []).filter(
-          (split) => split.email && !split.user_id,
+          (split) =>
+            split.email && !split.user_id && split.status === "pending",
         );
 
         if (unassignedInvites.length > 0) {
@@ -357,8 +365,21 @@ export async function updateSubscription(
       return { success: false, error: updateError.message };
     }
 
-    // 2. Re-sync splits if provided
+    // 2. Re-sync splits while preserving existing acceptance status and user_id
     if (input.splits !== undefined) {
+      // Fetch existing splits before deleting to retain status and user links
+      const { data: existingSplits } = await supabase
+        .from("subscription_splits")
+        .select("id, name, email, status, user_id")
+        .eq("subscription_id", id);
+
+      const existingMap = new Map(
+        (existingSplits || []).map((s) => [
+          s.email?.trim().toLowerCase() || s.name.trim().toLowerCase(),
+          s,
+        ]),
+      );
+
       const { error: deleteError } = await supabase
         .from("subscription_splits")
         .delete()
@@ -370,31 +391,46 @@ export async function updateSubscription(
 
       const validSplits = input.splits
         .filter((s) => s.name?.trim() && Number(s.amount) > 0)
-        .map((s) => ({
-          subscription_id: id,
-          name: s.name.trim(),
-          email: s.email?.trim() || null,
-          amount: Math.max(0, Number(s.amount)),
-        }));
+        .map((s) => {
+          const key =
+            s.email?.trim().toLowerCase() || s.name.trim().toLowerCase();
+          const prev = existingMap.get(key);
+          const hasEmail = Boolean(s.email?.trim());
+
+          return {
+            subscription_id: id,
+            name: s.name.trim(),
+            email: s.email?.trim() || null,
+            amount: Math.max(0, Number(s.amount)),
+            // Retain previous status; if new and has no email, auto-accept
+            status: prev?.status || (hasEmail ? "pending" : "accepted"),
+            user_id: prev?.user_id || null,
+          };
+        });
 
       if (validSplits.length > 0) {
         const { data: insertedSplits, error: insertSplitsError } =
           await supabase
             .from("subscription_splits")
             .insert(validSplits)
-            .select("id, name, email, amount, user_id");
+            .select("id, name, email, amount, user_id, status");
 
         if (insertSplitsError) {
           return { success: false, error: insertSplitsError.message };
         }
 
-        const unassignedInvites = (insertedSplits || []).filter(
-          (split) => split.email && !split.user_id,
+        // Email only newly added email invites that weren't previously accepted
+        const newInvites = (insertedSplits || []).filter(
+          (split) =>
+            split.email &&
+            !split.user_id &&
+            split.status === "pending" &&
+            !existingMap.has(split.email.toLowerCase()),
         );
 
-        if (unassignedInvites.length > 0) {
+        if (newInvites.length > 0) {
           after(async () => {
-            for (const split of unassignedInvites) {
+            for (const split of newInvites) {
               try {
                 await sendSplitInvitationEmail({
                   toEmail: split.email!,
@@ -473,23 +509,33 @@ export async function respondToSplitInvitation(
       return { success: false, error: "Unauthorized" };
     }
 
-    const nextStatus = accept ? "accepted" : "rejected";
-
-    const { error: splitError } = await supabase
-      .from("subscription_splits")
-      .update({
-        status: nextStatus,
-        user_id: user.id,
-      })
-      .eq("id", splitId);
-
-    if (splitError) return { success: false, error: splitError.message };
-
+    // Dismiss notification first
     await supabase
       .from("notifications")
       .update({ is_read: true })
       .eq("split_id", splitId)
       .eq("user_id", user.id);
+
+    if (accept) {
+      // 1. Mark accepted and bind to user
+      const { error: splitError } = await supabase
+        .from("subscription_splits")
+        .update({
+          status: "accepted",
+          user_id: user.id,
+        })
+        .eq("id", splitId);
+
+      if (splitError) return { success: false, error: splitError.message };
+    } else {
+      // 2. If rejected, remove it completely from splits
+      const { error: deleteError } = await supabase
+        .from("subscription_splits")
+        .delete()
+        .eq("id", splitId);
+
+      if (deleteError) return { success: false, error: deleteError.message };
+    }
 
     revalidatePath("/[locale]/ledger", "page");
     return { success: true };

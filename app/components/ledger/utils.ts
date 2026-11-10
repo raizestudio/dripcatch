@@ -37,44 +37,52 @@ export function hasFirstBillOccurred(
   return asOfTotalMonths >= firstTotalMonths;
 }
 
-export function getSubNetCost(sub: any, currentUserId?: string): number {
-  const cost = Number(sub.cost);
-  const splits = sub.subscription_splits || sub.splits || [];
+export function getSubNetCost(
+  sub: any,
+  currentUserId?: string,
+  currentUserEmail?: string,
+): number {
+  const cost = Number(sub.cost) || 0;
+  const splits: any[] = sub.subscription_splits || sub.splits || [];
 
-  // 1. If effective_cost was already computed by getSubscriptions(), use it directly
-  if (sub.effective_cost !== undefined) {
-    return Number(sub.effective_cost);
+  // 1. If effective_cost is already precomputed and valid, use it
+  if (typeof sub.effective_cost === "number" && !isNaN(sub.effective_cost)) {
+    return sub.effective_cost;
   }
 
-  // 2. Determine ownership reliably
+  // 2. Determine ownership: default to owner unless explicitly proven otherwise
   let isOwner = true;
   if (typeof sub.is_owner === "boolean") {
     isOwner = sub.is_owner;
-  } else if (currentUserId) {
+  } else if (currentUserId && sub.user_id) {
     isOwner = sub.user_id === currentUserId;
-  } else if (sub.is_owner === undefined && splits.length > 0) {
-    isOwner = false;
   }
 
-  // 3. For participant: their cost is their specific split amount
+  // 3. For participant: return their assigned portion
   if (!isOwner) {
-    if (currentUserId && splits.length > 0) {
+    if (splits.length > 0) {
       const mySplit = splits.find(
         (s: any) =>
-          s.user_id === currentUserId ||
-          (s.email &&
-            sub.user_email &&
-            s.email.toLowerCase() === sub.user_email.toLowerCase()),
+          (currentUserId && s.user_id === currentUserId) ||
+          (currentUserEmail &&
+            s.email &&
+            s.email.toLowerCase() === currentUserEmail.toLowerCase()),
       );
       if (mySplit) return Number(mySplit.amount);
+      return Number(splits[0].amount);
     }
-    return splits.length > 0 ? Number(splits[0].amount) : cost;
+    return cost;
   }
 
-  // 4. For owner: their expense is total minus accepted splits
+  // 4. For owner: total minus accepted splits AND manual splits (splits without emails)
   const covered = splits
-    .filter((s: any) => s.status === undefined || s.status === "accepted")
-    .reduce((acc: number, s: any) => acc + Number(s.amount), 0);
+    .filter(
+      (s: any) =>
+        s.status === "accepted" ||
+        (!s.email && s.status !== "rejected") ||
+        s.status === undefined,
+    )
+    .reduce((acc: number, s: any) => acc + (Number(s.amount) || 0), 0);
 
   return Math.max(0, cost - covered);
 }
@@ -163,11 +171,14 @@ export function calculate12MonthForecast(
     const targetTotalMonths = targetYear * 12 + targetMonth;
 
     let monthGross = 0;
-    let monthNet = 0;
+    let monthActive = 0;
     let monthZombie = 0;
 
     subscriptions.forEach((sub) => {
-      // 1. Exclude from this forecast month if prior to the first bill
+      // 1. Skip cancelled subscriptions
+      if (sub.status === "cancelled") return;
+
+      // 2. Exclude from this forecast month if prior to the first bill
       const startStr = sub.first_billed_date || sub.next_billing_date;
       const startParsed = parseYearMonth(startStr);
 
@@ -189,15 +200,18 @@ export function calculate12MonthForecast(
       const grossCost = isOwner ? Number(sub.cost) : netCost;
       let willCharge = false;
 
-      // 2. Resolve billing cadence
+      // 3. Resolve billing cadence
       if (sub.interval === "monthly") {
         willCharge = true;
       } else if (sub.interval === "weekly") {
         const weeklyGross = (grossCost * 52) / 12;
         const weeklyNet = (netCost * 52) / 12;
         monthGross += weeklyGross;
-        monthNet += weeklyNet;
-        if (sub.is_zombie) monthZombie += weeklyNet;
+        if (sub.is_zombie) {
+          monthZombie += weeklyNet;
+        } else {
+          monthActive += weeklyNet;
+        }
         return;
       } else if (sub.interval === "yearly") {
         const anchor = parseYearMonth(sub.next_billing_date) || startParsed;
@@ -219,19 +233,24 @@ export function calculate12MonthForecast(
 
       if (willCharge) {
         monthGross += grossCost;
-        monthNet += netCost;
-        if (sub.is_zombie) monthZombie += netCost;
+        if (sub.is_zombie) {
+          monthZombie += netCost;
+        } else {
+          monthActive += netCost;
+        }
       }
     });
 
+    const monthNet = monthActive + monthZombie;
     const covered = Math.max(0, monthGross - monthNet);
 
     points.push({
       month: monthKey,
-      gross: parseFloat(monthGross.toFixed(2)),
-      net: parseFloat(monthNet.toFixed(2)),
-      covered: parseFloat(covered.toFixed(2)),
+      active: parseFloat(monthActive.toFixed(2)),
       zombie: parseFloat(monthZombie.toFixed(2)),
+      covered: parseFloat(covered.toFixed(2)),
+      net: parseFloat(monthNet.toFixed(2)),
+      gross: parseFloat(monthGross.toFixed(2)),
     });
   }
 

@@ -27,12 +27,12 @@ export function Navbar() {
           </Link>
 
           {/* Desktop App Link */}
-          <Link
+          {/*<Link
             href="/ledger"
             className="hidden sm:inline-block text-xs font-medium text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Ledger
-          </Link>
+          </Link>*/}
         </div>
 
         {/* Actions */}
