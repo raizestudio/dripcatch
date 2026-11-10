@@ -155,6 +155,26 @@
     "dayBefore": "jour avant",
     "daysSuffix": "j"
   },
+  "Footer": {
+    "tagline": "Éliminez les fuites d'abonnements, partagez vos frais récurrents et protégez votre budget.",
+    "privacyBadge": "Vie privée respectée • Zéro traceur",
+    "columns": {
+      "product": "Produit",
+      "legal": "Confiance & Légal",
+      "community": "Contact"
+    },
+    "links": {
+      "ledger": "Registre d'abonnements",
+      "features": "Fonctionnalités",
+      "splits": "Partages & Dépenses",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "security": "Sécurité",
+      "contact": "Contact & Support"
+    },
+    "copyright": "Tous droits réservés.",
+    "statusOperational": "Systèmes opérationnels"
+  },
   "NotFound": {
     "badge": "404 • Débit introuvable",
     "title": "Cette page a fuité",

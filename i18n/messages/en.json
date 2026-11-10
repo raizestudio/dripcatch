@@ -155,6 +155,26 @@
     "dayBefore": "day before",
     "daysSuffix": "d"
   },
+  "Footer": {
+    "tagline": "Stop subscription leaks, split recurring costs with friends, and protect your monthly cash flow.",
+    "privacyBadge": "Privacy-first • Zero ad trackers",
+    "columns": {
+      "product": "Product",
+      "legal": "Trust & Legal",
+      "community": "Connect"
+    },
+    "links": {
+      "ledger": "Subscription Ledger",
+      "features": "Features",
+      "splits": "Shared Splits",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "security": "Security",
+      "contact": "Contact & Support"
+    },
+    "copyright": "All rights reserved.",
+    "statusOperational": "All systems normal"
+  },
   "NotFound": {
     "badge": "404 • Missing Outflow",
     "title": "This page leaked away",
