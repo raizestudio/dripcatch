@@ -16,7 +16,7 @@ export function Stats() {
         </div>
         <div className="border-l border-zinc-200 dark:border-zinc-800 p-4">
           <p className="font-mono text-3xl font-extrabold tabular-nums text-rose-600 dark:text-rose-400 sm:text-4xl">
-            {t("stats.zombies")}
+            {t("stats.zombies", { amount: 140 })}
           </p>
           <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400 sm:text-sm">
             {t("stats.zombiesLabel")}

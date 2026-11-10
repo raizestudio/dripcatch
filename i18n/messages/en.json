@@ -10,28 +10,73 @@
     "signedInAs": "Signed in as"
   },
   "Landing": {
-    "badge": "Take back control of recurring spend",
-    "heroTitle1": "Stop subscription creep",
-    "heroTitle2": "before it drains you.",
-    "heroSubtitle": "Services raise prices quietly. Trials convert silently. Track your true monthly burn, spot hidden hikes, and trim the dead weight.",
-    "ctaPrimary": "Start My Ledger",
-    "ctaSecondary": "See Live Demo",
-    "noBankRequired": "100% private • No bank login required",
+    "badge": "Automated Subscription Auditor",
+    "heroTitle1": "Catch the leaks before they",
+    "heroTitle2": "drain your cash flow.",
+    "heroSubtitle": "The privacy-first ledger to track recurring commitments, split plans with friends, flag zombie subs, and catch stealth price hikes.",
+    "ctaPrimary": "Open Your Free Ledger",
+    "noBankRequired": "100% private • Zero bank credentials required",
     "stats": {
       "avgCreep": "+{amount, number, currency}/mo",
-      "avgCreepLabel": "Average unnoticed yearly price hikes",
-      "zombies": "3.2",
-      "zombiesLabel": "Forgotten subs per person"
+      "avgCreepLabel": "Average monthly subscription creep",
+      "zombies": "-{amount, number, currency}/yr",
+      "zombiesLabel": "Lost to forgotten zombie subscriptions"
+    },
+    "splitsShowcase": {
+      "badge": "Shared Subscriptions",
+      "title": "Split Netflix, Spotify & software without awkward reminders.",
+      "description": "Stop covering family plans alone. DripCatch tracks your gross liability versus what your friends chip in, giving you your exact personal out-of-pocket cost.",
+      "point1": "Assign custom dollar splits or even shares per member",
+      "point2": "1-click email invitations with no mandatory sign-up",
+      "point3": "Live net cost reduction reflected across your 12-month analytics",
+      "cta": "Start splitting subscriptions →"
     },
     "features": {
-      "title": "Built for vigilance",
-      "subtitle": "Most budgeting apps show where your money went. We show what is quietly extracting it.",
-      "hikeTitle": "Stealth Hike Detection",
-      "hikeDesc": "Flag subscriptions that quietly nudged their prices up $2–$5 over the last 12 months.",
-      "normalizationTitle": "Cadence Normalization",
-      "normalizationDesc": "See annual, quarterly, and monthly charges leveled into one honest monthly burn rate.",
-      "zombieTitle": "Zombie Subscription Audit",
-      "zombieDesc": "Identify streaming services and SaaS tools you haven't opened in over 45 days."
+      "title": "Built for intentional spenders",
+      "subtitle": "Everything you need to master recurring commitments in one view.",
+      "hikeTitle": "Stealth Hike Alerter",
+      "hikeDesc": "Compare current billing against your original sign-up price to catch unannounced renewals.",
+      "normalizationTitle": "Cadence Normalizer",
+      "normalizationDesc": "Weekly, monthly, quarterly, and annual commitments converted into a true single monthly run-rate.",
+      "zombieTitle": "Zombie Hunter",
+      "zombieDesc": "Flag unused services and instantly calculate how much cash flow you recover by canceling them.",
+      "splitTitle": "Co-Payer Tracking",
+      "splitDesc": "Account for friend and roommate contributions so your ledger charts display your real personal share.",
+      "forecastTitle": "12-Month Projection",
+      "forecastDesc": "Anticipate heavy renewal months before they strike your bank account.",
+      "privacyTitle": "Zero Bank Linking",
+      "privacyDesc": "Your banking passwords stay with you. No open banking bridges or data harvesting."
+    },
+    "howItWorks": {
+      "badge": "Simple Setup",
+      "title": "Take control in 60 seconds",
+      "subtitle": "No bank connection or tedious setup required.",
+      "step1Title": "Add Your Outflows",
+      "step1Desc": "Select popular presets from the catalog or input custom services with your exact billing intervals.",
+      "step2Title": "Tag Splits & Co-Payers",
+      "step2Desc": "Add anyone chipping into family or team plans. DripCatch recalculates your personal burn automatically.",
+      "step3Title": "Audit & Plug the Leaks",
+      "step3Desc": "Spot forgotten zombie subscriptions and stealth price increases right in your monthly forecast."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about DripCatch.",
+      "q1": "Do I need to connect my bank account?",
+      "a1": "Never. Unlike conventional budgeting apps, DripCatch does not ask for your bank credentials or open banking tokens. Your records remain private.",
+      "q2": "How do shared subscription splits work?",
+      "a2": "When creating a subscription, toggle 'Split Cost' and assign amounts to friends. You can invite them via email so they see their share and status.",
+      "q3": "What is a 'Zombie' subscription?",
+      "a3": "A zombie subscription is a service you keep paying for on autopilot but haven't actively used in months. Marking it as a zombie isolates your potential savings.",
+      "q4": "Which currencies and billing frequencies are supported?",
+      "a4": "DripCatch supports EUR, USD, and regional currencies, along with weekly, monthly, quarterly, and yearly billing frequencies.",
+      "q5": "Is DripCatch free to use?",
+      "a5": "Yes, core ledger tracking, price hike detection, and split management are completely free."
+    },
+    "bottomCta": {
+      "title": "Plug your subscription leaks today.",
+      "subtitle": "Join conscious spenders who track, split, and optimize their recurring cash flow with DripCatch.",
+      "cta": "Get Started with DripCatch",
+      "guarantee": "Free forever • No credit card required"
     },
     "mockup": {
       "monthlyBurn": "Monthly Burn",

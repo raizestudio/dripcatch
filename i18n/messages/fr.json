@@ -10,28 +10,73 @@
     "signedInAs": "Connecté en tant que"
   },
   "Landing": {
-    "badge": "Reprenez le contrôle de vos dépenses récurrentes",
-    "heroTitle1": "Arrêtez la dérive de vos abonnements",
-    "heroTitle2": "avant qu'elle ne vous ruine.",
-    "heroSubtitle": "Les hausses de prix sont discrètes. Les essais gratuits se transforment en pièges. Visualisez votre coût mensuel réel et éliminez le superflu.",
-    "ctaPrimary": "Créer mon registre",
-    "ctaSecondary": "Voir la démo",
-    "noBankRequired": "100% privé • Aucune connexion bancaire requise",
+    "badge": "Auditeur d'Abonnements Automatisé",
+    "heroTitle1": "Colmatez les fuites avant qu'elles",
+    "heroTitle2": "n'épuisent votre trésorerie.",
+    "heroSubtitle": "Le registre respectueux de votre vie privée pour suivre vos abonnements récurrents, partager les frais entre amis et stopper les hausses invisibles.",
+    "ctaPrimary": "Ouvrir votre registre gratuit",
+    "noBankRequired": "100% privé • Aucun identifiant bancaire requis",
     "stats": {
       "avgCreep": "+{amount, number, currency}/mois",
-      "avgCreepLabel": "Moyenne des hausses annuelles passées inaperçues",
-      "zombies": "3,2",
-      "zombiesLabel": "Abonnements oubliés par personne"
+      "avgCreepLabel": "Augmentation moyenne des abonnements",
+      "zombies": "-{amount, number, currency}/an",
+      "zombiesLabel": "Gaspillés en abonnements zombies oubliés"
+    },
+    "splitsShowcase": {
+      "badge": "Abonnements Partagés",
+      "title": "Partagez Netflix, Spotify et vos logiciels sans relances gênantes.",
+      "description": "Ne financez plus seul vos formules familiales. DripCatch calcule automatiquement votre coût net personnel après déduction des parts de vos amis.",
+      "point1": "Définissez des quotes-parts personnalisées par participant",
+      "point2": "Invitations par e-mail en 1 clic sans inscription obligatoire",
+      "point3": "Visualisez immédiatement votre économie réelle sur 12 mois",
+      "cta": "Commencer à partager vos abonnements →"
     },
     "features": {
-      "title": "Conçu pour la vigilance",
-      "subtitle": "Les apps de budget montrent où est parti votre argent. Nous montrons ce qui l'aspire discrètement.",
-      "hikeTitle": "Détection des hausses furtives",
-      "hikeDesc": "Repérez les services qui ont discrètement augmenté leur tarif de 2 à 5 € cette année.",
-      "normalizationTitle": "Normalisation des cycles",
-      "normalizationDesc": "Convertissez les factures annuelles et trimestrielles en un coût mensuel net et transparent.",
-      "zombieTitle": "Audit des abonnements fantômes",
-      "zombieDesc": "Identifiez les plateformes de streaming ou outils SaaS inutilisés depuis plus de 45 jours."
+      "title": "Conçu pour une gestion lucide",
+      "subtitle": "Tout ce dont vous avez besoin pour maîtriser vos dépenses récurrentes.",
+      "hikeTitle": "Détecteur de hausses furtives",
+      "hikeDesc": "Comparez le prix facturé avec votre tarif initial pour repérer les augmentations discrètes.",
+      "normalizationTitle": "Normalisation mensuelle",
+      "normalizationDesc": "Hebdomadaires, trimestriels ou annuels : tous vos engagements sont ramenés à une référence mensuelle claire.",
+      "zombieTitle": "Chasseur de zombies",
+      "zombieDesc": "Identifiez les services inutilisés et mesurez les économies immédiates réalisables en les résiliant.",
+      "splitTitle": "Gestion des co-payeurs",
+      "splitDesc": "Déduisez les participations de vos proches pour n'afficher que ce que vous payez réellement de votre poche.",
+      "forecastTitle": "Prévisionnel sur 12 mois",
+      "forecastDesc": "Anticipez les mois denses en renouvellements avant qu'ils n'impactent votre compte.",
+      "privacyTitle": "Zéro connexion bancaire",
+      "privacyDesc": "Vos accès bancaires vous appartiennent. Aucune agrégation bancaire intrusive ni revente de données."
+    },
+    "howItWorks": {
+      "badge": "Mise en place rapide",
+      "title": "Prenez le contrôle en 60 secondes",
+      "subtitle": "Aucune liaison bancaire ni configuration fastidieuse requise.",
+      "step1Title": "Ajoutez vos abonnements",
+      "step1Desc": "Sélectionnez vos services depuis le catalogue préconfiguré ou saisissez vos outils sur-mesure.",
+      "step2Title": "Configurez les partages",
+      "step2Desc": "Indiquez les proches qui participent à vos forfaits partagés. Votre reste à charge s'ajuste instantanément.",
+      "step3Title": "Éliminez les gaspillages",
+      "step3Desc": "Visualisez les abonnements zombies et préservez votre budget sur l'ensemble de l'année."
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "subtitle": "Tout ce qu'il faut savoir sur DripCatch.",
+      "q1": "Dois-je connecter mon compte bancaire ?",
+      "a1": "Jamais. Contrairement aux applications traditionnelles, DripCatch ne réclame aucun identifiant bancaire. Vos données financières restent entièrement sous votre contrôle.",
+      "q2": "Comment fonctionnent les partages d'abonnements ?",
+      "a2": "À l'ajout ou la modification d'un abonnement, activez l'option de partage et attribuez les montants. Vos amis reçoivent une invitation pour valider leur part.",
+      "q3": "Qu'est-ce qu'un abonnement 'Zombie' ?",
+      "a3": "Il s'agit d'un service prélevé régulièrement mais que vous n'utilisez plus. Le déclarer comme zombie isole immédiatement la somme économisable.",
+      "q4": "Quelles devises et fréquences sont prises en charge ?",
+      "a4": "DripCatch supporte l'euro (EUR), le dollar (USD) ainsi que les cadences hebdomadaires, mensuelles, trimestrielles et annuelles.",
+      "q5": "L'utilisation de DripCatch est-elle gratuite ?",
+      "a5": "Oui, le suivi du registre, la détection des hausses et la gestion des partages sont totalement gratuits."
+    },
+    "bottomCta": {
+      "title": "Arrêtez les fuites d'abonnements dès aujourd'hui.",
+      "subtitle": "Rejoignez ceux qui maîtrisent et optimisent leurs dépenses récurrentes avec DripCatch.",
+      "cta": "Démarrer avec DripCatch",
+      "guarantee": "Gratuit • Sans carte bancaire"
     },
     "mockup": {
       "monthlyBurn": "Coût mensuel",

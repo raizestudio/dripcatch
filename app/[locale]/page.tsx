@@ -1,9 +1,12 @@
-// app/[locale]/page.tsx
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { Hero } from "@/app/components/landing/hero";
 import { Stats } from "@/app/components/landing/stats";
+import { SplitsShowcase } from "@/app/components/landing/splits-showcase";
 import { Features } from "@/app/components/landing/features";
+import { HowItWorks } from "@/app/components/landing/how-it-works";
+import { Faq } from "@/app/components/landing/faq";
+import { CtaBanner } from "@/app/components/landing/cta-banner";
 import { MobileStickyCta } from "@/app/components/landing/mobile-cta";
 
 export default function LandingPage({
@@ -34,7 +37,11 @@ async function LandingContent({
     <>
       <Hero />
       <Stats />
+      <SplitsShowcase />
       <Features />
+      <HowItWorks />
+      <Faq />
+      <CtaBanner />
       <MobileStickyCta />
     </>
   );
