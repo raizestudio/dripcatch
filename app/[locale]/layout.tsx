@@ -76,9 +76,11 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <SyncHtmlLang locale={locale} />
-      <Navbar />
-      {children}
-      <Footer />
+      <div className="flex min-h-dvh flex-col">
+        <Navbar />
+        <main className="flex flex-1 flex-col">{children}</main>
+        <Footer />
+      </div>
     </NextIntlClientProvider>
   );
 }

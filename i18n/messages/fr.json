@@ -154,5 +154,21 @@
     "daysBefore": "jours avant",
     "dayBefore": "jour avant",
     "daysSuffix": "j"
+  },
+  "NotFound": {
+    "badge": "404 • Débit introuvable",
+    "title": "Cette page a fuité",
+    "description": "Nous avons vérifié le registre, mais cette ressource reste introuvable. Elle a peut-être expiré, été résiliée ou n'a jamais existé.",
+    "goBack": "Page précédente",
+    "toLedger": "Retour au registre",
+    "searchHint": "Vous cherchez un abonnement ? Consultez votre registre actif."
+  },
+  "Error": {
+    "badge": "500 • Défaillance du registre",
+    "title": "Une erreur est survenue",
+    "description": "Une anomalie inattendue a interrompu l'affichage du registre. Rassurez-vous, vos abonnements sont en sécurité.",
+    "tryAgain": "Réessayer",
+    "toLedger": "Retour au registre",
+    "errorId": "Identifiant d'incident"
   }
 }

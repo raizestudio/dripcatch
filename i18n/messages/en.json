@@ -154,5 +154,21 @@
     "daysBefore": "days before",
     "dayBefore": "day before",
     "daysSuffix": "d"
+  },
+  "NotFound": {
+    "badge": "404 • Missing Outflow",
+    "title": "This page leaked away",
+    "description": "We searched the ledger, but couldn't find what you were looking for. It may have expired, been cancelled, or never existed.",
+    "goBack": "Go back",
+    "toLedger": "Back to Ledger",
+    "searchHint": "Looking for a subscription? Check your active ledger."
+  },
+  "Error": {
+    "badge": "500 • Ledger Malfunction",
+    "title": "Something went wrong",
+    "description": "An unexpected error disrupted the ledger stream. Don't worry, your subscription records are safe.",
+    "tryAgain": "Try again",
+    "toLedger": "Back to Ledger",
+    "errorId": "Incident ID"
   }
 }
