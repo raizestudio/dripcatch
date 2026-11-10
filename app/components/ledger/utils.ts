@@ -149,6 +149,7 @@ export function calculateLedgerMetrics(
 
 export interface MonthlyForecastPoint {
   month: string;
+  active: number;
   gross: number;
   net: number;
   covered: number;

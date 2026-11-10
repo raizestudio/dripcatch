@@ -138,6 +138,57 @@ export function LedgerAnalytics({
     monthlyGross - (monthlyActiveUsed + zombieMonthlyLeak),
   );
 
+  const renderSector = (props: any) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
+      props;
+    const fill = PALETTE[(index ?? 0) % PALETTE.length];
+    const isActive = activeCategoryIndex === index;
+    const isDimmed = activeCategoryIndex !== null && !isActive;
+
+    if (isActive) {
+      return (
+        <g className="cursor-pointer transition-all duration-200">
+          {/* Outer ambient glow ring */}
+          <Sector
+            cx={cx}
+            cy={cy}
+            innerRadius={outerRadius + 2}
+            outerRadius={outerRadius + 5}
+            startAngle={startAngle}
+            endAngle={endAngle}
+            fill={fill}
+            opacity={0.3}
+          />
+          {/* Expanded Main Slice */}
+          <Sector
+            cx={cx}
+            cy={cy}
+            innerRadius={innerRadius - 2}
+            outerRadius={outerRadius + 4}
+            startAngle={startAngle}
+            endAngle={endAngle}
+            fill={fill}
+          />
+        </g>
+      );
+    }
+
+    // Normal / Dimmed Slice
+    return (
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        opacity={isDimmed ? 0.35 : 1}
+        className="cursor-pointer transition-opacity duration-200"
+      />
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* Zombie Warning Banner */}
@@ -406,27 +457,12 @@ export function LedgerAnalytics({
                     innerRadius={50}
                     outerRadius={70}
                     paddingAngle={3}
-                    activeIndex={activeCategoryIndex ?? undefined}
-                    activeShape={renderActiveSector}
+                    shape={renderSector}
                     onMouseEnter={(_, index) => setActiveCategoryIndex(index)}
                     onMouseLeave={() => setActiveCategoryIndex(null)}
                     isAnimationActive={true}
                     animationDuration={600}
-                  >
-                    {categoryData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={PALETTE[index % PALETTE.length]}
-                        className="cursor-pointer transition-opacity duration-200"
-                        opacity={
-                          activeCategoryIndex === null ||
-                          activeCategoryIndex === index
-                            ? 1
-                            : 0.35
-                        }
-                      />
-                    ))}
-                  </Pie>
+                  />
                 </PieChart>
               </ResponsiveContainer>
 
