@@ -19,27 +19,36 @@ function getInitials(name?: string, email?: string): string {
   return "U";
 }
 
-export function UserNav() {
+interface UserNavProps {
+  user?: User | null;
+}
+
+export function UserNav({ user: initialUser }: UserNavProps = {}) {
   const t = useTranslations("Nav");
   const router = useRouter();
   const supabase = createClient();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(initialUser ?? null);
+  const [loading, setLoading] = useState(initialUser === undefined);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    async function checkUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
+    // Only fetch client-side if the server did not provide initial user state
+    if (initialUser === undefined) {
+      async function checkUser() {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+        setLoading(false);
+      }
+      checkUser();
+    } else {
+      setUser(initialUser);
       setLoading(false);
     }
-
-    checkUser();
 
     const {
       data: { subscription },
@@ -49,7 +58,7 @@ export function UserNav() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, initialUser]);
 
   // Click outside listener
   useEffect(() => {
