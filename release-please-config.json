@@ -1,56 +1,24 @@
 {
-  "release-type": "node",
-  "include-v-in-tag": true,
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "packages": {
     ".": {
       "release-type": "node",
-      "bump-minor-pre-major": true,
-      "bump-patch-pre-major": true,
-      "extra-files": ["pnpm-lock.yaml"],
+      "package-name": "dripcatch",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
       "changelog-sections": [
-        {
-          "type": "feat",
-          "section": "Features"
-        },
-        {
-          "type": "fix",
-          "section": "Bug Fixes"
-        },
+        { "type": "feat", "section": "Features", "hidden": false },
+        { "type": "fix", "section": "Bug Fixes", "hidden": false },
         {
           "type": "perf",
-          "section": "Performance Improvements"
+          "section": "Performance Improvements",
+          "hidden": false
         },
-        {
-          "type": "refactor",
-          "section": "Refactors"
-        },
-        {
-          "type": "docs",
-          "section": "Documentation"
-        },
-        {
-          "type": "style",
-          "section": "Styles"
-        },
-        {
-          "type": "test",
-          "section": "Tests"
-        },
-        {
-          "type": "build",
-          "section": "Build System"
-        },
-        {
-          "type": "ci",
-          "section": "Continuous Integration"
-        }
+        { "type": "security", "section": "Security Updates", "hidden": false },
+        { "type": "refactor", "section": "Code Refactoring", "hidden": false },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true }
       ]
     }
-  },
-  "plugins": [
-    {
-      "type": "sentence-case"
-    }
-  ]
+  }
 }
