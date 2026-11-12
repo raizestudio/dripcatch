@@ -12,6 +12,14 @@ interface EditSubscriptionModalProps {
   baseCurrency?: string;
 }
 
+export interface CatalogPlan {
+  id: string;
+  name: string;
+  default_cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+}
+
 export function EditSubscriptionModal({
   subscription,
   baseCurrency = "EUR",
@@ -238,7 +246,9 @@ export function EditSubscriptionModal({
                 </label>
                 <select
                   value={interval}
-                  onChange={(e) => setInterval(e.target.value as any)}
+                  onChange={(e) =>
+                    setInterval(e.target.value as CatalogPlan["interval"])
+                  }
                   className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 >
                   <option value="monthly">{t("badges.monthly")}</option>

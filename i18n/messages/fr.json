@@ -192,7 +192,8 @@
     "hidePassword": "Masquer le mot de passe",
     "claimSplitNotice": "Créez votre mot de passe pour rejoindre votre abonnement partagé.",
     "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
-    "noAccountYet": "Pas encore de compte ? Créer un compte"
+    "noAccountYet": "Pas encore de compte ? Créer un compte",
+    "signedInSuccess": "La connexion est un succés"
   },
   "Notifications": {
     "title": "Notifications",

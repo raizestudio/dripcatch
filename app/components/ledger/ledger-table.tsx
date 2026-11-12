@@ -62,14 +62,13 @@ export function LedgerTable({
           </thead>
           <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
             {subscriptions.map((sub) => {
-              const splits =
-                sub.subscription_splits || (sub as any).splits || [];
+              const splits = sub.subscription_splits || sub.splits || [];
               const hasSplits = splits.length > 0;
 
               // Reliable owner detection:
               const isOwner =
-                typeof (sub as any).is_owner === "boolean"
-                  ? (sub as any).is_owner
+                typeof sub.is_owner === "boolean"
+                  ? sub.is_owner
                   : currentUserId
                     ? sub.user_id === currentUserId
                     : splits.length === 0;
@@ -82,11 +81,11 @@ export function LedgerTable({
               // NET PERSONAL COST:
               let netCost: number;
               if (!isOwner) {
-                if ((sub as any).effective_cost !== undefined) {
-                  netCost = Number((sub as any).effective_cost);
+                if (sub.effective_cost !== undefined) {
+                  netCost = Number(sub.effective_cost);
                 } else {
                   const mySplit = splits.find(
-                    (s: any) => currentUserId && s.user_id === currentUserId,
+                    (s) => currentUserId && s.user_id === currentUserId,
                   );
                   netCost = mySplit
                     ? Number(mySplit.amount)
@@ -96,8 +95,7 @@ export function LedgerTable({
                 }
               } else {
                 netCost =
-                  (sub as any).effective_cost ??
-                  getSubNetCost(sub, currentUserId);
+                  sub.effective_cost ?? getSubNetCost(sub, currentUserId);
               }
 
               const normalizedNetMonthly = getNormalizedMonthly(
@@ -131,7 +129,7 @@ export function LedgerTable({
                       {/* Owner: Split Status Badges */}
                       {isOwner && hasSplits && (
                         <div className="flex flex-wrap items-center gap-1">
-                          {splits.map((s: any) => (
+                          {splits.map((s) => (
                             <span
                               key={s.id}
                               title={`${s.name} (${s.email || "Offline"}): ${formatCurrency(s.amount, baseCurrency)} - Status: ${s.status}`}

@@ -26,28 +26,38 @@ interface UserNavProps {
 export function UserNav({ user: initialUser }: UserNavProps = {}) {
   const t = useTranslations("Nav");
   const router = useRouter();
-  const supabase = createClient();
+  const [supabase] = useState(() => createClient());
 
   const [user, setUser] = useState<User | null>(initialUser ?? null);
   const [loading, setLoading] = useState(initialUser === undefined);
+  const [prevInitialUser, setPrevInitialUser] = useState(initialUser);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Sync state if server-provided initialUser prop changes (e.g. after router.refresh())
+  if (prevInitialUser !== initialUser) {
+    setPrevInitialUser(initialUser);
+    if (initialUser !== undefined) {
+      setUser(initialUser);
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
+    let isMounted = true;
+
     // Only fetch client-side if the server did not provide initial user state
     if (initialUser === undefined) {
       async function checkUser() {
         const {
           data: { user },
         } = await supabase.auth.getUser();
+        if (!isMounted) return;
         setUser(user);
         setLoading(false);
       }
       checkUser();
-    } else {
-      setUser(initialUser);
-      setLoading(false);
     }
 
     const {
@@ -57,7 +67,10 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase, initialUser]);
 
   // Click outside listener
@@ -120,11 +133,14 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
         aria-label="User menu"
       >
         {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={displayName}
-            className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
-          />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+            />
+          </>
         ) : (
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-bold text-emerald-600 dark:text-emerald-400">
             {initials}
