@@ -192,7 +192,8 @@
     "hidePassword": "Hide password",
     "claimSplitNotice": "Create your password to claim your shared subscription.",
     "alreadyHaveAccount": "Already have an account? Sign in",
-    "noAccountYet": "Don't have an account? Create one"
+    "noAccountYet": "Don't have an account? Create one",
+    "signedInSuccess": "Login was successful"
   },
   "Notifications": {
     "title": "Notifications",

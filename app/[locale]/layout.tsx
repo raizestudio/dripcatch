@@ -8,6 +8,7 @@ import { hasLocale } from "next-intl";
 import { Navbar } from "@/app/components/ui/navbar";
 import { Footer } from "@/app/components/ui/footer";
 import { SyncHtmlLang } from "@/app/components/ui/sync-html-lang";
+import { Toaster } from "@/app/components/ui/sonner";
 
 export const instant = false;
 
@@ -79,6 +80,7 @@ export default async function LocaleLayout({
       <div className="flex min-h-dvh flex-col">
         <Navbar />
         <main className="flex flex-1 flex-col">{children}</main>
+        <Toaster position="bottom-right" closeButton />
         <Footer />
       </div>
     </NextIntlClientProvider>

@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { createClient } from "@/app/lib/supabase/client";
+import { toast } from "sonner";
 import {
   Flame,
   Loader2,
@@ -90,18 +91,23 @@ export function LoginForm() {
           },
         });
         if (error) throw error;
+
         setMessage(t("magicLinkSent"));
+        toast.success(t("magicLinkSent"));
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (error) throw error;
+        toast.success(t("signedInSuccess"));
         router.push(nextPath);
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || t("errorGeneric"));
+      const msg = err.message || t("errorGeneric");
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
