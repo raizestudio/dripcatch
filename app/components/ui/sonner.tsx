@@ -1,3 +1,4 @@
+// app/components/ui/sonner.tsx
 "use client";
 
 import {
@@ -33,14 +34,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "bg-white! dark:bg-zinc-900! text-zinc-950! dark:text-zinc-100! border! border-zinc-200! dark:border-zinc-800! shadow-xl! rounded-xl!",
+            "bg-white! dark:bg-zinc-900! text-zinc-950! dark:text-zinc-100! border! border-solid! shadow-xl! rounded-xl!",
           description: "text-zinc-600! dark:text-zinc-400!",
-          success: "border-emerald-500/50! dark:border-emerald-500/40!",
-          error: "border-rose-500/50! dark:border-rose-500/40!",
-          warning: "border-amber-500/50! dark:border-amber-500/40!",
-          info: "border-sky-500/50! dark:border-sky-500/40!",
+          default: "border-zinc-200! dark:border-zinc-800!",
+          success: "border-emerald-500/60! dark:border-emerald-500/50!",
+          error: "border-rose-500/60! dark:border-rose-500/50!",
+          warning: "border-amber-500/60! dark:border-amber-500/50!",
+          info: "border-sky-500/60! dark:border-sky-500/50!",
           closeButton:
-            "bg-white! dark:bg-zinc-900! border-zinc-200! dark:border-zinc-800! text-zinc-500! hover:text-zinc-900! dark:hover:text-zinc-100!",
+            "bg-white! dark:bg-zinc-900! border! border-solid! border-zinc-200! dark:border-zinc-800! text-zinc-500! hover:text-zinc-900! dark:hover:text-zinc-100!",
         },
       }}
       {...props}
