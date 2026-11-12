@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.1.0...dripcatch-v0.1.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* consolidate proxy.ts, add missing translations for login page ([0b34570](https://github.com/raizestudio/dripcatch/commit/0b34570d7889618a81806bd8f73e588f6c9892eb))
+* consolidate proxy.ts, add missing translations for login page ([cf19441](https://github.com/raizestudio/dripcatch/commit/cf19441fc0dc48cf5bc665eb1df6955bd0ad3c9b))
+
 ## [0.1.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.0.1...dripcatch-v0.1.0) (2026-11-12)
 
 
