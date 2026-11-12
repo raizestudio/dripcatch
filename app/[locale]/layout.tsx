@@ -15,7 +15,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dripcatch.eu";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dripcatch.fr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

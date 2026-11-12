@@ -1,0 +1,40 @@
+name: ✨ Feature Request
+description: Propose a new feature, analytics view, or workflow improvement
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What frustration or missing insight does this solve?
+      placeholder: E.g., I pay for developer tools in USD while my base currency is EUR, so my totals are skewed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work from the user's perspective?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: DripCatch Architecture Alignment
+      description: Please confirm this idea fits the project's core principles.
+      options:
+        - label: Respects the **Zero-Credential** stance (no bank APIs, Plaid, or card scraping)
+          required: true
+        - label: Can be localized cleanly for both English (`en`) and French (`fr`)
+          required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Additional Context or Mockups
+      description: Any UI references, edge cases, or implementation notes.
+    validations:
+      required: false

@@ -6,7 +6,7 @@ DripCatch handles sensitive personal financial records and takes security seriou
 
 If you discover a vulnerability—especially regarding Supabase Row Level Security (RLS), authentication, or split invitation tokens—please report it privately:
 
-- **Email:** `security@dripcatch.eu`
+- **Email:** `security@dripcatch.fr`
 - **Subject:** `[Security] Brief description of the issue`
 
 Please include steps to reproduce the issue, affected routes or files, and any proof-of-concept details.
