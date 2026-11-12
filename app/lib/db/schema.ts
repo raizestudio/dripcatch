@@ -25,6 +25,8 @@ export const usersInAuth = authSchema.table("users", {
   email: varchar("email"),
 });
 
+const users = usersInAuth;
+
 export const catalogSubscriptions = pgTable(
   "catalog_subscriptions",
   {
