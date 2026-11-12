@@ -22,6 +22,16 @@ interface CategoryDonutChartProps {
   currency: string;
 }
 
+interface DonutSectorProps {
+  cx?: number;
+  cy?: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle?: number;
+  endAngle?: number;
+  index?: number;
+}
+
 export function CategoryDonutChart({
   data,
   currency,
@@ -32,7 +42,7 @@ export function CategoryDonutChart({
   const totalSpend = data.reduce((acc, c) => acc + c.amount, 0);
   const activeCategory = activeIndex !== null ? data[activeIndex] : null;
 
-  const renderSector = (props: any) => {
+  const renderSector = (props: DonutSectorProps) => {
     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
       props;
     const fill = PALETTE[(index ?? 0) % PALETTE.length];

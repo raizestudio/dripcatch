@@ -3,7 +3,8 @@ export interface SubscriptionSplit {
   name: string;
   email?: string | null;
   amount: number;
-  status: "pending" | "accepted" | "rejected";
+  user_id?: string | null;
+  status?: "pending" | "accepted" | "rejected";
 }
 
 export interface UserSubscriptionRow {
@@ -19,5 +20,8 @@ export interface UserSubscriptionRow {
   next_billing_date: string;
   is_zombie: boolean;
   status: string;
+  is_owner?: boolean;
+  effective_cost?: number;
+  splits?: SubscriptionSplit[];
   subscription_splits?: SubscriptionSplit[];
 }

@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { createClient } from "@/app/lib/supabase/client";
+import { getErrorMessage } from "@/app/lib/utils";
 import { toast } from "sonner";
 import {
   Flame,
@@ -72,7 +73,7 @@ export function LoginForm() {
   const showMatchSuccess =
     isSignUp && confirmPassword.length >= 6 && password === confirmPassword;
 
-  async function handleAuth(e: React.FormEvent) {
+  async function handleAuth(e: React.SubmitEvent) {
     e.preventDefault();
     if (!isFormValid) return;
 
@@ -104,8 +105,8 @@ export function LoginForm() {
         router.push(nextPath);
         router.refresh();
       }
-    } catch (err: any) {
-      const msg = err.message || t("errorGeneric");
+    } catch (err) {
+      const msg = getErrorMessage(err, t("errorGeneric"));
       setError(msg);
       toast.error(msg);
     } finally {
