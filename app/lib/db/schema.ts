@@ -14,6 +14,7 @@ import {
   boolean,
   uniqueIndex,
   index,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -21,6 +22,7 @@ const authSchema = pgSchema("auth");
 
 export const usersInAuth = authSchema.table("users", {
   id: uuid("id").primaryKey(),
+  email: varchar("email"),
 });
 
 export const catalogSubscriptions = pgTable(
