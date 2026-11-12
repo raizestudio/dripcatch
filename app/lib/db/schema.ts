@@ -17,6 +17,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { authUsers } from 'drizzle-orm/supabase';
 
 const authSchema = pgSchema("auth");
 
@@ -25,7 +26,7 @@ export const usersInAuth = authSchema.table("users", {
   email: varchar("email"),
 });
 
-const users = usersInAuth;
+const users = authUsers;
 
 export const catalogSubscriptions = pgTable(
   "catalog_subscriptions",
