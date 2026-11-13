@@ -308,7 +308,31 @@
       "termination": "8. Termination",
       "governingLaw": "9. Governing Law"
     }
+  },
+  "Feedback": {
+    "trigger": "Report a bug",
+    "successToast": "Bug report sent — thank you for helping improve DripCatch!",
+    "categories": {
+      "ledger": "Ledger & Subscriptions",
+      "splits": "Splits & Invitations",
+      "analytics": "Analytics & Charts",
+      "account": "Account & Settings",
+      "other": "Other"
+    },
+    "modal": {
+      "title": "Report a bug",
+      "subtitle": "Spotted something broken or off? Let us know.",
+      "categoryLabel": "Area",
+      "summaryLabel": "Summary",
+      "summaryPlaceholder": "e.g. Monthly total doesn't update after editing a split",
+      "descriptionLabel": "What happened?",
+      "descriptionPlaceholder": "Describe the steps to reproduce and what you expected to happen...",
+      "emailLabel": "Contact email (optional)",
+      "emailPlaceholder": "you@example.com",
+      "contextNote": "Current page and browser info are attached automatically to help debug.",
+      "cancel": "Cancel",
+      "submit": "Send report",
+      "submitting": "Sending..."
     }
-  
-  
+  }
 }

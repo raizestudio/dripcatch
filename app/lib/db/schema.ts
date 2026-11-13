@@ -15,9 +15,10 @@ import {
   uniqueIndex,
   index,
   varchar,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { authUsers } from 'drizzle-orm/supabase';
+import { authUsers } from "drizzle-orm/supabase";
 
 const authSchema = pgSchema("auth");
 
@@ -349,3 +350,39 @@ export const notifications = pgTable(
     ),
   ],
 );
+
+export type BugReportMetadata = {
+  pathname: string;
+  locale: string;
+  userAgent: string;
+  viewport: string;
+};
+
+export const bugReports = pgTable(
+  "bug_reports",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    user_id: uuid("user_id"),
+    email: text("email"),
+    category: text("category").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    metadata: jsonb("metadata")
+      .$type<BugReportMetadata>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    status: text("status").default("open").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    pgPolicy("Anyone can submit bug reports", {
+      for: "insert",
+      to: "public",
+      withCheck: sql`auth.uid() = ${table.user_id} or ${table.user_id} is null`,
+    }),
+  ],
+);
+
+export type NewBugReport = typeof bugReports.$inferInsert;
