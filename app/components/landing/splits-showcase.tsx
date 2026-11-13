@@ -4,7 +4,7 @@ import {
   Users,
   CheckCircle2,
   ArrowRight,
-  ShieldCheck,
+  // ShieldCheck,
   Mail,
 } from "lucide-react";
 

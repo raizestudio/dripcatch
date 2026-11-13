@@ -1,5 +1,14 @@
 // app/components/ledger/utils.ts
-import { UserSubscriptionRow } from "./types";
+import { UserSubscriptionRow, SubscriptionSplit } from "./types";
+
+interface NetCostInput {
+  cost: number | string;
+  user_id?: string;
+  is_owner?: boolean;
+  effective_cost?: number;
+  splits?: SubscriptionSplit[];
+  subscription_splits?: SubscriptionSplit[];
+}
 
 /**
  * Safely parses YYYY-MM without timezone offset shifts.
@@ -38,12 +47,12 @@ export function hasFirstBillOccurred(
 }
 
 export function getSubNetCost(
-  sub: any,
+  sub: NetCostInput,
   currentUserId?: string,
   currentUserEmail?: string,
 ): number {
   const cost = Number(sub.cost) || 0;
-  const splits: any[] = sub.subscription_splits || sub.splits || [];
+  const splits = sub.subscription_splits || sub.splits || [];
 
   // 1. If effective_cost is already precomputed and valid, use it
   if (typeof sub.effective_cost === "number" && !isNaN(sub.effective_cost)) {
@@ -62,7 +71,7 @@ export function getSubNetCost(
   if (!isOwner) {
     if (splits.length > 0) {
       const mySplit = splits.find(
-        (s: any) =>
+        (s) =>
           (currentUserId && s.user_id === currentUserId) ||
           (currentUserEmail &&
             s.email &&
@@ -77,12 +86,12 @@ export function getSubNetCost(
   // 4. For owner: total minus accepted splits AND manual splits (splits without emails)
   const covered = splits
     .filter(
-      (s: any) =>
+      (s) =>
         s.status === "accepted" ||
         (!s.email && s.status !== "rejected") ||
         s.status === undefined,
     )
-    .reduce((acc: number, s: any) => acc + (Number(s.amount) || 0), 0);
+    .reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
 
   return Math.max(0, cost - covered);
 }
@@ -111,8 +120,8 @@ export function calculateLedgerMetrics(
   // Gross total (Plan total for owner; personal share for participant)
   const grossMonthlyBurn = activeSubs.reduce((acc, sub) => {
     const isOwner =
-      typeof (sub as any).is_owner === "boolean"
-        ? (sub as any).is_owner
+      typeof sub.is_owner === "boolean"
+        ? sub.is_owner
         : currentUserId
           ? sub.user_id === currentUserId
           : true;
@@ -191,8 +200,8 @@ export function calculate12MonthForecast(
       }
 
       const isOwner =
-        typeof (sub as any).is_owner === "boolean"
-          ? (sub as any).is_owner
+        typeof sub.is_owner === "boolean"
+          ? sub.is_owner
           : currentUserId
             ? sub.user_id === currentUserId
             : true;

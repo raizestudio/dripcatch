@@ -1,11 +1,14 @@
+// app/[locale]/login/login-form.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { createClient } from "@/app/lib/supabase/client";
-import { useLocale } from "next-intl";
+import { getErrorMessage } from "@/app/lib/utils";
+import { toast } from "sonner";
 import {
   Flame,
   Loader2,
@@ -24,6 +27,15 @@ export function LoginForm() {
   const locale = useLocale();
   const searchParams = useSearchParams();
 
+  // Strip any leading locale prefix so next-intl's router doesn't double-prefix (e.g. /fr/fr/ledger)
+  const rawNext = searchParams.get("next");
+  const localesPattern = routing.locales.join("|");
+  const localeRegex = new RegExp(`^\\/(${localesPattern})(?=\\/|$)`);
+  const nextPath =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext.replace(localeRegex, "") || "/ledger"
+      : "/ledger";
+
   const emailParam = searchParams.get("email");
   const signupParam = searchParams.get("signup");
 
@@ -37,10 +49,16 @@ export function LoginForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Sync state if query params change while already on /login (avoids useEffect cascading renders)
+  const [prevParams, setPrevParams] = useState({ emailParam, signupParam });
+  if (
+    prevParams.emailParam !== emailParam ||
+    prevParams.signupParam !== signupParam
+  ) {
+    setPrevParams({ emailParam, signupParam });
     if (emailParam) setEmail(emailParam);
     if (signupParam === "true") setIsSignUp(true);
-  }, [emailParam, signupParam]);
+  }
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isPasswordValid = password.length >= 6;
@@ -55,7 +73,7 @@ export function LoginForm() {
   const showMatchSuccess =
     isSignUp && confirmPassword.length >= 6 && password === confirmPassword;
 
-  async function handleAuth(e: React.FormEvent) {
+  async function handleAuth(e: React.SubmitEvent) {
     e.preventDefault();
     if (!isFormValid) return;
 
@@ -65,26 +83,32 @@ export function LoginForm() {
 
     try {
       if (isSignUp) {
+        const callbackNext = `/${locale}${nextPath === "/" ? "/ledger" : nextPath}`;
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${locale}/ledger`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackNext)}`,
           },
         });
         if (error) throw error;
+
         setMessage(t("magicLinkSent"));
+        toast.success(t("magicLinkSent"));
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (error) throw error;
-        router.push("/ledger");
+        toast.success(t("signedInSuccess"));
+        router.push(nextPath);
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || t("errorGeneric"));
+    } catch (err) {
+      const msg = getErrorMessage(err, t("errorGeneric"));
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -116,9 +140,7 @@ export function LoginForm() {
           {emailParam && isSignUp && (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs text-emerald-600 dark:text-emerald-400">
               <MailCheck className="h-4 w-4 shrink-0" />
-              <span>
-                Create your password to claim your shared subscription.
-              </span>
+              <span>{t("claimSplitNotice")}</span>
             </div>
           )}
 
@@ -267,9 +289,7 @@ export function LoginForm() {
               onClick={handleModeToggle}
               className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
             >
-              {isSignUp
-                ? "Already have an account? Sign in"
-                : "Don't have an account? Create one"}
+              {isSignUp ? t("alreadyHaveAccount") : t("noAccountYet")}
             </button>
           </div>
         </div>

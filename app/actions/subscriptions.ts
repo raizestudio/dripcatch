@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/app/lib/supabase/server";
 import { sendSplitInvitationEmail } from "@/app/lib/mail";
+import { getErrorMessage } from "@/app/lib/utils";
 
 export interface UserSubscriptionRow {
   id: string;
@@ -88,6 +89,13 @@ export interface SharedSubscriptionRow {
   subscription_splits: SubscriptionSplitItem[];
 }
 
+interface RawSubscriptionQueryRow extends Omit<
+  UserSubscriptionRow,
+  "subscription_splits"
+> {
+  subscription_splits?: SubscriptionSplitItem[] | null;
+}
+
 type ActionResponse<T = void> =
   { success: true; data?: T } | { success: false; error: string };
 
@@ -114,29 +122,30 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
     .from("user_subscriptions")
     .select(
       `
-        id,
-        user_id,
-        name,
-        category,
-        cost,
-        original_cost,
-        currency,
-        interval,
-        first_billed_date,
-        next_billing_date,
-        is_zombie,
-        status,
-        subscription_splits (
           id,
-          name,
-          email,
-          amount,
           user_id,
-          status
-        )
-      `,
+          name,
+          category,
+          cost,
+          original_cost,
+          currency,
+          interval,
+          first_billed_date,
+          next_billing_date,
+          is_zombie,
+          status,
+          subscription_splits (
+            id,
+            name,
+            email,
+            amount,
+            user_id,
+            status
+          )
+        `,
     )
-    .order("next_billing_date", { ascending: true });
+    .order("next_billing_date", { ascending: true })
+    .overrideTypes<RawSubscriptionQueryRow[], { merge: false }>();
 
   if (error || !data) {
     if (error) console.error("Error fetching subscriptions:", error.message);
@@ -144,10 +153,10 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
   }
 
   return data
-    .filter((sub: any) => {
+    .filter((sub) => {
       if (sub.user_id === user.id) return true;
       const mySplit = sub.subscription_splits?.find(
-        (s: any) =>
+        (s) =>
           s.user_id === user.id ||
           (s.email &&
             user.email &&
@@ -155,7 +164,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
       );
       return mySplit && mySplit.status === "accepted";
     })
-    .map((sub: any) => {
+    .map((sub) => {
       const isOwner = sub.user_id === user.id;
       const splits: SubscriptionSplitItem[] = sub.subscription_splits || [];
       const totalCost = Number(sub.cost);
@@ -314,10 +323,10 @@ export async function createSubscription(
 
     revalidatePath("/[locale]/ledger", "page");
     return { success: true, data: { id: sub.id } };
-  } catch (err: any) {
+  } catch (err) {
     return {
       success: false,
-      error: err.message || "An unexpected error occurred.",
+      error: getErrorMessage(err, "An unexpected error occurred."),
     };
   }
 }
@@ -454,10 +463,10 @@ export async function updateSubscription(
 
     revalidatePath("/[locale]/ledger", "page");
     return { success: true };
-  } catch (err: any) {
+  } catch (err) {
     return {
       success: false,
-      error: err.message || "An unexpected error occurred.",
+      error: getErrorMessage(err, "An unexpected error occurred."),
     };
   }
 }
@@ -486,10 +495,10 @@ export async function deleteSubscription(id: string): Promise<ActionResponse> {
 
     revalidatePath("/[locale]/ledger", "page");
     return { success: true };
-  } catch (err: any) {
+  } catch (err) {
     return {
       success: false,
-      error: err.message || "An unexpected error occurred.",
+      error: getErrorMessage(err, "An unexpected error occurred."),
     };
   }
 }
@@ -539,7 +548,10 @@ export async function respondToSplitInvitation(
 
     revalidatePath("/[locale]/ledger", "page");
     return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message || "Failed to respond." };
+  } catch (err) {
+    return {
+      success: false,
+      error: getErrorMessage(err, "Failed to respond."),
+    };
   }
 }

@@ -1,0 +1,62 @@
+name: 🐛 Bug Report
+description: Report a calculation error, UI glitch, or broken workflow
+title: "fix: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! **If this is a security vulnerability (e.g., Supabase RLS bypass or token leak), please do NOT open a public issue—email `security@dripcatch.fr` instead.**
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - Ledger & Billing Math
+        - Analytics & Charts
+        - Splits & Co-Payer Invites
+        - Auth & Account Settings
+        - Localization (en / fr)
+        - UI / Dark & Light Theme
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected to happen instead.
+      placeholder: E.g., A monthly subscription starting on the 31st skips February in the 12-month forecast...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we trigger this exact behavior?
+      value: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Observe '...'
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment & Theme
+      description: Browser, OS, Locale, and Theme (Light/Dark)
+      placeholder: e.g., Firefox 132, Linux, fr locale, Dark mode
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or Console Errors
+      description: Paste any terminal/browser errors or drag-and-drop screenshots here.
+    validations:
+      required: false

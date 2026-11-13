@@ -172,7 +172,8 @@
     "splitBadgePlural": "Partagé avec {count} personnes"
   },
   "Auth": {
-    "title": "Bon retour",
+    "title": "Connexion",
+    "description": "Connectez-vous ou créez un compte sur DripCatch pour suivre et partager vos abonnements.",
     "subtitle": "Connectez-vous pour accéder à votre registre",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "vous@exemple.com",
@@ -188,7 +189,11 @@
     "minPasswordLength": "Le mot de passe doit contenir au moins 6 caractères.",
     "passwordsMatch": "Les mots de passe correspondent",
     "showPassword": "Afficher le mot de passe",
-    "hidePassword": "Masquer le mot de passe"
+    "hidePassword": "Masquer le mot de passe",
+    "claimSplitNotice": "Créez votre mot de passe pour rejoindre votre abonnement partagé.",
+    "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
+    "noAccountYet": "Pas encore de compte ? Créer un compte",
+    "signedInSuccess": "La connexion est un succés"
   },
   "Notifications": {
     "title": "Notifications",

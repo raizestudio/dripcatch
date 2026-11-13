@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.2.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.1.1...dripcatch-v0.2.0) (2026-11-12)
+
+
+### Features
+
+* add shadcn sonner ([60198c0](https://github.com/raizestudio/dripcatch/commit/60198c0e31dd0c6077ab634b2e0c93e1d6d7a8ab))
+
+
+### Bug Fixes
+
+* ci path ([07a7295](https://github.com/raizestudio/dripcatch/commit/07a72956dac0ebb2c122f2bea313c0d015168ee7))
+* ci pnpm issue ([f81fe9f](https://github.com/raizestudio/dripcatch/commit/f81fe9f5f5b89e4e5a1ad4efcc73c674d33b4c16))
+* ci pnpm issue ([6198902](https://github.com/raizestudio/dripcatch/commit/6198902e2bb72d49a4fa12def90dfe952273f97a))
+* issue with toaster border ([f60abf6](https://github.com/raizestudio/dripcatch/commit/f60abf66722695036303a4f1609c7889abf47c4c))
+
+## [0.1.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.1.0...dripcatch-v0.1.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* consolidate proxy.ts, add missing translations for login page ([0b34570](https://github.com/raizestudio/dripcatch/commit/0b34570d7889618a81806bd8f73e588f6c9892eb))
+* consolidate proxy.ts, add missing translations for login page ([cf19441](https://github.com/raizestudio/dripcatch/commit/cf19441fc0dc48cf5bc665eb1df6955bd0ad3c9b))
+
 ## [0.1.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.0.1...dripcatch-v0.1.0) (2026-11-12)
 
 

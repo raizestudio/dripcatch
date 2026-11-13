@@ -1,5 +1,7 @@
 # DripCatch
 
+[![CI](https://github.com/raizestudio/dripcatch/actions/workflows/ci.yml/badge.svg)](https://github.com/raizestudio/dripcatch/actions/workflows/ci.yml)
+
 **A privacy-first, zero-credential subscription ledger and outflow forecaster.**
 
 DripCatch helps you track recurring expenses, expose unused "zombie" subscriptions, detect stealth price hikes, and coordinate shared subscription splits—without ever linking your bank account or handing over financial credentials.

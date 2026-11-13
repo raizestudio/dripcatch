@@ -120,7 +120,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:contact@dripcatch.eu"
+                  href="mailto:contact@dripcatch.fr"
                   className="transition hover:text-zinc-950 dark:hover:text-white"
                 >
                   {t("links.contact")}

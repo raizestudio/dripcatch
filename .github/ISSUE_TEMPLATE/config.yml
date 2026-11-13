@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🔒 Report a Security Vulnerability
+    url: mailto:security@dripcatch.fr?subject=%5BSecurity%5D%20Vulnerability%20Report
+    about: Please report RLS, auth, or data privacy vulnerabilities privately rather than in a public issue.
+  - name: 💬 General Questions & Support
+    url: https://dripcatch.fr/contact
+    about: Have a general question or feedback? Reach out via our contact form.

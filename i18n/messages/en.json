@@ -172,7 +172,8 @@
     "splitBadgePlural": "Split with {count} people"
   },
   "Auth": {
-    "title": "Welcome back",
+    "title": "Login",
+    "description": "Sign in or create an account on DripCatch to track and split your subscriptions.",
     "subtitle": "Sign in to access your subscription ledger",
     "emailLabel": "Email address",
     "emailPlaceholder": "you@example.com",
@@ -188,7 +189,11 @@
     "minPasswordLength": "Password must be at least 6 characters.",
     "passwordsMatch": "Passwords match",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "claimSplitNotice": "Create your password to claim your shared subscription.",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "noAccountYet": "Don't have an account? Create one",
+    "signedInSuccess": "Login was successful"
   },
   "Notifications": {
     "title": "Notifications",
