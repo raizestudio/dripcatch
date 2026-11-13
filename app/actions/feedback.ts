@@ -2,14 +2,11 @@
 
 import { createClient } from "@/app/lib/supabase/server";
 import { getErrorMessage } from "@/app/lib/utils";
-import type { BugReportMetadata, NewBugReport } from "@/app/lib/db/schema";
+import type { TablesInsert } from "@/app/lib/supabase/database.types";
+import type { BugReportMetadata } from "@/app/lib/db/schema";
 
 export type BugCategory =
-  | "ledger"
-  | "splits"
-  | "analytics"
-  | "account"
-  | "other";
+  "ledger" | "splits" | "analytics" | "account" | "other";
 
 export interface BugReportInput {
   category: BugCategory;
@@ -59,18 +56,20 @@ export async function submitBugReport(
       data: { user },
     } = await supabase.auth.getUser();
 
-    const payload: NewBugReport = {
+    const metadata: BugReportMetadata = {
+      pathname: String(input.metadata?.pathname || "").slice(0, 255),
+      locale: String(input.metadata?.locale || "en").slice(0, 10),
+      userAgent: String(input.metadata?.userAgent || "").slice(0, 500),
+      viewport: String(input.metadata?.viewport || "").slice(0, 50),
+    };
+
+    const payload: TablesInsert<"bug_reports"> = {
       user_id: user?.id ?? null,
       email: user?.email ?? (input.contactEmail?.trim() || null),
       category,
       title,
       description,
-      metadata: {
-        pathname: String(input.metadata?.pathname || "").slice(0, 255),
-        locale: String(input.metadata?.locale || "en").slice(0, 10),
-        userAgent: String(input.metadata?.userAgent || "").slice(0, 500),
-        viewport: String(input.metadata?.viewport || "").slice(0, 50),
-      },
+      metadata,
     };
 
     const { error } = await supabase.from("bug_reports").insert(payload);
