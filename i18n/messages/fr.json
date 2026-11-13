@@ -235,5 +235,73 @@
     "tryAgain": "Réessayer",
     "toLedger": "Retour au registre",
     "errorId": "Identifiant d'incident"
+  },
+  "Terms": {
+    "meta": {
+      "title": "Conditions d'utilisation | DripCatch",
+      "description": "Lisez les conditions générales d'utilisation de l'application de suivi et de gestion d'abonnement DripCatch."
+    },
+    "header": {
+      "title": "Conditions d'utilisation",
+      "lastUpdated": "Dernière mise à jour : Janvier 2026",
+      "tocTitle": "Sommaire"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptation des conditions",
+        "content": "En créant un compte ou en accédant à l'application web DripCatch, vous acceptez d'être lié par les présentes Conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser nos services.",
+        "contact": "Si vous avez des questions concernant ces conditions, vous pouvez nous contacter à l'adresse :"
+      },
+      "description": {
+        "title": "2. Description du service",
+        "p1": "DripCatch fournit un registre d'abonnements manuel et prédéfini, un normalisateur de cadence et un détecteur de « zombies » pour suivre les flux sortants récurrents et modéliser des projections.",
+        "clarificationTitle": "Clarification explicite :",
+        "clarificationText": "DripCatch est uniquement un registre informatif. Il ne s'agit ni d'une banque, d'un courtier, d'une passerelle de paiement, d'un service de séquestre, ni d'un conseiller financier, comptable ou fiscal réglementé."
+      },
+      "sharedSubscriptions": {
+        "title": "3. Abonnements partagés et exclusion de responsabilité",
+        "intro": "Le suivi du partage des abonnements et les fonctionnalités collaboratives sont fournis uniquement comme des outils de coordination comptable.",
+        "bullet1": "Zéro traitement de fonds : DripCatch ne déplace, ne détient, ne consigne et ne transfère jamais de fonds entre utilisateurs.",
+        "bullet2": "Tous les remboursements de pair à pair s'effectuent entièrement en dehors de la plateforme (par espèces, SEPA, Revolut, etc.).",
+        "bullet3": "DripCatch décline toute responsabilité en cas de parts impayées, de litiges entre co-payeurs, de rétrofacturations (chargebacks) ou d'absence de remboursement entre utilisateurs."
+      },
+      "accounts": {
+        "title": "4. Comptes utilisateurs et exactitude des données",
+        "content": "Vous êtes tenu de fournir des identifiants de compte exacts. Les utilisateurs restent seuls responsables de la précision des saisies manuelles, y compris les dates de facturation, les coûts de renouvellement et les sélections de devises."
+      },
+      "acceptableUse": {
+        "title": "5. Utilisation acceptable et anti-abus",
+        "intro": "Pour protéger notre plateforme et nos utilisateurs, vous vous engagez strictement à interdire :",
+        "bullet1": "L'envoi d'invitations de partage non sollicitées ou de spams par e-mail via l'outil d'invitation.",
+        "bullet2": "L'aspiration automatisée (scraping), l'ingénierie inverse ou toute forme d'abus de la plateforme."
+      },
+      "warranties": {
+        "title": "6. Exclusion de garanties et clause « en l'état »",
+        "content": "La plateforme est fournie « en l'état » et « selon la disponibilité ». Les projections (telles que les prévisions sur 12 mois et les estimateurs de dérive des prix) sont des estimations et ne constituent en aucun cas des garanties de flux de trésorerie futurs."
+      },
+      "liability": {
+        "title": "7. Limitation de responsabilité financière",
+        "content": "Les utilisateurs restent seuls responsables de la résiliation de leurs propres abonnements avant les échéances de renouvellement et de la vérification des alertes de hausse de prix par rapport aux factures réelles des marchands. DripCatch n'assume aucune responsabilité en cas de frais de découvert, de renouvellements marchands imprévus, d'augmentations de prix non surveillées ou d'interruptions de service."
+      },
+      "termination": {
+        "title": "8. Résiliation et suppression de compte",
+        "content": "Les utilisateurs peuvent supprimer leur compte à tout moment via les paramètres ou sur demande. DripCatch se réserve le droit de suspendre les comptes enfreignant les politiques d'utilisation acceptable."
+      },
+      "governingLaw": {
+        "title": "9. Loi applicable et juridiction",
+        "content": "Les présentes conditions sont régies par le cadre juridique du droit commercial européen et français applicable aux logiciels web grand public."
+      }
+    },
+    "nav": {
+      "acceptance": "1. Acceptation",
+      "description": "2. Description du service",
+      "sharedSubscriptions": "3. Abonnements partagés",
+      "accounts": "4. Comptes et données",
+      "acceptableUse": "5. Utilisation acceptable",
+      "warranties": "6. Garanties et « En l'état »",
+      "liability": "7. Limitation de responsabilité",
+      "termination": "8. Résiliation",
+      "governingLaw": "9. Loi applicable"
+    }
   }
 }
