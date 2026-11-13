@@ -240,5 +240,75 @@
     "tryAgain": "Try again",
     "toLedger": "Back to Ledger",
     "errorId": "Incident ID"
-  }
+  },
+  "Terms": {
+    "meta": {
+      "title": "Terms of Service | DripCatch",
+      "description": "Read the terms and conditions for using DripCatch subscription tracking and management."
+    },
+    "header": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: January 2026",
+      "tocTitle": "Table of Contents"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By creating an account or accessing the DripCatch web application, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.",
+        "contact": "Should you have any questions regarding these terms, you can contact us at:"
+      },
+      "description": {
+        "title": "2. Description of Service",
+        "p1": "DripCatch provides a manual and preset subscription ledger, cadence normalizer, and zombie detector to track recurring outflows and model projections.",
+        "clarificationTitle": "Explicit Clarification:",
+        "clarificationText": "DripCatch is an informational ledger only. It is not a bank, broker, payment gateway, escrow service, or regulated financial, accounting, or tax advisor."
+      },
+      "sharedSubscriptions": {
+        "title": "3. Shared Subscriptions & Split Disclaimer",
+        "intro": "Subscription split tracking and collaborative features are provided purely as bookkeeping coordination tools.",
+        "bullet1": "Zero Fund Processing: DripCatch never moves, holds, escrows, or transfers funds between users.",
+        "bullet2": "All peer-to-peer reimbursements happen entirely off-platform (via cash, SEPA, Revolut, etc.).",
+        "bullet3": "DripCatch assumes zero liability for unpaid shares, co-payer disputes, chargebacks, or non-reimbursement between users."
+      },
+      "accounts": {
+        "title": "4. User Accounts & Data Accuracy",
+        "content": "You are required to supply accurate account credentials. Users remain solely responsible for the precision of manual inputs, including billing dates, renewal costs, and currency selections."
+      },
+      "acceptableUse": {
+        "title": "5. Acceptable Use & Anti-Abuse",
+        "intro": "To protect our platform and users, you agree strictly to prohibit:",
+        "bullet1": "Unsolicited split invitations or spamming emails through the invitation tool.",
+        "bullet2": "Automated scraping, reverse engineering, or any form of platform abuse."
+      },
+      "warranties": {
+        "title": "6. Disclaimer of Warranties & \"As-Is\" Provision",
+        "content": "The platform is provided on an \"as is\" and \"as available\" basis. Projections (such as 12-month forecasts and price creep estimators) are estimates and do not constitute guarantees of future cash flow."
+      },
+      "liability": {
+        "title": "7. Limitation of Financial Liability",
+        "content": "Users remain solely responsible for canceling their own subscriptions before renewal deadlines and verifying price hike alerts against actual merchant invoices. DripCatch accepts no liability for overdraft fees, unexpected merchant renewals, unmonitored price increases, or service interruptions."
+      },
+      "termination": {
+        "title": "8. Termination & Account Cancellation",
+        "content": "Users may delete their account at any time via settings or request. DripCatch reserves the right to suspend accounts violating acceptable use policies."
+      },
+      "governingLaw": {
+        "title": "9. Governing Law & Jurisdiction",
+        "content": "These terms are governed by the standard EU and French commercial law framework applicable to consumer web software."
+      }
+    },
+    "nav": {
+      "acceptance": "1. Acceptance of Terms",
+      "description": "2. Description of Service",
+      "sharedSubscriptions": "3. Shared Subscriptions",
+      "accounts": "4. User Accounts & Data",
+      "acceptableUse": "5. Acceptable Use",
+      "warranties": "6. Warranties & As-Is",
+      "liability": "7. Limitation of Liability",
+      "termination": "8. Termination",
+      "governingLaw": "9. Governing Law"
+    }
+    }
+  
+  
 }
