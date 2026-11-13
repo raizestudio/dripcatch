@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.3.0...dripcatch-v0.4.0) (2026-11-13)
+
+
+### Features
+
+* add bug report feature ([fbdcfc3](https://github.com/raizestudio/dripcatch/commit/fbdcfc3158643af662eb47e8489f6605f42fac5a))
+* add bug report feature ([bab3d43](https://github.com/raizestudio/dripcatch/commit/bab3d4381870b1c2797411372909d9e06834ac6a))
+
 ## [0.3.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.2.0...dripcatch-v0.3.0) (2026-11-13)
 
 
