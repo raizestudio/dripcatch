@@ -6,6 +6,9 @@ import { SiGithub } from "@icons-pack/react-simple-icons";
 import { CurrentYear } from "@/app/components/ui/current-year";
 import { ReportBugModal } from "@/app/components/feedback/report-bug-modal";
 
+const appVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
+const releaseUrl = `https://github.com/raizestudio/dripcatch/releases/tag/dripcatch-v${appVersion}`;
+
 export function Footer() {
   const t = useTranslations("Footer");
 
@@ -109,7 +112,7 @@ export function Footer() {
             <ul className="space-y-2 text-xs">
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/raizestudio"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 transition hover:text-zinc-950 dark:hover:text-white"
@@ -136,6 +139,14 @@ export function Footer() {
           <p>
             © <CurrentYear /> DripCatch. {t("copyright")}
           </p>
+          <a
+            href={releaseUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono tabular-nums text-zinc-400 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+          >
+            v{appVersion}
+          </a>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
@@ -144,7 +155,7 @@ export function Footer() {
             </div>
 
             <a
-              href="https://github.com"
+              href="https://github.com/raizestudio"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub Repository"
