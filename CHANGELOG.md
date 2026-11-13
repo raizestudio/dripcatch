@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.2.0...dripcatch-v0.3.0) (2026-11-13)
+
+
+### Features
+
+* add terms page ([0c71ad9](https://github.com/raizestudio/dripcatch/commit/0c71ad94c67f15d18e3ff722d9a9bec984015f47))
+
 ## [0.2.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.1.1...dripcatch-v0.2.0) (2026-11-12)
 
 
