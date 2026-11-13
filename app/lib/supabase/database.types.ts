@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bug_reports: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          email: string | null
+          id: string
+          metadata: Json
+          status: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          status?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          status?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       catalog_subscription_plans: {
         Row: {
           catalog_id: string

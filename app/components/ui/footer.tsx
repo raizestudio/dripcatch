@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Flame, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import { CurrentYear } from "@/app/components/ui/current-year";
+import { ReportBugModal } from "@/app/components/feedback/report-bug-modal";
 
 export function Footer() {
   const t = useTranslations("Footer");
@@ -151,6 +152,9 @@ export function Footer() {
             >
               <SiGithub className="h-4 w-4" />
             </a>
+            <div className="flex items-center gap-4">
+              <ReportBugModal />
+            </div>
           </div>
         </div>
       </div>

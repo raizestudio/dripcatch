@@ -308,5 +308,31 @@
       "termination": "8. Résiliation",
       "governingLaw": "9. Loi applicable"
     }
+  },
+  "Feedback": {
+    "trigger": "Signaler un bug",
+    "successToast": "Signalement envoyé — merci de nous aider à améliorer DripCatch !",
+    "categories": {
+      "ledger": "Registre et abonnements",
+      "splits": "Partages et invitations",
+      "analytics": "Analyses et graphiques",
+      "account": "Compte et paramètres",
+      "other": "Autre"
+    },
+    "modal": {
+      "title": "Signaler un bug",
+      "subtitle": "Un problème d'affichage ou de calcul ? Dites-le-nous.",
+      "categoryLabel": "Section",
+      "summaryLabel": "Résumé",
+      "summaryPlaceholder": "ex. Le total mensuel ne se met pas à jour après un partage",
+      "descriptionLabel": "Que s'est-il passé ?",
+      "descriptionPlaceholder": "Décrivez les étapes pour reproduire le bug et le résultat attendu...",
+      "emailLabel": "E-mail de contact (optionnel)",
+      "emailPlaceholder": "vous@exemple.com",
+      "contextNote": "La page actuelle et les infos du navigateur sont jointes automatiquement.",
+      "cancel": "Annuler",
+      "submit": "Envoyer",
+      "submitting": "Envoi..."
+    }
   }
 }
