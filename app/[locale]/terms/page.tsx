@@ -1,6 +1,5 @@
-import {use} from 'react';
-import {setRequestLocale} from 'next-intl/server';
-import {useTranslations} from 'next-intl';
+import type { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 import { CurrentYear } from '@/app/components/ui/current-year';
 
@@ -10,16 +9,20 @@ type Props = {
   params: Promise<{locale:string}>;
 }
 
-export async function generateMetadata({params}:Props){
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
 const {locale} = await params;
 const t = await getTranslations({ locale, namespace: 'Terms' });
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://dripcatch.eu';
 
 return{
-  title: t('meta.title'), 
+  title: t('meta.title'),
     description: t('meta.description'),
     alternates: {
-      canonical: `${baseUrl}/${locale}/terms`, 
+      canonical: `${baseUrl}/${locale}/terms`,
       languages: {
         'en': `${baseUrl}/en/terms`,
         'fr': `${baseUrl}/fr/terms`,
@@ -37,7 +40,7 @@ export default async function TermsPage({params}:Props){
   return(
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors selection:bg-emerald-500/20 selection:text-emerald-400">
       <div className="max-w-7xl mx-auto px-4 py-12 lg:py-16">
-        
+
         {/* Header Badge & Title */}
         <div className="mb-8 max-w-4xl">
           <span className="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-zinc-700 dark:text-zinc-300 uppercase bg-zinc-100 dark:bg-zinc-800 rounded-full">
@@ -53,7 +56,7 @@ export default async function TermsPage({params}:Props){
 
     {/* Main Layout: Legal Content + Sticky Table of Contents */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-      
+
       {/* Standardized legal layout matching /[locale]/privacy */}
       <article className="lg:col-span-8 max-w-none prose prose-zinc dark:prose-invert">
         <section id="acceptance" className="mb-8 lg:mb-4">
@@ -70,7 +73,7 @@ export default async function TermsPage({params}:Props){
           {t('sections.description.p1')}
           </p>
           <p>
-          <strong>{t('sections.description.clarificationTitle')}</strong> {t('sections.description.clarificationText')}          
+          <strong>{t('sections.description.clarificationTitle')}</strong> {t('sections.description.clarificationText')}
           </p>
         </section>
 
@@ -122,7 +125,7 @@ export default async function TermsPage({params}:Props){
       {/* Sticky table of contents on desktop (hidden lg:block) */}
       <aside className="hidden lg:block lg:col-span-4 sticky top-8 space-y-4 border-l border-zinc-200 dark:border-zinc-800 pl-6">
         <h3 className="font-semibold text-sm uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
-        {t('header.tocTitle')}        
+        {t('header.tocTitle')}
         </h3>
 
         <nav className="flex flex-col space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
