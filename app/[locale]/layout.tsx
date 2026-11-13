@@ -77,7 +77,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <SyncHtmlLang locale={locale} />
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex min-h-dvh flex-col bg-white dark:bg-zinc-800">
         <Navbar />
         <main className="flex flex-1 flex-col">{children}</main>
         <Toaster position="bottom-right" closeButton />
