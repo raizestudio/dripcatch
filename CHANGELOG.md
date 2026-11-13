@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.4.0...dripcatch-v0.5.0) (2026-11-13)
+
+
+### Features
+
+* display semantic version in footer ([727921a](https://github.com/raizestudio/dripcatch/commit/727921a9ce17f48bad6c62e6f4f273dd8d6983d9))
+* display semantic version in footer ([666a17e](https://github.com/raizestudio/dripcatch/commit/666a17e9f5bddc5f6a33c13e16350d1ff7d028e5))
+
 ## [0.4.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.3.0...dripcatch-v0.4.0) (2026-11-13)
 
 
