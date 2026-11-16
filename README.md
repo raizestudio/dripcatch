@@ -54,7 +54,7 @@ Most subscription trackers rely on invasive open-banking aggregators (like Plaid
 ### 2. Clone & Install
 
 ```bash
-git clone [https://github.com/your-username/dripcatch.git](https://github.com/your-username/dripcatch.git)
+git clone [https://github.com/raizestudio/dripcatch.git](https://github.com/raizestudio/dripcatch.git)
 cd dripcatch
 pnpm install
 ```
