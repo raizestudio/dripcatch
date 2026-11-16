@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.7.0...dripcatch-v0.7.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* un ignore supabase lib folder ([98449b7](https://github.com/raizestudio/dripcatch/commit/98449b744ee50437eb3d0ba5d411aeb12e5dfaf1))
+
 ## [0.7.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.6.0...dripcatch-v0.7.0) (2026-11-16)
 
 
