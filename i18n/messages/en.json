@@ -8,6 +8,7 @@
     "signOut": "Sign Out",
     "ledger": "Ledger",
     "history": "History",
+    "admin": "Admin Dashboard",
     "signedInAs": "Signed in as"
   },
   "Landing": {
@@ -222,6 +223,60 @@
     "coveredLabel": "Covered by others:",
     "splitBadge": "Split with {count} person",
     "splitBadgePlural": "Split with {count} people"
+  },
+  "Admin": {
+    "badge": "Internal Admin",
+    "title": "DripCatch Control Panel",
+    "subtitle": "Triage incoming bug reports and maintain the public subscription catalog.",
+    "stats": {
+      "openBugs": "Open Bug Reports",
+      "catalogServices": "Catalog Services"
+    },
+    "tabs": {
+      "bugs": "Bug Reports",
+      "catalog": "Catalog & Plans",
+      "roles": "Team & Roles"
+    },
+    "roles": {
+      "emailLabel": "User Email (must already have an account)",
+      "roleLabel": "Role",
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "grantButton": "Assign Role",
+      "empty": "No database roles assigned yet. Add your own email above to persist your admin role.",
+      "you": "You",
+      "revoke": "Revoke"
+    },
+    "bugs": {
+      "empty": "No bug reports in this status.",
+      "changeStatus": "Change bug report status",
+      "status": {
+        "all": "All",
+        "open": "Open",
+        "in_progress": "In Progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      }
+    },
+    "catalog": {
+      "searchPlaceholder": "Search services or categories...",
+      "newService": "New",
+      "edit": "Edit service",
+      "delete": "Delete service",
+      "createServiceTitle": "Add New Catalog Service",
+      "editServiceTitle": "Edit Catalog Service",
+      "livePreview": "Live Card Preview",
+      "createService": "Create Service",
+      "saveService": "Save Changes",
+      "plansFor": "Pricing Plans for {name}",
+      "addPlan": "Add Plan",
+      "deletePlan": "Delete plan",
+      "fields": {
+        "name": "Service Name",
+        "slug": "Slug",
+        "category": "Category"
+      }
+    }
   },
   "Auth": {
     "title": "Login",

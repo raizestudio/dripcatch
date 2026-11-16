@@ -386,3 +386,28 @@ export const bugReports = pgTable(
 );
 
 export type NewBugReport = typeof bugReports.$inferInsert;
+
+export type AppRole = "admin" | "moderator";
+
+export const userRoles = pgTable(
+  "user_roles",
+  {
+    user_id: uuid("user_id")
+      .primaryKey()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    role: text("role").$type<AppRole>().notNull().default("moderator"),
+    granted_by: uuid("granted_by").references(() => authUsers.id, {
+      onDelete: "set null",
+    }),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    pgPolicy("Users can read own role", {
+      for: "select",
+      to: ["authenticated"],
+      using: sql`auth.uid() = ${table.user_id}`,
+    }),
+  ],
+).enableRLS();
