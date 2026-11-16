@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.6.0...dripcatch-v0.7.0) (2026-11-16)
+
+
+### Features
+
+* add admin dashboard for bug report triage and catalog management ([ed2fc79](https://github.com/raizestudio/dripcatch/commit/ed2fc797a1e81f8afdb3270f2166bf954fdd3269))
+* add admin dashboard for bug report triage and catalog management ([e1ebf06](https://github.com/raizestudio/dripcatch/commit/e1ebf06d04246be7000e184f7ba7931d323b2e41))
+
 ## [0.6.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.5.0...dripcatch-v0.6.0) (2026-11-16)
 
 
