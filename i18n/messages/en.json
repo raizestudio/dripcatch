@@ -7,6 +7,7 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "ledger": "Ledger",
+    "history": "History",
     "signedInAs": "Signed in as"
   },
   "Landing": {
@@ -159,6 +160,57 @@
       "zombieWarningTitle": "Zombie Waste Prediction",
       "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions."
     }
+  },
+  "LedgerHistory": {
+    "backToLedger": "Back to Ledger",
+    "title": "Lifetime Spend History",
+    "subtitle": "Cumulative out-of-pocket costs, split savings, and zombie leaks since your first bill.",
+    "upcoming": "Upcoming",
+    "lessThanMonth": "< 1 mo",
+    "yearsShort": "{count} yr",
+    "monthsShort": "{count} mo",
+    "kpi": {
+      "allTimeNet": "All-Time Out-of-Pocket",
+      "grossVolume": "{amount} gross plan value",
+      "splitSavings": "Lifetime Split Savings",
+      "splitSavingsHint": "Covered by shared members",
+      "zombieLeaked": "Zombie Cash Leaked",
+      "zombieLeakedHint": "Cumulative spend on unused services",
+      "billsPaid": "Total Bills Paid",
+      "trackedSubs": "Across {count} tracked subscriptions"
+    },
+    "charts": {
+      "compositionTitle": "Cumulative Spend Breakdown",
+      "compositionSubtitle": "How your historical subscription volume splits between active use, zombie leaks, and shared savings.",
+      "activeShare": "Active Out-of-Pocket",
+      "zombieShare": "Zombie Cash Leaked",
+      "sharedShare": "Saved via Splits",
+      "topVendorsTitle": "Top Vendors All-Time",
+      "topVendorsSubtitle": "Highest cumulative spenders (emerald segments show split savings)."
+    },
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "zombie": "Zombies",
+      "shared": "Shared"
+    },
+    "badges": {
+      "zombie": "Zombie",
+      "shared": "Shared"
+    },
+    "table": {
+      "title": "All-Time Breakdown by Subscription",
+      "subscription": "Subscription",
+      "started": "First Billed",
+      "bills": "Bills",
+      "splitSaved": "Split Saved",
+      "allTimePaid": "All-Time Paid"
+    },
+    "empty": {
+      "title": "No billing start dates logged yet",
+      "description": "Add a first billed date to any subscription in your ledger to reveal its cumulative lifetime cost."
+    },
+    "untrackedNotice": "{count, plural, one {# subscription without a first billed date is hidden from lifetime totals.} other {# subscriptions without a first billed date are hidden from lifetime totals.}}"
   },
   "Splits": {
     "toggle": "Split this subscription with others",

@@ -300,3 +300,229 @@ export function calculateCategoryBreakdown(
     }))
     .sort((a, b) => b.amount - a.amount);
 }
+
+interface CalendarDate {
+  year: number;
+  month: number; // 0-indexed (0 = Jan, 11 = Dec)
+  day: number; // 1-31
+  hasExplicitDay: boolean;
+}
+
+/**
+ * Parses YYYY-MM-DD or YYYY-MM into calendar components without timezone shifts.
+ */
+function parseCalendarDate(dateStr?: string | null): CalendarDate | null {
+  if (!dateStr) return null;
+
+  const match = dateStr.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);
+  if (match) {
+    const year = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1;
+    const hasExplicitDay = Boolean(match[3]);
+    const rawDay = match[3] ? parseInt(match[3], 10) : 1;
+    const maxDay = new Date(year, month + 1, 0).getDate();
+
+    return {
+      year,
+      month,
+      day: Math.min(Math.max(1, rawDay), maxDay),
+      hasExplicitDay,
+    };
+  }
+
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth(),
+    day: d.getDate(),
+    hasExplicitDay: true,
+  };
+}
+
+/**
+ * Counts exact completed billing cycles between a start date and asOfDate (inclusive).
+ * Handles leap years, month-end clamping (e.g., Jan 31 -> Feb 28), and DST-safe weekly math.
+ */
+function countBillingCycles(
+  start: CalendarDate,
+  asOfDate: Date,
+  interval: string,
+): { cycles: number; elapsedMonths: number; isUpcoming: boolean } {
+  const endYear = asOfDate.getFullYear();
+  const endMonth = asOfDate.getMonth();
+  const endDay = asOfDate.getDate();
+
+  const startUtcMs = Date.UTC(start.year, start.month, start.day);
+  const endUtcMs = Date.UTC(endYear, endMonth, endDay);
+
+  if (startUtcMs > endUtcMs) {
+    return { cycles: 0, elapsedMonths: 0, isUpcoming: true };
+  }
+
+  let completedMonths = (endYear - start.year) * 12 + (endMonth - start.month);
+  if (start.hasExplicitDay) {
+    const daysInEndMonth = new Date(endYear, endMonth + 1, 0).getDate();
+    const effectiveBillingDay = Math.min(start.day, daysInEndMonth);
+    if (endDay < effectiveBillingDay) {
+      completedMonths -= 1;
+    }
+  }
+  completedMonths = Math.max(0, completedMonths);
+
+  let cycles = 1;
+  switch (interval) {
+    case "weekly": {
+      const MS_PER_DAY = 24 * 60 * 60 * 1000;
+      const elapsedDays = Math.floor((endUtcMs - startUtcMs) / MS_PER_DAY);
+      cycles = Math.floor(elapsedDays / 7) + 1;
+      break;
+    }
+    case "yearly":
+      cycles = Math.floor(completedMonths / 12) + 1;
+      break;
+    case "quarterly":
+      cycles = Math.floor(completedMonths / 3) + 1;
+      break;
+    case "monthly":
+    default:
+      cycles = completedMonths + 1;
+      break;
+  }
+
+  return {
+    cycles,
+    elapsedMonths: completedMonths,
+    isUpcoming: false,
+  };
+}
+
+export interface LifetimeSpendResult {
+  cycles: number;
+  netPaid: number;
+  grossPaid: number;
+  coveredPaid: number;
+  elapsedMonths: number;
+  years: number;
+  months: number;
+  isUpcoming: boolean;
+}
+
+/**
+ * Calculates cumulative lifetime spend for a single subscription from first_billed_date.
+ * Returns null if first_billed_date is omitted so UI elements can hide gracefully.
+ */
+export function calculateLifetimeSpend(
+  sub: UserSubscriptionRow,
+  currentUserId?: string,
+  currentUserEmail?: string,
+  asOfDate: Date = new Date(),
+): LifetimeSpendResult | null {
+  const start = parseCalendarDate(sub.first_billed_date);
+  if (!start) return null;
+
+  const { cycles, elapsedMonths, isUpcoming } = countBillingCycles(
+    start,
+    asOfDate,
+    sub.interval,
+  );
+
+  const isOwner =
+    typeof sub.is_owner === "boolean"
+      ? sub.is_owner
+      : currentUserId
+        ? sub.user_id === currentUserId
+        : true;
+
+  const netPerCycle = getSubNetCost(sub, currentUserId, currentUserEmail);
+  const grossPerCycle = isOwner ? Number(sub.cost) || 0 : netPerCycle;
+  const coveredPerCycle = Math.max(0, grossPerCycle - netPerCycle);
+
+  const netPaid = parseFloat((netPerCycle * cycles).toFixed(2));
+  const grossPaid = parseFloat((grossPerCycle * cycles).toFixed(2));
+  const coveredPaid = parseFloat((coveredPerCycle * cycles).toFixed(2));
+
+  return {
+    cycles,
+    netPaid,
+    grossPaid,
+    coveredPaid,
+    elapsedMonths,
+    years: Math.floor(elapsedMonths / 12),
+    months: elapsedMonths % 12,
+    isUpcoming,
+  };
+}
+
+export interface SubscriptionLifetimeItem {
+  subscription: UserSubscriptionRow;
+  lifetime: LifetimeSpendResult;
+}
+
+export interface LedgerLifetimeMetrics {
+  totalNetPaid: number;
+  totalGrossPaid: number;
+  totalSplitSavings: number;
+  totalZombieLeaked: number;
+  totalBillsPaid: number;
+  trackedCount: number;
+  untrackedCount: number;
+  items: SubscriptionLifetimeItem[];
+}
+
+/**
+ * Aggregates lifetime spend, split savings, zombie leaks, and a ranked breakdown
+ * across all user subscriptions for the /ledger/history view.
+ */
+export function calculateLedgerLifetimeMetrics(
+  subscriptions: UserSubscriptionRow[],
+  currentUserId?: string,
+  currentUserEmail?: string,
+  asOfDate: Date = new Date(),
+): LedgerLifetimeMetrics {
+  let totalNetPaid = 0;
+  let totalGrossPaid = 0;
+  let totalSplitSavings = 0;
+  let totalZombieLeaked = 0;
+  let totalBillsPaid = 0;
+  let untrackedCount = 0;
+  const items: SubscriptionLifetimeItem[] = [];
+
+  for (const sub of subscriptions) {
+    const lifetime = calculateLifetimeSpend(
+      sub,
+      currentUserId,
+      currentUserEmail,
+      asOfDate,
+    );
+
+    if (!lifetime) {
+      untrackedCount += 1;
+      continue;
+    }
+
+    totalNetPaid += lifetime.netPaid;
+    totalGrossPaid += lifetime.grossPaid;
+    totalSplitSavings += lifetime.coveredPaid;
+    totalBillsPaid += lifetime.cycles;
+
+    if (sub.is_zombie) {
+      totalZombieLeaked += lifetime.netPaid;
+    }
+
+    items.push({ subscription: sub, lifetime });
+  }
+
+  items.sort((a, b) => b.lifetime.netPaid - a.lifetime.netPaid);
+
+  return {
+    totalNetPaid: parseFloat(totalNetPaid.toFixed(2)),
+    totalGrossPaid: parseFloat(totalGrossPaid.toFixed(2)),
+    totalSplitSavings: parseFloat(totalSplitSavings.toFixed(2)),
+    totalZombieLeaked: parseFloat(totalZombieLeaked.toFixed(2)),
+    totalBillsPaid,
+    trackedCount: items.length,
+    untrackedCount,
+    items,
+  };
+}
