@@ -8,6 +8,7 @@
     "signOut": "Déconnexion",
     "ledger": "Mon registre",
     "history": "Historique",
+    "admin": "Administration",
     "signedInAs": "Connecté en tant que"
   },
   "Landing": {
@@ -222,6 +223,60 @@
     "coveredLabel": "Payé par les autres :",
     "splitBadge": "Partagé avec {count} personne",
     "splitBadgePlural": "Partagé avec {count} personnes"
+  },
+  "Admin": {
+    "badge": "Administration interne",
+    "title": "Panneau de contrôle DripCatch",
+    "subtitle": "Triez les signalements de bugs et gérez le catalogue public d'abonnements.",
+    "stats": {
+      "openBugs": "Bugs ouverts",
+      "catalogServices": "Services au catalogue"
+    },
+    "tabs": {
+      "bugs": "Signalements",
+      "catalog": "Catalogue & Offres",
+      "roles": "Équipe & Rôles"
+    },
+    "roles": {
+      "emailLabel": "E-mail de l'utilisateur (compte existant requis)",
+      "roleLabel": "Rôle",
+      "admin": "Administrateur",
+      "moderator": "Modérateur",
+      "grantButton": "Attribuer le rôle",
+      "empty": "Aucun rôle enregistré en base. Ajoutez votre e-mail ci-dessus pour enregistrer votre accès admin.",
+      "you": "Vous",
+      "revoke": "Révoquer"
+    },
+    "bugs": {
+      "empty": "Aucun signalement pour ce statut.",
+      "changeStatus": "Modifier le statut du signalement",
+      "status": {
+        "all": "Tous",
+        "open": "Ouvert",
+        "in_progress": "En cours",
+        "resolved": "Résolu",
+        "closed": "Fermé"
+      }
+    },
+    "catalog": {
+      "searchPlaceholder": "Rechercher un service ou une catégorie...",
+      "newService": "Nouveau",
+      "edit": "Modifier le service",
+      "delete": "Supprimer le service",
+      "createServiceTitle": "Ajouter un service au catalogue",
+      "editServiceTitle": "Modifier le service",
+      "livePreview": "Aperçu en direct",
+      "createService": "Créer le service",
+      "saveService": "Enregistrer",
+      "plansFor": "Offres tarifaires pour {name}",
+      "addPlan": "Ajouter",
+      "deletePlan": "Supprimer l'offre",
+      "fields": {
+        "name": "Nom du service",
+        "slug": "Slug",
+        "category": "Catégorie"
+      }
+    }
   },
   "Auth": {
     "title": "Connexion",
