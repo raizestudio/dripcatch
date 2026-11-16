@@ -1,3 +1,4 @@
+// app/lib/auth/admin.ts
 import { createClient } from "@/app/lib/supabase/server";
 import { createAdminClient } from "@/app/lib/supabase/admin";
 import type { AppRole } from "@/app/lib/db/schema";
