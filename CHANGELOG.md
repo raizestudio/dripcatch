@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.5.0...dripcatch-v0.6.0) (2026-11-16)
+
+
+### Features
+
+* add history view and analytics ([79faa01](https://github.com/raizestudio/dripcatch/commit/79faa0154e3ad9fb97397c517f451b6aefd45411))
+* add history view and analytics ([94b015b](https://github.com/raizestudio/dripcatch/commit/94b015b6d82ba1d87ffbcc38efb37dc251487fa6))
+
 ## [0.5.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.4.0...dripcatch-v0.5.0) (2026-11-13)
 
 
