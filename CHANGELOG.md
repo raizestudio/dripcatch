@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.7.1...dripcatch-v0.8.0) (2026-11-17)
+
+
+### Features
+
+* add privacy page ([e55f98b](https://github.com/raizestudio/dripcatch/commit/e55f98b779c03bd9329311ee138f2d86ccd1268d))
+* delete eval page ([b39a072](https://github.com/raizestudio/dripcatch/commit/b39a07202150c1e8202129cfe1ffd65ce8e9f097))
+
 ## [0.7.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.7.0...dripcatch-v0.7.1) (2026-11-16)
 
 
