@@ -309,6 +309,71 @@
       "governingLaw": "9. Loi applicable"
     }
   },
+  "Privacy": {
+    "meta": {
+      "title": "Politique de confidentialité | DripCatch",
+      "description": "Découvrez comment DripCatch collecte, protège et traite vos données personnelles conformément au RGPD."
+    },
+    "header": {
+      "badge": "Mentions légales",
+      "title": "Politique de confidentialité",
+      "lastUpdated": "Dernière mise à jour : Janvier",
+      "tocTitle": "Sommaire"
+    },
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction et responsable du traitement",
+        "p1": "Bienvenue sur DripCatch (« Nous », « Notre » ou « Nos »). Nous nous engageons à protéger vos données personnelles et à respecter votre vie privée. La présente politique de confidentialité explique comment nous collectons, utilisons, stockons et protégeons vos informations lorsque vous utilisez l'application web DripCatch, ses services d'authentification et ses flux d'invitation au partage de frais. Le responsable du traitement est DripCatch, joignable à l'adresse",
+        "p2": "Aux fins du Règlement Général sur la Protection des Données (RGPD) de l'UE, DripCatch agit en tant que responsable du traitement pour les données de votre compte et de votre registre personnel d'abonnements."
+      },
+      "zeroBank": {
+        "title": "2. Notre engagement « Zéro connexion bancaire »",
+        "p1": "DripCatch repose sur un modèle de données axé sur la confidentialité et sans identifiants bancaires. Nous ne nous connectons jamais à votre banque et n'extrayons aucune donnée auprès d'établissements financiers.",
+        "p2": "Nous n'utilisons aucun agrégateur ou passerelle d'open banking (tels que Plaid, Finicity ou TrueLayer).",
+        "p3": "Nous ne demandons, ne traitons, ne transmettons ni ne stockons jamais vos identifiants bancaires, numéros de compte, RIB/IBAN ou coordonnées de carte bancaire."
+      },
+      "informationCollected": {
+        "title": "3. Informations que nous collectons",
+        "intro": "Conformément à l'article 6 du RGPD, nous ne traitons vos données personnelles que lorsque nous disposons d'une base légale valide :",
+        "bullet1Label": "Informations de compte :",
+        "bullet1Text": "Adresse e-mail et métadonnées utilisateur (avatar, nom) récupérées via Supabase Auth ou les fournisseurs OAuth.",
+        "bullet2Label": "Données du registre :",
+        "bullet2Text": "Noms des abonnements, catégories, fréquences de facturation, montants et dates personnalisées.",
+        "bullet3Label": "Données des co-payeurs :",
+        "bullet3Text": "Noms et adresses e-mail fournis facultativement par les utilisateurs pour inviter des proches ou colocataires à partager un coût."
+      },
+      "dataUsage": {
+        "title": "4. Comment nous utilisons vos données",
+        "intro": "Nous traitons vos données uniquement pour fournir et améliorer le service DripCatch :",
+        "bullet1": "Calcul des dépenses récurrentes personnelles, détection des hausses de tarifs et projections sur 12 mois.",
+        "bullet2": "Envoi de notifications transactionnelles d'invitation au partage d'abonnements.",
+        "bullet3": "Zéro publicité, zéro pixel de suivi et aucune vente ou location de vos données financières personnelles."
+      },
+      "retentionRights": {
+        "title": "5. Conservation des données et droits de suppression (RGPD / CCPA)",
+        "bullet1Label": "Droit à l'effacement :",
+        "bullet1Text": "Supprimez définitivement votre compte et les données personnelles associées à tout moment.",
+        "bullet2Label": "Droit d'accès et d'exportation :",
+        "bullet2Text": "Demandez une copie des données personnelles que nous détenons à votre sujet et exportez votre registre d'abonnements au format JSON structuré et lisible par machine directement depuis les paramètres de votre compte ou sur demande."
+      },
+      "subprocessors": {
+        "title": "6. Sous-traitants et infrastructure",
+        "intro": "Nous collaborons avec un nombre restreint de sous-traitants conformes au RGPD pour exploiter notre infrastructure. Toutes les données principales de l'application sont hébergées au sein de l'Union européenne :",
+        "bullet1Label": "Supabase (Région UE / Francfort) :",
+        "bullet1Text": "Fournit notre base de données PostgreSQL gérée (avec chiffrement au repos et en transit) ainsi que les services d'authentification.",
+        "bullet2Label": "Service d'e-mails transactionnels :",
+        "bullet2Text": "Utilisé strictement pour l'envoi des liens de vérification d'authentification, des réinitialisations de mot de passe et des invitations de partage initiées par l'utilisateur."
+      }
+    },
+    "nav": {
+      "introduction": "1. Introduction et responsable",
+      "zeroBank": "2. Zéro connexion bancaire",
+      "informationCollected": "3. Informations collectées",
+      "dataUsage": "4. Utilisation des données",
+      "retentionRights": "5. Conservation et droits",
+      "subprocessors": "6. Sous-traitants"
+    }
+  },
   "Feedback": {
     "trigger": "Signaler un bug",
     "successToast": "Signalement envoyé — merci de nous aider à améliorer DripCatch !",
