@@ -416,6 +416,71 @@
       "governingLaw": "9. Governing Law"
     }
   },
+  "Privacy": {
+    "meta": {
+      "title": "Privacy Policy | DripCatch",
+      "description": "Learn how DripCatch collects, protects, and handles your personal data under GDPR."
+    },
+    "header": {
+      "badge": "Legal",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated:",
+      "tocTitle": "Table of Contents"
+    },
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction & Data Controller",
+        "p1": "Welcome to DripCatch (“We”, “Our”, or “Us”). We are committed to protecting your personal data and respecting your privacy. This privacy policy explains how we collect, use, store, and protect your information when you use the DripCatch web application, authentication, and split invitation workflows. Our Data Controller is DripCatch, reachable at",
+        "p2": "For the purposes of the EU General Data Protection Regulation (GDPR), DripCatch acts as the Data Controller for your account and personal subscription ledger data."
+      },
+      "zeroBank": {
+        "title": "2. Our \"Zero Bank Connection\" Pledge",
+        "p1": "DripCatch is built on a privacy-first, zero-credential data model. We never connect to your bank or scrape financial institutions.",
+        "p2": "We do not use open-banking bridges (such as Plaid, Finicity, or TrueLayer).",
+        "p3": "We never request, handle, transmit, or store your bank login credentials, account numbers, routing numbers, or payment card details."
+      },
+      "informationCollected": {
+        "title": "3. Information We Collect",
+        "intro": "Under GDPR Article 6, we only process your personal data when we have a valid legal basis to do so:",
+        "bullet1Label": "Account Information:",
+        "bullet1Text": "Email address and user metadata (avatar, name) retrieved via Supabase Auth / OAuth providers",
+        "bullet2Label": "Ledger Data:",
+        "bullet2Text": "Subscription names, categories, billing intervals, cost figures, and custom dates",
+        "bullet3Label": "Split Co-Payer Data:",
+        "bullet3Text": "Names and email addresses optionally provided by users to invite friends or roommates to split a cost"
+      },
+      "dataUsage": {
+        "title": "4. How We Use Your Data",
+        "intro": "We process your data solely to deliver and improve the DripCatch Service:",
+        "bullet1": "Calculating personal burn, price hike detection, and 12-month projections",
+        "bullet2": "Sending transactional split invitation notifications",
+        "bullet3": "Zero ads, zero tracking pixels, and zero selling or renting of personal financial data"
+      },
+      "retentionRights": {
+        "title": "5. Data Retention & Deletion Rights (GDPR / CCPA)",
+        "bullet1Label": "Right to erasure:",
+        "bullet1Text": "Permanently delete your account and associated personal data at any time.",
+        "bullet2Label": "Right of access and export:",
+        "bullet2Text": "Request a copy of the personal data we hold about you and export your subscription ledger data in structured, machine-readable JSON format directly from your account settings or upon request."
+      },
+      "subprocessors": {
+        "title": "6. Subprocessors & Infrastructure",
+        "intro": "We partner with a minimal set of GDPR-compliant subprocessors to operate our infrastructure. All core application data is hosted within the European Union:",
+        "bullet1Label": "Supabase (EU / Frankfurt Region):",
+        "bullet1Text": "Provides our managed PostgreSQL database (with encryption at rest and in transit) and user authentication services",
+        "bullet2Label": "Transactional Email Service:",
+        "bullet2Text": "Used strictly to deliver authentication verification links, password resets, and user-initiated split invitations"
+      }
+    },
+    "nav": {
+      "introduction": "1. Introduction & Controller",
+      "zeroBank": "2. Zero Bank Connection",
+      "informationCollected": "3. Information We Collect",
+      "dataUsage": "4. How We Use Your Data",
+      "retentionRights": "5. Retention & Rights",
+      "subprocessors": "6. Subprocessors"
+    }
+  },
   "Feedback": {
     "trigger": "Report a bug",
     "successToast": "Bug report sent — thank you for helping improve DripCatch!",
