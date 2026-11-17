@@ -7,6 +7,8 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "ledger": "Ledger",
+    "history": "History",
+    "admin": "Admin Dashboard",
     "signedInAs": "Signed in as"
   },
   "Landing": {
@@ -160,6 +162,57 @@
       "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions."
     }
   },
+  "LedgerHistory": {
+    "backToLedger": "Back to Ledger",
+    "title": "Lifetime Spend History",
+    "subtitle": "Cumulative out-of-pocket costs, split savings, and zombie leaks since your first bill.",
+    "upcoming": "Upcoming",
+    "lessThanMonth": "< 1 mo",
+    "yearsShort": "{count} yr",
+    "monthsShort": "{count} mo",
+    "kpi": {
+      "allTimeNet": "All-Time Out-of-Pocket",
+      "grossVolume": "{amount} gross plan value",
+      "splitSavings": "Lifetime Split Savings",
+      "splitSavingsHint": "Covered by shared members",
+      "zombieLeaked": "Zombie Cash Leaked",
+      "zombieLeakedHint": "Cumulative spend on unused services",
+      "billsPaid": "Total Bills Paid",
+      "trackedSubs": "Across {count} tracked subscriptions"
+    },
+    "charts": {
+      "compositionTitle": "Cumulative Spend Breakdown",
+      "compositionSubtitle": "How your historical subscription volume splits between active use, zombie leaks, and shared savings.",
+      "activeShare": "Active Out-of-Pocket",
+      "zombieShare": "Zombie Cash Leaked",
+      "sharedShare": "Saved via Splits",
+      "topVendorsTitle": "Top Vendors All-Time",
+      "topVendorsSubtitle": "Highest cumulative spenders (emerald segments show split savings)."
+    },
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "zombie": "Zombies",
+      "shared": "Shared"
+    },
+    "badges": {
+      "zombie": "Zombie",
+      "shared": "Shared"
+    },
+    "table": {
+      "title": "All-Time Breakdown by Subscription",
+      "subscription": "Subscription",
+      "started": "First Billed",
+      "bills": "Bills",
+      "splitSaved": "Split Saved",
+      "allTimePaid": "All-Time Paid"
+    },
+    "empty": {
+      "title": "No billing start dates logged yet",
+      "description": "Add a first billed date to any subscription in your ledger to reveal its cumulative lifetime cost."
+    },
+    "untrackedNotice": "{count, plural, one {# subscription without a first billed date is hidden from lifetime totals.} other {# subscriptions without a first billed date are hidden from lifetime totals.}}"
+  },
   "Splits": {
     "toggle": "Split this subscription with others",
     "addPerson": "Add Person",
@@ -170,6 +223,60 @@
     "coveredLabel": "Covered by others:",
     "splitBadge": "Split with {count} person",
     "splitBadgePlural": "Split with {count} people"
+  },
+  "Admin": {
+    "badge": "Internal Admin",
+    "title": "DripCatch Control Panel",
+    "subtitle": "Triage incoming bug reports and maintain the public subscription catalog.",
+    "stats": {
+      "openBugs": "Open Bug Reports",
+      "catalogServices": "Catalog Services"
+    },
+    "tabs": {
+      "bugs": "Bug Reports",
+      "catalog": "Catalog & Plans",
+      "roles": "Team & Roles"
+    },
+    "roles": {
+      "emailLabel": "User Email (must already have an account)",
+      "roleLabel": "Role",
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "grantButton": "Assign Role",
+      "empty": "No database roles assigned yet. Add your own email above to persist your admin role.",
+      "you": "You",
+      "revoke": "Revoke"
+    },
+    "bugs": {
+      "empty": "No bug reports in this status.",
+      "changeStatus": "Change bug report status",
+      "status": {
+        "all": "All",
+        "open": "Open",
+        "in_progress": "In Progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      }
+    },
+    "catalog": {
+      "searchPlaceholder": "Search services or categories...",
+      "newService": "New",
+      "edit": "Edit service",
+      "delete": "Delete service",
+      "createServiceTitle": "Add New Catalog Service",
+      "editServiceTitle": "Edit Catalog Service",
+      "livePreview": "Live Card Preview",
+      "createService": "Create Service",
+      "saveService": "Save Changes",
+      "plansFor": "Pricing Plans for {name}",
+      "addPlan": "Add Plan",
+      "deletePlan": "Delete plan",
+      "fields": {
+        "name": "Service Name",
+        "slug": "Slug",
+        "category": "Category"
+      }
+    }
   },
   "Auth": {
     "title": "Login",

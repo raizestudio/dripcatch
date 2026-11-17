@@ -7,6 +7,8 @@
     "signIn": "Connexion",
     "signOut": "Déconnexion",
     "ledger": "Mon registre",
+    "history": "Historique",
+    "admin": "Administration",
     "signedInAs": "Connecté en tant que"
   },
   "Landing": {
@@ -160,6 +162,57 @@
       "zombieWarningDesc": "Vous allez perdre {annualAmount}/an sur {count} abonnements fantômes."
     }
   },
+  "LedgerHistory": {
+    "backToLedger": "Retour au registre",
+    "title": "Historique des dépenses cumulées",
+    "subtitle": "Coûts cumulés payés de votre poche, économies de partage et fuites sur les abonnements zombies depuis la première facture.",
+    "upcoming": "À venir",
+    "lessThanMonth": "< 1 mois",
+    "yearsShort": "{count} an",
+    "monthsShort": "{count} mois",
+    "kpi": {
+      "allTimeNet": "Total payé (net)",
+      "grossVolume": "{amount} en valeur brute",
+      "splitSavings": "Économies de partage",
+      "splitSavingsHint": "Part couverte par vos proches",
+      "zombieLeaked": "Fuites abonnements zombies",
+      "zombieLeakedHint": "Dépenses cumulées sur les services inutilisés",
+      "billsPaid": "Factures payées",
+      "trackedSubs": "Sur {count} abonnements suivis"
+    },
+    "charts": {
+      "compositionTitle": "Répartition des dépenses cumulées",
+      "compositionSubtitle": "Part de vos dépenses historiques entre abonnements actifs, fuites zombies et économies partagées.",
+      "activeShare": "Actifs (net payé)",
+      "zombieShare": "Fuites zombies",
+      "sharedShare": "Économisé via partage",
+      "topVendorsTitle": "Plus grosses dépenses cumulées",
+      "topVendorsSubtitle": "Services les plus coûteux depuis le début (en vert : part couverte)."
+    },
+    "filters": {
+      "all": "Tous",
+      "active": "Actifs",
+      "zombie": "Zombies",
+      "shared": "Partagés"
+    },
+    "badges": {
+      "zombie": "Zombie",
+      "shared": "Partagé"
+    },
+    "table": {
+      "title": "Détail cumulé par abonnement",
+      "subscription": "Abonnement",
+      "started": "Première facture",
+      "bills": "Factures",
+      "splitSaved": "Économisé",
+      "allTimePaid": "Total payé"
+    },
+    "empty": {
+      "title": "Aucune date de première facture renseignée",
+      "description": "Ajoutez une date de première facturation à un abonnement dans votre registre pour afficher son coût total cumulé."
+    },
+    "untrackedNotice": "{count, plural, one {# abonnement sans date de première facture est masqué des totaux cumulés.} other {# abonnements sans date de première facture sont masqués des totaux cumulés.}}"
+  },
   "Splits": {
     "toggle": "Partager cet abonnement avec d'autres",
     "addPerson": "Ajouter une personne",
@@ -170,6 +223,60 @@
     "coveredLabel": "Payé par les autres :",
     "splitBadge": "Partagé avec {count} personne",
     "splitBadgePlural": "Partagé avec {count} personnes"
+  },
+  "Admin": {
+    "badge": "Administration interne",
+    "title": "Panneau de contrôle DripCatch",
+    "subtitle": "Triez les signalements de bugs et gérez le catalogue public d'abonnements.",
+    "stats": {
+      "openBugs": "Bugs ouverts",
+      "catalogServices": "Services au catalogue"
+    },
+    "tabs": {
+      "bugs": "Signalements",
+      "catalog": "Catalogue & Offres",
+      "roles": "Équipe & Rôles"
+    },
+    "roles": {
+      "emailLabel": "E-mail de l'utilisateur (compte existant requis)",
+      "roleLabel": "Rôle",
+      "admin": "Administrateur",
+      "moderator": "Modérateur",
+      "grantButton": "Attribuer le rôle",
+      "empty": "Aucun rôle enregistré en base. Ajoutez votre e-mail ci-dessus pour enregistrer votre accès admin.",
+      "you": "Vous",
+      "revoke": "Révoquer"
+    },
+    "bugs": {
+      "empty": "Aucun signalement pour ce statut.",
+      "changeStatus": "Modifier le statut du signalement",
+      "status": {
+        "all": "Tous",
+        "open": "Ouvert",
+        "in_progress": "En cours",
+        "resolved": "Résolu",
+        "closed": "Fermé"
+      }
+    },
+    "catalog": {
+      "searchPlaceholder": "Rechercher un service ou une catégorie...",
+      "newService": "Nouveau",
+      "edit": "Modifier le service",
+      "delete": "Supprimer le service",
+      "createServiceTitle": "Ajouter un service au catalogue",
+      "editServiceTitle": "Modifier le service",
+      "livePreview": "Aperçu en direct",
+      "createService": "Créer le service",
+      "saveService": "Enregistrer",
+      "plansFor": "Offres tarifaires pour {name}",
+      "addPlan": "Ajouter",
+      "deletePlan": "Supprimer l'offre",
+      "fields": {
+        "name": "Nom du service",
+        "slug": "Slug",
+        "category": "Catégorie"
+      }
+    }
   },
   "Auth": {
     "title": "Connexion",

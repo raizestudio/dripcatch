@@ -5,7 +5,13 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/app/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { LayoutDashboard, LogOut, Loader2 } from "lucide-react";
+import {
+  History,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
 
 function getInitials(name?: string, email?: string): string {
   if (name) {
@@ -21,9 +27,13 @@ function getInitials(name?: string, email?: string): string {
 
 interface UserNavProps {
   user?: User | null;
+  isStaff?: boolean;
 }
 
-export function UserNav({ user: initialUser }: UserNavProps = {}) {
+export function UserNav({
+  user: initialUser,
+  isStaff: initialIsStaff,
+}: UserNavProps = {}) {
   const t = useTranslations("Nav");
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -31,6 +41,10 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
   const [user, setUser] = useState<User | null>(initialUser ?? null);
   const [loading, setLoading] = useState(initialUser === undefined);
   const [prevInitialUser, setPrevInitialUser] = useState(initialUser);
+  const [staffLookup, setStaffLookup] = useState<{
+    userId: string;
+    isStaff: boolean;
+  } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -73,6 +87,33 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
     };
   }, [supabase, initialUser]);
 
+  // Fallback role check via RLS if isStaff wasn't passed from a Server Component
+  useEffect(() => {
+    if (initialIsStaff !== undefined || !user?.id) return;
+
+    let isMounted = true;
+    const targetUserId = user.id;
+
+    async function checkRole() {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+
+      if (!isMounted) return;
+      setStaffLookup({
+        userId: targetUserId,
+        isStaff: data?.role === "admin" || data?.role === "moderator",
+      });
+    }
+    checkRole();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [supabase, user?.id, initialIsStaff]);
+
   // Click outside listener
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -114,6 +155,10 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
       </Link>
     );
   }
+
+  const clientIsStaff =
+    staffLookup?.userId === user.id && staffLookup.isStaff;
+  const showAdminLink = initialIsStaff ?? clientIsStaff;
 
   const avatarUrl = user.user_metadata?.avatar_url;
   const displayName =
@@ -161,7 +206,7 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
           </div>
 
           {/* Links */}
-          <div className="py-1">
+          <div className="space-y-0.5 py-1">
             <Link
               href="/ledger"
               onClick={() => setMenuOpen(false)}
@@ -170,6 +215,26 @@ export function UserNav({ user: initialUser }: UserNavProps = {}) {
               <LayoutDashboard className="h-3.5 w-3.5 text-zinc-500" />
               <span>{t("ledger")}</span>
             </Link>
+
+            <Link
+              href="/ledger/history"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            >
+              <History className="h-3.5 w-3.5 text-zinc-500" />
+              <span>{t("history")}</span>
+            </Link>
+
+            {showAdminLink && (
+              <Link
+                href="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>{t("admin")}</span>
+              </Link>
+            )}
           </div>
 
           {/* Sign Out Action */}

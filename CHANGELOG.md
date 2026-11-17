@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.7.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.7.0...dripcatch-v0.7.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* un ignore supabase lib folder ([98449b7](https://github.com/raizestudio/dripcatch/commit/98449b744ee50437eb3d0ba5d411aeb12e5dfaf1))
+
+## [0.7.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.6.0...dripcatch-v0.7.0) (2026-11-16)
+
+
+### Features
+
+* add admin dashboard for bug report triage and catalog management ([ed2fc79](https://github.com/raizestudio/dripcatch/commit/ed2fc797a1e81f8afdb3270f2166bf954fdd3269))
+* add admin dashboard for bug report triage and catalog management ([e1ebf06](https://github.com/raizestudio/dripcatch/commit/e1ebf06d04246be7000e184f7ba7931d323b2e41))
+
+## [0.6.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.5.0...dripcatch-v0.6.0) (2026-11-16)
+
+
+### Features
+
+* add history view and analytics ([79faa01](https://github.com/raizestudio/dripcatch/commit/79faa0154e3ad9fb97397c517f451b6aefd45411))
+* add history view and analytics ([94b015b](https://github.com/raizestudio/dripcatch/commit/94b015b6d82ba1d87ffbcc38efb37dc251487fa6))
+
 ## [0.5.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.4.0...dripcatch-v0.5.0) (2026-11-13)
 
 

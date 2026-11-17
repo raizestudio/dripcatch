@@ -7,6 +7,7 @@ import { LocaleSwitcher } from "@/app/components/ui/locale-switcher";
 import { ThemeToggle } from "@/app/components/ui/theme-toggle";
 import { UserNav } from "@/app/components/ui/user-nav";
 import { NotificationsDropdown } from "@/app/components/ui/notifications-dropdown";
+import { getStaffSession } from "@/app/lib/auth/admin";
 
 export function Navbar() {
   return (
@@ -25,14 +26,6 @@ export function Navbar() {
               DripCatch
             </span>
           </Link>
-
-          {/* Desktop App Link */}
-          {/*<Link
-            href="/ledger"
-            className="hidden sm:inline-block text-xs font-medium text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100"
-          >
-            Ledger
-          </Link>*/}
         </div>
 
         {/* Actions */}
@@ -55,14 +48,18 @@ export function Navbar() {
 async function NavbarUserArea() {
   await connection();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  const [
+    {
+      data: { user },
+    },
+    staff,
+  ] = await Promise.all([supabase.auth.getUser(), getStaffSession()]);
 
   return (
     <div className="flex items-center gap-2">
       {user && <NotificationsDropdown />}
-      <UserNav user={user} />
+      <UserNav user={user} isStaff={Boolean(staff)} />
     </div>
   );
 }

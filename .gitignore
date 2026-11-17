@@ -43,4 +43,8 @@ next-env.d.ts
 
 # supabase
 supabase
-eval "$(ssh-agent -s)"*
+!app/lib/supabase
+
+# Tests
+playwright-report
+test-results
