@@ -114,8 +114,10 @@ export function calculateLedgerMetrics(
   subscriptions: UserSubscriptionRow[],
   currentUserId?: string,
 ) {
-  // Only evaluate subscriptions that have started as of this month
-  const activeSubs = subscriptions.filter((s) => hasFirstBillOccurred(s));
+  // Only evaluate active subscriptions that have started as of this month
+  const activeSubs = subscriptions.filter(
+    (s) => s.status === "active" && hasFirstBillOccurred(s),
+  );
 
   // Gross total (Plan total for owner; personal share for participant)
   const grossMonthlyBurn = activeSubs.reduce((acc, sub) => {
@@ -186,7 +188,7 @@ export function calculate12MonthForecast(
 
     subscriptions.forEach((sub) => {
       // 1. Skip cancelled subscriptions
-      if (sub.status === "cancelled") return;
+      if (sub.status !== "active") return;
 
       // 2. Exclude from this forecast month if prior to the first bill
       const startStr = sub.first_billed_date || sub.next_billing_date;
@@ -280,8 +282,10 @@ export function calculateCategoryBreakdown(
   const totals: Record<string, number> = {};
   let totalAll = 0;
 
-  // Only consider subscriptions whose first bill has already arrived
-  const activeSubs = subscriptions.filter((s) => hasFirstBillOccurred(s));
+  // Only consider active subscriptions whose first bill has already arrived
+  const activeSubs = subscriptions.filter(
+    (s) => s.status === "active" && hasFirstBillOccurred(s),
+  );
 
   activeSubs.forEach((sub) => {
     const net = getSubNetCost(sub, currentUserId);

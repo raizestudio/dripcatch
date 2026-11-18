@@ -65,10 +65,17 @@ function addOneDay(dateStr: string): string {
 }
 
 function formatIcsTimestamp(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
-function formatAmount(amount: number, currency: string, locale: "en" | "fr"): string {
+function formatAmount(
+  amount: number,
+  currency: string,
+  locale: "en" | "fr",
+): string {
   try {
     return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
       style: "currency",
@@ -109,9 +116,12 @@ export async function GET(
 
   const { data: subscriptions, error: subsError } = await supabase
     .from("user_subscriptions")
-    .select("id, name, category, cost, currency, interval, next_billing_date, notes")
+    .select(
+      "id, name, category, cost, currency, interval, next_billing_date, notes",
+    )
     .eq("user_id", settings.user_id)
-    .eq("status", "active");
+    .eq("status", "active")
+    .not("next_billing_date", "is", null);
 
   if (subsError) {
     return new NextResponse("Internal Server Error", { status: 500 });
@@ -138,9 +148,7 @@ export async function GET(
   const dtStamp = formatIcsTimestamp(new Date());
   const reminderDays = Math.max(1, settings.reminder_days ?? 2);
   const calName =
-    locale === "fr"
-      ? "DripCatch — Renouvellements"
-      : "DripCatch — Renewals";
+    locale === "fr" ? "DripCatch — Renouvellements" : "DripCatch — Renewals";
 
   const lines: string[] = [
     "BEGIN:VCALENDAR",
@@ -154,6 +162,7 @@ export async function GET(
   ];
 
   for (const sub of activeSubs) {
+    if (!sub.next_billing_date) continue;
     const grossCost = Number(sub.cost);
     const coveredBySplits = splitsBySub.get(sub.id) ?? 0;
     const netCost = Math.max(0, grossCost - coveredBySplits);
@@ -168,9 +177,9 @@ export async function GET(
         : `${sub.name} (${formattedNet} personal share)`
       : `${sub.name} (${formattedNet})`;
 
-    const intervalKey = (sub.interval in RRULE_MAP
-      ? sub.interval
-      : "monthly") as BillingInterval;
+    const intervalKey = (
+      sub.interval in RRULE_MAP ? sub.interval : "monthly"
+    ) as BillingInterval;
     const intervalLabel = INTERVAL_LABELS[locale][intervalKey];
 
     const descParts =

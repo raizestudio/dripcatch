@@ -1,3 +1,5 @@
+// app/components/ledger/analytics/outflow-forecast-chart.tsx
+
 "use client";
 
 import { useTranslations } from "next-intl";

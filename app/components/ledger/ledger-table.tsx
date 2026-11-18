@@ -1,3 +1,4 @@
+// app/components/ledger/ledger-table.tsx
 "use client";
 
 import { useState } from "react";
@@ -65,6 +66,10 @@ export function LedgerTable({
               const splits = sub.subscription_splits || sub.splits || [];
               const hasSplits = splits.length > 0;
 
+              const isPaused = sub.status === "paused";
+              const isCanceled = sub.status === "canceled";
+              const isInactive = isPaused || isCanceled;
+
               // Reliable owner detection:
               const isOwner =
                 typeof sub.is_owner === "boolean"
@@ -105,18 +110,44 @@ export function LedgerTable({
 
               const hasHike = originalCostNum < costNum;
               const isDeleting = deletingId === sub.id;
+              const showLastBilled =
+                Boolean(sub.last_billed_date) &&
+                sub.last_billed_date !== sub.first_billed_date;
 
               return (
                 <tr
                   key={sub.id}
-                  className="group transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                  className={`group transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40 ${
+                    isCanceled
+                      ? "opacity-60"
+                      : isPaused
+                        ? "opacity-80"
+                        : ""
+                  }`}
                 >
                   {/* Name & Badges */}
                   <td className="px-4 py-3.5">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                      <span
+                        className={`font-medium text-zinc-900 dark:text-zinc-100 ${
+                          isCanceled ? "line-through decoration-zinc-400" : ""
+                        }`}
+                      >
                         {sub.name}
                       </span>
+
+                      {/* Subscription Lifecycle Badges (Paused / Canceled) */}
+                      {isPaused && (
+                        <span className="inline-flex items-center rounded border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                          {t("badges.paused")}
+                        </span>
+                      )}
+
+                      {isCanceled && (
+                        <span className="inline-flex items-center rounded border border-zinc-500/20 bg-zinc-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">
+                          {t("badges.canceled")}
+                        </span>
+                      )}
 
                       {/* Participant: Shared with you Badge */}
                       {!isOwner && (
@@ -143,7 +174,7 @@ export function LedgerTable({
                             >
                               <Users className="h-3 w-3" />
                               {s.name}
-                              <span className="text-[9px] opacity-75 font-normal">
+                              <span className="text-[9px] font-normal opacity-75">
                                 ({s.status})
                               </span>
                             </span>
@@ -163,8 +194,8 @@ export function LedgerTable({
                         </span>
                       )}
 
-                      {/* Zombie Badge */}
-                      {sub.is_zombie && (
+                      {/* Zombie Badge (only relevant while not canceled) */}
+                      {sub.is_zombie && !isCanceled && (
                         <span className="inline-flex items-center rounded border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
                           {t("badges.zombie")}
                         </span>
@@ -211,20 +242,31 @@ export function LedgerTable({
 
                   {/* Normalized Net Out-of-Pocket / Month */}
                   <td className="px-4 py-3.5 text-right font-mono tabular-nums text-zinc-600 dark:text-zinc-300">
-                    {formatCurrency(normalizedNetMonthly, baseCurrency)}
-                    <span className="text-[10px] text-zinc-400 font-sans">
-                      /mo
-                    </span>
+                    {isInactive ? (
+                      <span className="text-zinc-400 dark:text-zinc-500">—</span>
+                    ) : (
+                      <>
+                        {formatCurrency(normalizedNetMonthly, baseCurrency)}
+                        <span className="font-sans text-[10px] text-zinc-400">
+                          /mo
+                        </span>
+                      </>
+                    )}
                   </td>
 
-                  {/* First Bill Date */}
+                  {/* First / Last Bill Date */}
                   <td className="px-4 py-3.5 text-right font-mono text-xs text-zinc-500 dark:text-zinc-400">
-                    {sub.first_billed_date}
+                    <div>{sub.first_billed_date ?? "—"}</div>
+                    {showLastBilled && (
+                      <div className="font-sans text-[10px] text-zinc-400 dark:text-zinc-500">
+                        {t("table.lastBill", { date: sub.last_billed_date! })}
+                      </div>
+                    )}
                   </td>
 
                   {/* Renewal Date */}
                   <td className="px-4 py-3.5 text-right font-mono text-xs text-zinc-500 dark:text-zinc-400">
-                    {sub.next_billing_date}
+                    {sub.next_billing_date ?? "—"}
                   </td>
 
                   {/* Row Actions: Owner can edit/delete; Participant gets View-only */}
@@ -250,7 +292,7 @@ export function LedgerTable({
                         </button>
                       </div>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400 dark:text-zinc-500 select-none">
+                      <span className="inline-flex select-none items-center gap-1 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
                         <Shield className="h-3 w-3" />
                         View only
                       </span>

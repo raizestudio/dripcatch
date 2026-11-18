@@ -104,7 +104,8 @@
       "normalized": "Norm. /mo",
       "firstBill": "First Bill",
       "renewal": "Next Renewal",
-      "status": "Status"
+      "status": "Status",
+      "lastBill": "Last: {date}"
     },
     "badges": {
       "hike": "Price Hiked",
@@ -112,7 +113,9 @@
       "monthly": "Monthly",
       "yearly": "Yearly",
       "quarterly": "Quarterly",
-      "weekly": "Weekly"
+      "weekly": "Weekly",
+      "paused": "Paused",
+      "canceled": "Canceled"
     },
     "emptyState": {
       "title": "No subscriptions tracked yet",

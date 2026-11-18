@@ -348,9 +348,10 @@ export type Database = {
           id: string
           interval: string
           is_zombie: boolean | null
+          last_billed_date: string | null
           last_hike_date: string | null
           name: string
-          next_billing_date: string
+          next_billing_date: string | null
           notes: string | null
           original_cost: number | null
           plan_id: string | null
@@ -368,9 +369,10 @@ export type Database = {
           id?: string
           interval: string
           is_zombie?: boolean | null
+          last_billed_date?: string | null
           last_hike_date?: string | null
           name: string
-          next_billing_date: string
+          next_billing_date?: string | null
           notes?: string | null
           original_cost?: number | null
           plan_id?: string | null
@@ -388,9 +390,10 @@ export type Database = {
           id?: string
           interval?: string
           is_zombie?: boolean | null
+          last_billed_date?: string | null
           last_hike_date?: string | null
           name?: string
-          next_billing_date?: string
+          next_billing_date?: string | null
           notes?: string | null
           original_cost?: number | null
           plan_id?: string | null

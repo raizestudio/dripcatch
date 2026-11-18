@@ -35,13 +35,14 @@ export function LedgerAnalytics({
   const isDark = resolvedTheme === "dark";
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const activeBilledSubs = subscriptions.filter(
-    (s) =>
-      s.status !== "cancelled" &&
-      (!s.first_billed_date || s.first_billed_date <= todayStr),
+  // Exclude paused and canceled subscriptions from active projections
+  const activeOnlySubs = subscriptions.filter((s) => s.status === "active");
+
+  const activeBilledSubs = activeOnlySubs.filter(
+    (s) => !s.first_billed_date || s.first_billed_date <= todayStr,
   );
 
-  const forecastData = calculate12MonthForecast(subscriptions);
+  const forecastData = calculate12MonthForecast(activeOnlySubs);
   const categoryData = calculateCategoryBreakdown(activeBilledSubs);
 
   // 1. Paid & In Use

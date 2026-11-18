@@ -104,7 +104,8 @@
       "normalized": "Norm. /mois",
       "firstBill": "Première facturation",
       "renewal": "Prochain renouvellement",
-      "status": "Statut"
+      "status": "Statut",
+      "lastBill": "Dernier : {date}"
     },
     "badges": {
       "hike": "Hausse de prix",
@@ -112,7 +113,9 @@
       "monthly": "Mensuel",
       "yearly": "Annuel",
       "quarterly": "Trimestriel",
-      "weekly": "Hebdomadaire"
+      "weekly": "Hebdomadaire",
+      "paused": "En pause",
+      "canceled": "Résilié"
     },
     "emptyState": {
       "title": "Aucun abonnement enregistré",

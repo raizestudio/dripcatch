@@ -177,7 +177,8 @@ export const userSubscriptions = pgTable(
     currency: text().default("USD").notNull(),
     interval: text().notNull(),
     firstBilledDate: date("first_billed_date"),
-    nextBillingDate: date("next_billing_date").notNull(),
+    lastBilledDate: date("last_billed_date"),
+    nextBillingDate: date("next_billing_date"),
     originalCost: numeric("original_cost", { precision: 10, scale: 2 }),
     lastHikeDate: date("last_hike_date"),
     isZombie: boolean("is_zombie").default(false),
@@ -420,16 +421,12 @@ export const subscriptionPayments = pgTable(
   "subscription_payments",
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
-    subscriptionId: uuid("subscription_id")
-      .notNull()
-      .references(() => userSubscriptions.id, { onDelete: "cascade" }),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    subscriptionId: uuid("subscription_id").notNull(),
+    userId: uuid("user_id").notNull(),
     amount: numeric({ precision: 10, scale: 2 }).notNull(),
     currency: text().default("EUR").notNull(),
     billedDate: date("billed_date").notNull(),
-    source: text().default("manual").notNull(), // 'manual' | 'csv_import' | 'open_banking'
+    source: text().default("manual").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
       .default(sql`timezone('utc'::text, now())`)
       .notNull(),
@@ -440,6 +437,20 @@ export const subscriptionPayments = pgTable(
       table.billedDate,
       table.amount,
     ),
+    index("idx_subscription_payments_user_date").on(
+      table.userId,
+      table.billedDate,
+    ),
+    foreignKey({
+      columns: [table.subscriptionId],
+      foreignColumns: [userSubscriptions.id],
+      name: "subscription_payments_subscription_id_fkey",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "subscription_payments_user_id_fkey",
+    }).onDelete("cascade"),
     pgPolicy("Users can manage their own subscription payments", {
       as: "permissive",
       for: "all",
@@ -447,5 +458,10 @@ export const subscriptionPayments = pgTable(
       using: sql`(auth.uid() = user_id)`,
       withCheck: sql`(auth.uid() = user_id)`,
     }),
+    check("subscription_payments_amount_check", sql`amount >= (0)::numeric`),
+    check(
+      "subscription_payments_source_check",
+      sql`source = ANY (ARRAY['manual'::text, 'csv_import'::text, 'email_receipt'::text, 'screenshot_ocr'::text, 'open_banking'::text])`,
+    ),
   ],
 );
