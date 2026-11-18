@@ -98,9 +98,13 @@ export const userSettings = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
       .default(sql`timezone('utc'::text, now())`)
       .notNull(),
-    reminderDays: integer("reminder_days").default(3).notNull(),
+    reminderDays: integer("reminder_days").default(2).notNull(),
+    calendarFeedToken: text("calendar_feed_token"),
   },
   (table) => [
+    uniqueIndex("user_settings_calendar_feed_token_key").on(
+      table.calendarFeedToken,
+    ),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.id],

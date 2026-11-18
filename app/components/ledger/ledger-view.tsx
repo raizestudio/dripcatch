@@ -8,6 +8,8 @@ import { LedgerTable } from "./ledger-table";
 import { LedgerEmptyState } from "./ledger-empty-state";
 import { AddSubscriptionModal, CatalogItem } from "./add-subscription-modal";
 import { LedgerAnalytics } from "./ledger-analytics";
+import { CalendarSyncModal } from "./calendar-sync-modal";
+
 import { CurrencySwitcher } from "./currency-switcher";
 
 interface LedgerViewProps {
@@ -39,6 +41,7 @@ export function LedgerView({
         <div className="flex items-center gap-2.5">
           <CurrencySwitcher currentCurrency={baseCurrency} />
           <AddSubscriptionModal catalog={catalog} baseCurrency={baseCurrency} />
+          <CalendarSyncModal initialToken={null} />
         </div>
       </header>
 

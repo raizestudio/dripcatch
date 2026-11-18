@@ -1,0 +1,2 @@
+ALTER TABLE "user_settings" ADD COLUMN "calendar_feed_token" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "user_settings_calendar_feed_token_key" ON "user_settings" USING btree ("calendar_feed_token");
