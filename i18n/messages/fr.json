@@ -115,7 +115,8 @@
       "quarterly": "Trimestriel",
       "weekly": "Hebdomadaire",
       "paused": "En pause",
-      "canceled": "Résilié"
+      "canceled": "Résilié",
+      "active": "Actif"
     },
     "emptyState": {
       "title": "Aucun abonnement enregistré",
@@ -137,7 +138,10 @@
       "categoryLabel": "Catégorie",
       "cancel": "Annuler",
       "submit": "Enregistrer au registre",
-      "saving": "Enregistrement..."
+      "saving": "Enregistrement...",
+      "statusLabel": "Statut",
+      "lastBilledDateLabel": "Dernier prélèvement",
+      "optionalLabel": "optionnel"
     },
     "actions": {
       "edit": "Modifier",

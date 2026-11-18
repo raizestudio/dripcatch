@@ -142,7 +142,13 @@ export function calculateLedgerMetrics(
   }, 0);
 
   const totalMonthlyRecovered = Math.max(0, grossMonthlyBurn - monthlyBurn);
-  const projectedAnnual = monthlyBurn * 12;
+
+  // Sum actual scheduled outflows across the next 12 months (includes future start dates)
+  const forecastPoints = calculate12MonthForecast(subscriptions, currentUserId);
+  const projectedAnnual = parseFloat(
+    forecastPoints.reduce((acc, pt) => acc + pt.net, 0).toFixed(2),
+  );
+
   const zombiesCount = activeSubs.filter((s) => s.is_zombie).length;
   const hikesCount = activeSubs.filter(
     (s) => s.original_cost && Number(s.cost) > Number(s.original_cost),

@@ -115,7 +115,8 @@
       "quarterly": "Quarterly",
       "weekly": "Weekly",
       "paused": "Paused",
-      "canceled": "Canceled"
+      "canceled": "Canceled",
+      "active": "Active"
     },
     "emptyState": {
       "title": "No subscriptions tracked yet",
@@ -137,7 +138,10 @@
       "categoryLabel": "Category",
       "cancel": "Cancel",
       "submit": "Save to Ledger",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "statusLabel": "Status",
+      "lastBilledDateLabel": "Last billed date",
+      "optionalLabel": "optional"
     },
     "actions": {
       "edit": "Edit",

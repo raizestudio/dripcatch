@@ -20,6 +20,13 @@ export interface CatalogPlan {
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
 }
 
+type SubscriptionStatus = "active" | "paused" | "canceled";
+
+function normalizeStatus(status?: string): SubscriptionStatus {
+  if (status === "paused" || status === "canceled") return status;
+  return "active";
+}
+
 export function EditSubscriptionModal({
   subscription,
   baseCurrency = "EUR",
@@ -36,16 +43,23 @@ export function EditSubscriptionModal({
   const [category, setCategory] = useState(subscription.category);
   const [cost, setCost] = useState(subscription.cost.toString());
   const [interval, setInterval] = useState(subscription.interval);
+  const [status, setStatus] = useState<SubscriptionStatus>(
+    normalizeStatus(subscription.status),
+  );
   const [firstBilledDate, setFirstBilledDate] = useState(
-    subscription.first_billed_date || subscription.next_billing_date || "",
+    subscription.first_billed_date || "",
+  );
+  const [lastBilledDate, setLastBilledDate] = useState(
+    subscription.last_billed_date || "",
   );
   const [nextBillingDate, setNextBillingDate] = useState(
     subscription.next_billing_date || "",
   );
-  const [isZombie, setIsZombie] = useState(subscription.is_zombie);
+  const [isZombie, setIsZombie] = useState(Boolean(subscription.is_zombie));
 
   // Splits State
-  const initialSplits = subscription.subscription_splits || [];
+  const initialSplits =
+    subscription.subscription_splits || subscription.splits || [];
   const [isSplitEnabled, setIsSplitEnabled] = useState(
     initialSplits.length > 0,
   );
@@ -72,13 +86,14 @@ export function EditSubscriptionModal({
     setCategory(subscription.category);
     setCost(subscription.cost.toString());
     setInterval(subscription.interval);
-    setFirstBilledDate(
-      subscription.first_billed_date || subscription.next_billing_date || "",
-    );
+    setStatus(normalizeStatus(subscription.status));
+    setFirstBilledDate(subscription.first_billed_date || "");
+    setLastBilledDate(subscription.last_billed_date || "");
     setNextBillingDate(subscription.next_billing_date || "");
-    setIsZombie(subscription.is_zombie);
+    setIsZombie(Boolean(subscription.is_zombie));
 
-    const existingSplits = subscription.subscription_splits || [];
+    const existingSplits =
+      subscription.subscription_splits || subscription.splits || [];
     setIsSplitEnabled(existingSplits.length > 0);
     setSplits(
       existingSplits.map((s) => ({
@@ -88,6 +103,14 @@ export function EditSubscriptionModal({
       })),
     );
     setError(null);
+  }
+
+  function handleStatusChange(nextStatus: SubscriptionStatus) {
+    setStatus(nextStatus);
+    if (nextStatus === "canceled") {
+      setNextBillingDate("");
+      setIsZombie(false);
+    }
   }
 
   function addSplitPerson() {
@@ -115,8 +138,16 @@ export function EditSubscriptionModal({
       return;
     }
 
+    if (status === "active" && !nextBillingDate) {
+      setError("Next billing date is required for active subscriptions.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
+    const resolvedNextBillingDate =
+      status === "canceled" ? null : nextBillingDate || null;
 
     const res = await updateSubscription(subscription.id, {
       name: name.trim(),
@@ -124,9 +155,11 @@ export function EditSubscriptionModal({
       cost: parseFloat(cost),
       currency: baseCurrency,
       interval,
-      first_billed_date: firstBilledDate || nextBillingDate,
-      next_billing_date: nextBillingDate,
-      is_zombie: isZombie,
+      status,
+      first_billed_date: firstBilledDate || null,
+      last_billed_date: lastBilledDate || null,
+      next_billing_date: resolvedNextBillingDate,
+      is_zombie: status === "canceled" ? false : isZombie,
       splits: isSplitEnabled
         ? splits
             .filter((s) => s.name.trim() && parseFloat(s.amount) > 0)
@@ -195,6 +228,39 @@ export function EditSubscriptionModal({
               </div>
             )}
 
+            {/* Status Selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                {t("modal.statusLabel")}
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["active", "paused", "canceled"] as const).map((option) => {
+                  const selected = status === option;
+                  const activeStyles =
+                    option === "active"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                      : option === "paused"
+                        ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                        : "border-zinc-500 bg-zinc-500/10 text-zinc-800 dark:text-zinc-200";
+
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleStatusChange(option)}
+                      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
+                        selected
+                          ? activeStyles
+                          : "border-zinc-200 bg-zinc-50 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                      }`}
+                    >
+                      {t(`badges.${option}`)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Name */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
@@ -236,7 +302,7 @@ export function EditSubscriptionModal({
                   required
                   value={cost}
                   onChange={(e) => setCost(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-mono text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 />
               </div>
 
@@ -259,7 +325,7 @@ export function EditSubscriptionModal({
               </div>
             </div>
 
-            {/* Billing Dates: First Billed Date & Next Billing Date */}
+            {/* Billing Dates: First Billed & Last Billed */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
@@ -267,7 +333,6 @@ export function EditSubscriptionModal({
                 </label>
                 <input
                   type="date"
-                  required
                   value={firstBilledDate}
                   onChange={(e) => setFirstBilledDate(e.target.value)}
                   className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
@@ -276,22 +341,42 @@ export function EditSubscriptionModal({
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  {t("modal.billingDateLabel")}
+                  {t("modal.lastBilledDateLabel")}
                 </label>
                 <input
                   type="date"
-                  required
-                  value={nextBillingDate}
-                  onChange={(e) => setNextBillingDate(e.target.value)}
+                  value={lastBilledDate}
+                  onChange={(e) => setLastBilledDate(e.target.value)}
                   className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 />
               </div>
             </div>
 
+            {/* Next Billing Date (Required when active; hidden when canceled) */}
+            {status !== "canceled" && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("modal.billingDateLabel")}
+                  {status === "paused" && (
+                    <span className="ml-1 font-normal text-zinc-400">
+                      ({t("modal.optionalLabel")})
+                    </span>
+                  )}
+                </label>
+                <input
+                  type="date"
+                  required={status === "active"}
+                  value={nextBillingDate}
+                  onChange={(e) => setNextBillingDate(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                />
+              </div>
+            )}
+
             {/* Split Configurator */}
             <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50/50 p-3.5 dark:border-zinc-800 dark:bg-zinc-950/50">
               <div className="flex items-center justify-between">
-                <label className="flex cursor-pointer items-center gap-2 select-none">
+                <label className="flex cursor-pointer select-none items-center gap-2">
                   <input
                     type="checkbox"
                     checked={isSplitEnabled}
@@ -395,18 +480,20 @@ export function EditSubscriptionModal({
               )}
             </div>
 
-            {/* Zombie Flag */}
-            <label className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 transition-colors dark:border-zinc-800 dark:bg-zinc-950">
-              <input
-                type="checkbox"
-                checked={isZombie}
-                onChange={(e) => setIsZombie(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
-              />
-              <span className="select-none text-xs text-zinc-700 dark:text-zinc-300">
-                {t("actions.markZombie")}
-              </span>
-            </label>
+            {/* Zombie Flag (only while active or paused) */}
+            {status !== "canceled" && (
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 transition-colors dark:border-zinc-800 dark:bg-zinc-950">
+                <input
+                  type="checkbox"
+                  checked={isZombie}
+                  onChange={(e) => setIsZombie(e.target.checked)}
+                  className="h-4 w-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
+                />
+                <span className="select-none text-xs text-zinc-700 dark:text-zinc-300">
+                  {t("actions.markZombie")}
+                </span>
+              </label>
+            )}
 
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-2">

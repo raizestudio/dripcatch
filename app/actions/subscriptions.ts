@@ -51,16 +51,24 @@ export interface AddSubscriptionInput {
   splits?: SubscriptionSplitInput[];
 }
 
+const ALLOWED_STATUSES = new Set(["active", "paused", "canceled"]);
+
 export interface UpdateSubscriptionInput {
   name: string;
   category: string;
   cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
-  first_billed_date: string;
-  next_billing_date: string;
-  is_zombie: boolean;
-  splits?: SubscriptionSplitInput[];
+  status?: "active" | "paused" | "canceled";
+  first_billed_date?: string | null;
+  last_billed_date?: string | null;
+  next_billing_date?: string | null;
+  is_zombie?: boolean;
+  splits?: {
+    name: string;
+    email?: string | null;
+    amount: number;
+  }[];
 }
 
 export interface SubscriptionSplitItem {
@@ -332,6 +340,11 @@ export async function createSubscription(
   }
 }
 
+function normalizeOptionalDate(value?: string | null): string | null {
+  if (!value || !value.trim()) return null;
+  return resolveDate(value);
+}
+
 export async function updateSubscription(
   id: string,
   input: UpdateSubscriptionInput,
@@ -347,12 +360,25 @@ export async function updateSubscription(
       return { success: false, error: "Unauthorized. Please log in." };
     }
 
+    const status = input.status ?? "active";
+    if (!ALLOWED_STATUSES.has(status)) {
+      return { success: false, error: "Invalid subscription status." };
+    }
+
     const cleanCost = Math.max(0, Number(input.cost) || 0);
-    const resolvedNextBilling = resolveDate(input.next_billing_date);
-    const resolvedFirstBilled = resolveDate(
-      input.first_billed_date,
-      resolvedNextBilling,
-    );
+    const resolvedFirstBilled = normalizeOptionalDate(input.first_billed_date);
+    const resolvedLastBilled = normalizeOptionalDate(input.last_billed_date);
+    const resolvedNextBilling =
+      status === "canceled"
+        ? null
+        : normalizeOptionalDate(input.next_billing_date);
+
+    if (status === "active" && !resolvedNextBilling) {
+      return {
+        success: false,
+        error: "Next billing date is required for active subscriptions.",
+      };
+    }
 
     // 1. Update root subscription
     const { error: updateError } = await supabase
@@ -363,9 +389,11 @@ export async function updateSubscription(
         cost: cleanCost,
         currency: input.currency || "EUR",
         interval: input.interval,
+        status,
         first_billed_date: resolvedFirstBilled,
+        last_billed_date: resolvedLastBilled,
         next_billing_date: resolvedNextBilling,
-        is_zombie: input.is_zombie,
+        is_zombie: status === "canceled" ? false : Boolean(input.is_zombie),
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -377,7 +405,6 @@ export async function updateSubscription(
 
     // 2. Re-sync splits while preserving existing acceptance status and user_id
     if (input.splits !== undefined) {
-      // Fetch existing splits before deleting to retain status and user links
       const { data: existingSplits } = await supabase
         .from("subscription_splits")
         .select("id, name, email, status, user_id")
@@ -412,7 +439,6 @@ export async function updateSubscription(
             name: s.name.trim(),
             email: s.email?.trim() || null,
             amount: Math.max(0, Number(s.amount)),
-            // Retain previous status; if new and has no email, auto-accept
             status: prev?.status || (hasEmail ? "pending" : "accepted"),
             user_id: prev?.user_id || null,
           };
@@ -429,7 +455,6 @@ export async function updateSubscription(
           return { success: false, error: insertSplitsError.message };
         }
 
-        // Email only newly added email invites that weren't previously accepted
         const newInvites = (insertedSplits || []).filter(
           (split) =>
             split.email &&
