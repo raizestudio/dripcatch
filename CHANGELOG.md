@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.10.0...dripcatch-v0.11.0) (2026-11-18)
+
+
+### Features
+
+* add table to store payments ([63de004](https://github.com/raizestudio/dripcatch/commit/63de00460f2aa6b66b91164b36ffb9127facf687))
+
 ## [0.10.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.9.0...dripcatch-v0.10.0) (2026-11-18)
 
 
