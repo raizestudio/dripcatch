@@ -272,6 +272,7 @@ export type Database = {
       user_settings: {
         Row: {
           base_currency: string
+          calendar_feed_token: string | null
           created_at: string
           reminder_days: number
           updated_at: string
@@ -279,6 +280,7 @@ export type Database = {
         }
         Insert: {
           base_currency?: string
+          calendar_feed_token?: string | null
           created_at?: string
           reminder_days?: number
           updated_at?: string
@@ -286,6 +288,7 @@ export type Database = {
         }
         Update: {
           base_currency?: string
+          calendar_feed_token?: string | null
           created_at?: string
           reminder_days?: number
           updated_at?: string
