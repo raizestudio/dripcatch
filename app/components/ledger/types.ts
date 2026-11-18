@@ -1,3 +1,5 @@
+// app/components/ledger/types.ts
+
 export interface SubscriptionSplit {
   id?: string;
   name: string;
@@ -24,4 +26,24 @@ export interface UserSubscriptionRow {
   effective_cost?: number;
   splits?: SubscriptionSplit[];
   subscription_splits?: SubscriptionSplit[];
+}
+
+export interface SubscriptionImportDraft {
+  tempId: string;
+  source:
+    | "catalog_quick_pick"
+    | "csv_statement"
+    | "email_receipt"
+    | "screenshot_ocr"
+    | "open_banking";
+  catalogId: string | null;
+  planId: string | null;
+  name: string;
+  category: string;
+  cost: number;
+  currency: string;
+  interval: "weekly" | "monthly" | "quarterly" | "yearly";
+  nextBillingDate: string; // YYYY-MM-DD
+  confidence: "high" | "medium" | "low";
+  selected: boolean;
 }
