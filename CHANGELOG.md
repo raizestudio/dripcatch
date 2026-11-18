@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.12.1...dripcatch-v0.13.0) (2026-11-18)
+
+
+### Features
+
+* add page to view subscriptions ([d79969c](https://github.com/raizestudio/dripcatch/commit/d79969cdc7a70665102b5c2e50a5db8c75c3ac2f))
+
+
+### Bug Fixes
+
+* import issue in subscription view component, typing issue in UserSubscriptionRow ([2a43892](https://github.com/raizestudio/dripcatch/commit/2a438922e1bcdcd81e0007e63553a20939f9aed0))
+
 ## [0.12.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.12.0...dripcatch-v0.12.1) (2026-11-18)
 
 
