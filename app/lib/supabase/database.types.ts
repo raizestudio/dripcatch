@@ -172,6 +172,47 @@ export type Database = {
           },
         ]
       }
+      subscription_payments: {
+        Row: {
+          amount: number
+          billed_date: string
+          created_at: string
+          currency: string
+          id: string
+          source: string
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          billed_date: string
+          created_at?: string
+          currency?: string
+          id?: string
+          source?: string
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          billed_date?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          source?: string
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_subscription_id_user_subscriptions_id_fk"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_price_history: {
         Row: {
           changed_at: string

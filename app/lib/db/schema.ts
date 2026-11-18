@@ -415,3 +415,37 @@ export const userRoles = pgTable(
     }),
   ],
 ).enableRLS();
+
+export const subscriptionPayments = pgTable(
+  "subscription_payments",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    subscriptionId: uuid("subscription_id")
+      .notNull()
+      .references(() => userSubscriptions.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    amount: numeric({ precision: 10, scale: 2 }).notNull(),
+    currency: text().default("EUR").notNull(),
+    billedDate: date("billed_date").notNull(),
+    source: text().default("manual").notNull(), // 'manual' | 'csv_import' | 'open_banking'
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .default(sql`timezone('utc'::text, now())`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_subscription_payments_dedup").on(
+      table.subscriptionId,
+      table.billedDate,
+      table.amount,
+    ),
+    pgPolicy("Users can manage their own subscription payments", {
+      as: "permissive",
+      for: "all",
+      to: ["authenticated"],
+      using: sql`(auth.uid() = user_id)`,
+      withCheck: sql`(auth.uid() = user_id)`,
+    }),
+  ],
+);
