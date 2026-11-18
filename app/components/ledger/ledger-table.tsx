@@ -125,13 +125,14 @@ export function LedgerTable({
                   {/* Name & Badges */}
                   <td className="px-4 py-3.5">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className={`font-medium text-zinc-900 dark:text-zinc-100 ${
+                      <Link
+                        href={`/ledger/subscriptions/${sub.id}`}
+                        className={`font-medium text-zinc-900 transition-colors hover:text-emerald-600 dark:text-zinc-100 dark:hover:text-emerald-400 ${
                           isCanceled ? "line-through decoration-zinc-400" : ""
                         }`}
                       >
                         {sub.name}
-                      </span>
+                      </Link>
 
                       {/* Subscription Lifecycle Badges (Paused / Canceled) */}
                       {isPaused && (
@@ -272,14 +273,6 @@ export function LedgerTable({
                   <td className="px-4 py-3.5 text-right">
                     {isOwner ? (
                       <div className="flex items-center justify-end gap-1">
-                        <Link
-                          href={`/ledger/subscriptions/${sub.id}`}
-                          className={`font-medium text-zinc-900 transition-colors hover:text-emerald-600 dark:text-zinc-100 dark:hover:text-emerald-400 ${
-                            isCanceled ? "line-through decoration-zinc-400" : ""
-                          }`}
-                        >
-                          {sub.name}
-                        </Link>
                         <EditSubscriptionModal
                           subscription={sub}
                           baseCurrency={baseCurrency}

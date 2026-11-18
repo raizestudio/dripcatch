@@ -18,9 +18,9 @@ export interface UserSubscriptionRow {
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
   original_cost: number | null;
-  first_billed_date: string;
+  first_billed_date: string | null;
   last_billed_date?: string | null;
-  next_billing_date: string;
+  next_billing_date: string | null;
   last_hike_date?: string | null;
   notes?: string | null;
   is_zombie: boolean;

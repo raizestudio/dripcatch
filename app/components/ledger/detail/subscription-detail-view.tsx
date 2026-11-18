@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/routing";
+// import { Link, useRouter } from "@/i18n/routing";
 import {
   ArrowLeft,
   Trash2,
