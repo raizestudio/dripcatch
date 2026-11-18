@@ -170,6 +170,58 @@
       "zombieWarningDesc": "You are projected to waste {annualAmount}/yr on {count} unused subscriptions."
     }
   },
+  "SubscriptionDetail": {
+    "backToLedger": "Back to Ledger",
+    "sharedWithYou": "Shared with you",
+    "viewOnly": "View only",
+    "kpi": {
+      "cycleCost": "Cycle Cost",
+      "planTotal": "Plan total: {amount}",
+      "monthlyRate": "Monthly Rate",
+      "lifetimePaid": "Total Paid",
+      "paymentsCount": "{count, plural, =1 {1 payment} other {# payments}}",
+      "nextRenewal": "Next Renewal",
+      "lastBilled": "Last Billed"
+    },
+    "details": {
+      "title": "Billing & Lifecycle",
+      "firstBilled": "First billed",
+      "lastBilled": "Last billed",
+      "nextRenewal": "Next renewal",
+      "priceHistory": "Price history",
+      "notes": "Notes"
+    },
+    "splits": {
+      "title": "Cost Splits",
+      "empty": "This subscription is not shared with anyone."
+    }
+  },
+  "Payments": {
+    "title": "Payment History",
+    "subtitle": "Cumulative recorded charges: {total}",
+    "dateLabel": "Billing date",
+    "amountLabel": "Amount",
+    "logButton": "Log Payment",
+    "editButton": "Edit payment",
+    "deleteButton": "Delete payment",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "deleteConfirm": "Delete this payment record?",
+    "empty": "No recorded payments yet. Log a payment above or wait for the next billing cycle.",
+    "table": {
+      "date": "Billed Date",
+      "source": "Source",
+      "amount": "Amount",
+      "actions": "Actions"
+    },
+    "sources": {
+      "manual": "Manual",
+      "csv_import": "CSV Import",
+      "email_receipt": "Email Receipt",
+      "screenshot_ocr": "Screenshot OCR",
+      "open_banking": "Bank Sync"
+    }
+  },
   "LedgerHistory": {
     "backToLedger": "Back to Ledger",
     "title": "Lifetime Spend History",

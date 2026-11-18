@@ -170,6 +170,58 @@
       "zombieWarningDesc": "Vous allez perdre {annualAmount}/an sur {count} abonnements fantômes."
     }
   },
+  "SubscriptionDetail": {
+    "backToLedger": "Retour au registre",
+    "sharedWithYou": "Partagé avec vous",
+    "viewOnly": "Lecture seule",
+    "kpi": {
+      "cycleCost": "Coût par cycle",
+      "planTotal": "Total forfait : {amount}",
+      "monthlyRate": "Coût mensuel",
+      "lifetimePaid": "Total payé",
+      "paymentsCount": "{count, plural, =1 {1 paiement} other {# paiements}}",
+      "nextRenewal": "Prochain renouvellement",
+      "lastBilled": "Dernier prélèvement"
+    },
+    "details": {
+      "title": "Facturation & cycle de vie",
+      "firstBilled": "Premier prélèvement",
+      "lastBilled": "Dernier prélèvement",
+      "nextRenewal": "Prochain renouvellement",
+      "priceHistory": "Historique des tarifs",
+      "notes": "Notes"
+    },
+    "splits": {
+      "title": "Partage des coûts",
+      "empty": "Cet abonnement n'est partagé avec personne."
+    }
+  },
+  "Payments": {
+    "title": "Historique des paiements",
+    "subtitle": "Total des prélèvements enregistrés : {total}",
+    "dateLabel": "Date de prélèvement",
+    "amountLabel": "Montant",
+    "logButton": "Ajouter",
+    "editButton": "Modifier le paiement",
+    "deleteButton": "Supprimer le paiement",
+    "saveButton": "Enregistrer",
+    "cancelButton": "Annuler",
+    "deleteConfirm": "Supprimer ce paiement enregistré ?",
+    "empty": "Aucun paiement enregistré pour le moment. Ajoutez-en un ci-dessus ou attendez la prochaine échéance.",
+    "table": {
+      "date": "Date",
+      "source": "Source",
+      "amount": "Montant",
+      "actions": "Actions"
+    },
+    "sources": {
+      "manual": "Manuel",
+      "csv_import": "Import CSV",
+      "email_receipt": "Reçu e-mail",
+      "screenshot_ocr": "Capture OCR",
+      "open_banking": "Banque"
+    }
+  },
   "LedgerHistory": {
     "backToLedger": "Retour au registre",
     "title": "Historique des dépenses cumulées",

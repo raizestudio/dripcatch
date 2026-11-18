@@ -116,6 +116,15 @@ export interface SharedSubscriptionRow {
   subscription_payments: SubscriptionPaymentItem[];
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export interface SubscriptionDetailRow extends SharedSubscriptionRow {
+  original_cost: number | null;
+  last_hike_date: string | null;
+  notes: string | null;
+}
+
 interface RawSubscriptionQueryRow extends Omit<
   UserSubscriptionRow,
   "subscription_splits"
@@ -795,4 +804,133 @@ export async function createSubscriptionsBatch(
   revalidatePath("/[locale]/ledger/history", "page");
 
   return { success: true, count: rows.length };
+}
+
+export async function getSubscriptionById(
+  id: string,
+): Promise<SubscriptionDetailRow | null> {
+  if (!UUID_RE.test(id)) return null;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  await rollForwardDueRenewals(supabase, user.id);
+
+  const { data: sub, error } = await supabase
+    .from("user_subscriptions")
+    .select(
+      `
+        id,
+        user_id,
+        name,
+        category,
+        cost,
+        original_cost,
+        last_hike_date,
+        currency,
+        interval,
+        first_billed_date,
+        last_billed_date,
+        next_billing_date,
+        is_zombie,
+        status,
+        notes,
+        subscription_splits (
+          id,
+          name,
+          email,
+          amount,
+          user_id,
+          status
+        ),
+        subscription_payments (
+          id,
+          amount,
+          currency,
+          billed_date,
+          source
+        )
+      `,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !sub) return null;
+
+  const isOwner = sub.user_id === user.id;
+  const splits = (sub.subscription_splits || []) as SubscriptionSplitItem[];
+
+  // Verify access: must be owner or an accepted split participant
+  if (!isOwner) {
+    const mySplit = splits.find(
+      (s) =>
+        s.user_id === user.id ||
+        (s.email &&
+          user.email &&
+          s.email.toLowerCase() === user.email.toLowerCase()),
+    );
+    if (!mySplit || mySplit.status !== "accepted") {
+      return null;
+    }
+  }
+
+  const totalCost = Number(sub.cost);
+  let effectiveCost = totalCost;
+
+  if (isOwner) {
+    const coveredBySplits = splits
+      .filter((s) => s.status !== "rejected")
+      .reduce((acc, s) => acc + Number(s.amount), 0);
+    effectiveCost = Math.max(0, totalCost - coveredBySplits);
+  } else {
+    const userSplit = splits.find(
+      (s) =>
+        s.user_id === user.id ||
+        (s.email &&
+          user.email &&
+          s.email.toLowerCase() === user.email.toLowerCase()),
+    );
+    effectiveCost = userSplit
+      ? Number(userSplit.amount)
+      : splits.length > 0
+        ? Number(splits[0].amount)
+        : totalCost;
+  }
+
+  const payments = (
+    (sub.subscription_payments || []) as SubscriptionPaymentItem[]
+  )
+    .map((p) => ({
+      ...p,
+      amount: Number(p.amount),
+    }))
+    .sort((a, b) => b.billed_date.localeCompare(a.billed_date));
+
+  return {
+    id: sub.id,
+    user_id: sub.user_id,
+    name: sub.name,
+    category: sub.category,
+    cost: totalCost,
+    original_cost:
+      sub.original_cost !== null ? Number(sub.original_cost) : null,
+    last_hike_date: sub.last_hike_date ?? null,
+    effective_cost: effectiveCost,
+    currency: sub.currency,
+    interval: sub.interval as SharedSubscriptionRow["interval"],
+    first_billed_date: sub.first_billed_date ?? null,
+    last_billed_date: sub.last_billed_date ?? null,
+    next_billing_date: sub.next_billing_date ?? null,
+    is_zombie: Boolean(sub.is_zombie),
+    status: sub.status as SharedSubscriptionRow["status"],
+    notes: sub.notes ?? null,
+    is_owner: isOwner,
+    splits,
+    subscription_splits: splits,
+    subscription_payments: payments,
+  };
 }

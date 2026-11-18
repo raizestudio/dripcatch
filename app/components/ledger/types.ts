@@ -21,6 +21,8 @@ export interface UserSubscriptionRow {
   first_billed_date: string;
   last_billed_date?: string | null;
   next_billing_date: string;
+  last_hike_date?: string | null;
+  notes?: string | null;
   is_zombie: boolean;
   status: string;
   is_owner?: boolean;

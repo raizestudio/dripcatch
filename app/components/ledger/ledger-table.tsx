@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Trash2, Loader2, Users, Shield } from "lucide-react";
 import { deleteSubscription } from "@/app/actions/subscriptions";
@@ -118,11 +119,7 @@ export function LedgerTable({
                 <tr
                   key={sub.id}
                   className={`group transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40 ${
-                    isCanceled
-                      ? "opacity-60"
-                      : isPaused
-                        ? "opacity-80"
-                        : ""
+                    isCanceled ? "opacity-60" : isPaused ? "opacity-80" : ""
                   }`}
                 >
                   {/* Name & Badges */}
@@ -243,7 +240,9 @@ export function LedgerTable({
                   {/* Normalized Net Out-of-Pocket / Month */}
                   <td className="px-4 py-3.5 text-right font-mono tabular-nums text-zinc-600 dark:text-zinc-300">
                     {isInactive ? (
-                      <span className="text-zinc-400 dark:text-zinc-500">—</span>
+                      <span className="text-zinc-400 dark:text-zinc-500">
+                        —
+                      </span>
                     ) : (
                       <>
                         {formatCurrency(normalizedNetMonthly, baseCurrency)}
@@ -273,6 +272,14 @@ export function LedgerTable({
                   <td className="px-4 py-3.5 text-right">
                     {isOwner ? (
                       <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/ledger/subscriptions/${sub.id}`}
+                          className={`font-medium text-zinc-900 transition-colors hover:text-emerald-600 dark:text-zinc-100 dark:hover:text-emerald-400 ${
+                            isCanceled ? "line-through decoration-zinc-400" : ""
+                          }`}
+                        >
+                          {sub.name}
+                        </Link>
                         <EditSubscriptionModal
                           subscription={sub}
                           baseCurrency={baseCurrency}
