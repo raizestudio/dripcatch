@@ -11,6 +11,7 @@ import {
   Loader2,
   LogOut,
   ShieldCheck,
+  Settings,
 } from "lucide-react";
 
 function getInitials(name?: string, email?: string): string {
@@ -156,8 +157,7 @@ export function UserNav({
     );
   }
 
-  const clientIsStaff =
-    staffLookup?.userId === user.id && staffLookup.isStaff;
+  const clientIsStaff = staffLookup?.userId === user.id && staffLookup.isStaff;
   const showAdminLink = initialIsStaff ?? clientIsStaff;
 
   const avatarUrl = user.user_metadata?.avatar_url;
@@ -223,6 +223,15 @@ export function UserNav({
             >
               <History className="h-3.5 w-3.5 text-zinc-500" />
               <span>{t("history")}</span>
+            </Link>
+
+            <Link
+              href="/ledger/settings"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            >
+              <Settings className="h-3.5 w-3.5 text-zinc-500" />
+              <span>{t("settings")}</span>
             </Link>
 
             {showAdminLink && (
