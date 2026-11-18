@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.11.0...dripcatch-v0.11.1) (2026-11-18)
+
+
+### Code Refactoring
+
+* add last billed date and update components and actions to handle it ([1b4dcab](https://github.com/raizestudio/dripcatch/commit/1b4dcab5a11e90cc1f7ac79793fab0d0cc99182a))
+* ledger metrics calculation not properly handling future subscriptions ([16e5fe5](https://github.com/raizestudio/dripcatch/commit/16e5fe51a5b95244627c94ec331276d85b511863))
+
 ## [0.11.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.10.0...dripcatch-v0.11.0) (2026-11-18)
 
 
