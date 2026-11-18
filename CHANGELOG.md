@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.10.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.9.0...dripcatch-v0.10.0) (2026-11-18)
+
+
+### Features
+
+* add modal to add subscriptions in bulk ([1faca39](https://github.com/raizestudio/dripcatch/commit/1faca3956dd6ca95c418172bd3e099da99c425de))
+* add modal to add subscriptions in bulk ([8f52cf4](https://github.com/raizestudio/dripcatch/commit/8f52cf4492af902648777c08696100cf99faaa0e))
+
+## [0.9.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.8.0...dripcatch-v0.9.0) (2026-11-18)
+
+
+### Features
+
+* add ics synchronization and export ([67053be](https://github.com/raizestudio/dripcatch/commit/67053beaf92412597d89ad09721df1f54c913e8d))
+* add ics synchronization and export ([1508a89](https://github.com/raizestudio/dripcatch/commit/1508a899584636b5c83ba673098957175c1ebcb0))
+* add settings page ([d16ab50](https://github.com/raizestudio/dripcatch/commit/d16ab50c2594faabad06eb8a363d592489f3b13b))
+
 ## [0.8.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.7.1...dripcatch-v0.8.0) (2026-11-17)
 
 

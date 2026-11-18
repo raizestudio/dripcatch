@@ -8,6 +8,7 @@
     "signOut": "Déconnexion",
     "ledger": "Mon registre",
     "history": "Historique",
+    "settings": "Paramètres",
     "admin": "Administration",
     "signedInAs": "Connecté en tant que"
   },
@@ -278,6 +279,26 @@
       }
     }
   },
+  "Import": {
+    "triggerLabel": "Import groupé",
+    "modalTitle": "Importer des abonnements",
+    "modalSubtitle": "Sélectionnez plusieurs services du catalogue pour remplir votre registre en quelques secondes",
+    "reviewTitle": "Vérifier et confirmer l'import",
+    "reviewSubtitle": "Ajustez les montants, fréquences et prochaines échéances avant l'ajout",
+    "close": "Fermer la fenêtre",
+    "backToSelection": "Retour à la sélection",
+    "back": "Retour",
+    "selectedSummary": "{count} sur {total} sélectionnés",
+    "importing": "Importation...",
+    "importSelected": "Importer {count, plural, one {# abonnement} other {# abonnements}}",
+    "quickPick": {
+      "searchPlaceholder": "Rechercher Netflix, Spotify, iCloud, Salle de sport...",
+      "allCategories": "Tous",
+      "noMatches": "Aucun service du catalogue ne correspond à votre recherche.",
+      "pickedCount": "{count, plural, =0 {Aucun service sélectionné} one {# service sélectionné} other {# services sélectionnés}}",
+      "reviewButton": "Vérifier ({count})"
+    }
+  },
   "Auth": {
     "title": "Connexion",
     "description": "Connectez-vous ou créez un compte sur DripCatch pour suivre et partager vos abonnements.",
@@ -301,6 +322,50 @@
     "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
     "noAccountYet": "Pas encore de compte ? Créer un compte",
     "signedInSuccess": "La connexion est un succés"
+  },
+  "CalendarSync": {
+    "triggerLabel": "Synchro Calendrier",
+    "modalTitle": "Synchroniser les renouvellements",
+    "modalSubtitle": "Recevez des alertes natives avant chaque prélèvement",
+    "close": "Fermer la fenêtre",
+    "emptyDescription": "Générez un flux iCal (.ics) privé pour suivre tous vos abonnements actifs DripCatch directement dans votre calendrier.",
+    "featureNativeAlerts": "Rappels automatiques avant chaque échéance",
+    "featureNetShare": "Affiche votre part personnelle nette sur les abonnements partagés",
+    "featurePrivateToken": "Lien privé révocable — aucun traceur tiers",
+    "generateButton": "Générer mon lien calendrier privé",
+    "generating": "Génération du lien...",
+    "openInCalendar": "Ouvrir dans Apple Calendar / Outlook",
+    "webcalHint": "Utilise webcal:// pour un abonnement en 1 clic sur iOS, macOS et Windows.",
+    "googleCalendarLabel": "URL Google Agenda (https://)",
+    "googleCalendarHint": "Dans Google Agenda, ouvrez Autres agendas (+) → À partir de l'URL et collez ce lien.",
+    "copy": "Copier",
+    "copied": "Copié",
+    "securityNote": "Gardez cette URL confidentielle.",
+    "resetLink": "Réinitialiser",
+    "disableFeed": "Désactiver",
+    "resetWarning": "La réinitialisation invalide immédiatement votre lien actuel. Vous devrez vous réabonner dans votre application calendrier.",
+    "cancel": "Annuler",
+    "confirmReset": "Confirmer la réinitialisation",
+    "resetting": "Réinitialisation...",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+    "errorCopy": "Impossible de copier le lien dans le presse-papiers."
+  },
+  "Settings": {
+    "backToLedger": "Retour au tableau",
+    "title": "Paramètres du registre",
+    "subtitle": "Gérez votre devise par défaut, le délai des alertes et la synchronisation calendrier.",
+    "preferencesTitle": "Devise et délai des rappels",
+    "preferencesSubtitle": "Appliqué à vos totaux, alertes intégrées et flux calendrier",
+    "baseCurrencyLabel": "Devise d'affichage par défaut",
+    "baseCurrencyHint": "Utilisée lors de l'ajout d'abonnements et le calcul de vos totaux.",
+    "reminderDaysLabel": "Délai d'alerte avant renouvellement",
+    "daysBefore": "{days, plural, one {# jour avant} other {# jours avant}}",
+    "reminderDaysHint": "Détermine quand les rappels apparaissent dans l'application et dans votre flux iCal.",
+    "saveChanges": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré",
+    "activeBadge": "Actif",
+    "accountTitle": "Compte"
   },
   "Notifications": {
     "title": "Notifications",
