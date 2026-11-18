@@ -158,7 +158,7 @@ export function ImportReviewStep({
               <input
                 type="date"
                 disabled={!draft.selected}
-                value={draft.nextBillingDate}
+                value={draft.nextBillingDate ?? ""}
                 onChange={(e) =>
                   updateDraft(draft.tempId, "nextBillingDate", e.target.value)
                 }

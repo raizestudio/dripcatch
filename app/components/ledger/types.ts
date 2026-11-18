@@ -27,6 +27,7 @@ export interface UserSubscriptionRow {
   effective_cost?: number;
   splits?: SubscriptionSplit[];
   subscription_splits?: SubscriptionSplit[];
+  subscription_payments?: SubscriptionPaymentRow[];
 }
 
 export interface SubscriptionPaymentRow {

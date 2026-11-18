@@ -249,6 +249,10 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         is_owner: isOwner,
         splits,
         subscription_splits: splits,
+        subscription_payments: (sub.subscription_payments || []).map((p) => ({
+          ...p,
+          amount: Number(p.amount),
+        })),
       };
     });
 }
