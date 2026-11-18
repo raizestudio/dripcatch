@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.12.0...dripcatch-v0.12.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* typing issues in new subscription payment interfaces ([46f7928](https://github.com/raizestudio/dripcatch/commit/46f79282e6276409f2e5b3a4d796618822270cd2))
+
 ## [0.12.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.11.1...dripcatch-v0.12.0) (2026-11-18)
 
 
