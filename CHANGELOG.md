@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.11.1...dripcatch-v0.12.0) (2026-11-18)
+
+
+### Features
+
+* add payments to history and analytics calculations ([94c79c2](https://github.com/raizestudio/dripcatch/commit/94c79c276656c4cf6fa1b37c1a9205eb56d7af7c))
+
 ## [0.11.1](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.11.0...dripcatch-v0.11.1) (2026-11-18)
 
 
