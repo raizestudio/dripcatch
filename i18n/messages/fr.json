@@ -329,6 +329,23 @@
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "errorCopy": "Impossible de copier le lien dans le presse-papiers."
   },
+  "Settings": {
+    "backToLedger": "Retour au tableau",
+    "title": "Paramètres du registre",
+    "subtitle": "Gérez votre devise par défaut, le délai des alertes et la synchronisation calendrier.",
+    "preferencesTitle": "Devise et délai des rappels",
+    "preferencesSubtitle": "Appliqué à vos totaux, alertes intégrées et flux calendrier",
+    "baseCurrencyLabel": "Devise d'affichage par défaut",
+    "baseCurrencyHint": "Utilisée lors de l'ajout d'abonnements et le calcul de vos totaux.",
+    "reminderDaysLabel": "Délai d'alerte avant renouvellement",
+    "daysBefore": "{days, plural, one {# jour avant} other {# jours avant}}",
+    "reminderDaysHint": "Détermine quand les rappels apparaissent dans l'application et dans votre flux iCal.",
+    "saveChanges": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré",
+    "activeBadge": "Actif",
+    "accountTitle": "Compte"
+  },
   "Notifications": {
     "title": "Notifications",
     "empty": "Aucune alerte pour l'instant",

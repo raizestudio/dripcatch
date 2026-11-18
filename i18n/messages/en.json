@@ -329,6 +329,23 @@
     "errorGeneric": "Something went wrong. Please try again.",
     "errorCopy": "Unable to copy URL to clipboard."
   },
+  "Settings": {
+    "backToLedger": "Back to ledger",
+    "title": "Ledger Settings",
+    "subtitle": "Manage your default currency, renewal alert lead time, and calendar sync.",
+    "preferencesTitle": "Currency & Alert Timing",
+    "preferencesSubtitle": "Applied across your ledger totals, in-app alerts, and calendar feed",
+    "baseCurrencyLabel": "Default display currency",
+    "baseCurrencyHint": "Used when adding new subscriptions and calculating ledger summaries.",
+    "reminderDaysLabel": "Renewal alert lead time",
+    "daysBefore": "{days, plural, one {# day before} other {# days before}}",
+    "reminderDaysHint": "Controls when upcoming renewal alerts trigger in-app and in your subscribed iCal feed.",
+    "saveChanges": "Save changes",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "activeBadge": "Active",
+    "accountTitle": "Account"
+  },
   "Notifications": {
     "title": "Notifications",
     "empty": "No alerts right now",
