@@ -1,4 +1,3 @@
-// app/actions/subscriptions.ts
 "use server";
 
 import { after } from "next/server";
@@ -6,7 +5,20 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/app/lib/supabase/server";
 import { sendSplitInvitationEmail } from "@/app/lib/mail";
 import { getErrorMessage } from "@/app/lib/utils";
+import {
+  backfillSubscriptionPayments,
+  rollForwardDueRenewals,
+  type BillingInterval,
+} from "@/app/lib/payments/sync-payments";
 import type { SubscriptionImportDraft } from "@/app/components/ledger/types";
+
+export interface SubscriptionPaymentItem {
+  id: string;
+  amount: number;
+  currency: string;
+  billed_date: string;
+  source?: string;
+}
 
 export interface UserSubscriptionRow {
   id: string;
@@ -17,10 +29,11 @@ export interface UserSubscriptionRow {
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
   original_cost: number | null;
-  first_billed_date: string;
-  next_billing_date: string;
+  first_billed_date: string | null;
+  last_billed_date?: string | null;
+  next_billing_date: string | null;
   is_zombie: boolean;
-  status: "active" | "paused" | "cancelled";
+  status: "active" | "paused" | "canceled";
   is_owner?: boolean;
   effective_cost?: number;
   subscription_splits?: {
@@ -30,6 +43,7 @@ export interface UserSubscriptionRow {
     amount: number;
     user_id?: string | null;
   }[];
+  subscription_payments?: SubscriptionPaymentItem[];
 }
 
 export interface SubscriptionSplitInput {
@@ -52,6 +66,8 @@ export interface AddSubscriptionInput {
 }
 
 const ALLOWED_STATUSES = new Set(["active", "paused", "canceled"]);
+const ALLOWED_INTERVALS = new Set(["weekly", "monthly", "quarterly", "yearly"]);
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export interface UpdateSubscriptionInput {
   name: string;
@@ -89,13 +105,15 @@ export interface SharedSubscriptionRow {
   effective_cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
-  first_billed_date: string;
-  next_billing_date: string;
+  first_billed_date: string | null;
+  last_billed_date: string | null;
+  next_billing_date: string | null;
   is_zombie: boolean;
-  status: "active" | "paused" | "cancelled";
+  status: "active" | "paused" | "canceled";
   is_owner: boolean;
   splits: SubscriptionSplitItem[];
   subscription_splits: SubscriptionSplitItem[];
+  subscription_payments: SubscriptionPaymentItem[];
 }
 
 interface RawSubscriptionQueryRow extends Omit<
@@ -108,15 +126,17 @@ interface RawSubscriptionQueryRow extends Omit<
 type ActionResponse<T = void> =
   { success: true; data?: T } | { success: false; error: string };
 
-/**
- * Ensures non-null string date for PostgreSQL columns configured with NOT NULL
- */
 function resolveDate(dateStr?: string | null, fallback?: string): string {
   const trimmed = dateStr?.trim();
   if (trimmed) return trimmed;
   const fallbackTrimmed = fallback?.trim();
   if (fallbackTrimmed) return fallbackTrimmed;
   return new Date().toISOString().split("T")[0];
+}
+
+function normalizeOptionalDate(value?: string | null): string | null {
+  if (!value || !value.trim()) return null;
+  return resolveDate(value);
 }
 
 export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
@@ -126,6 +146,9 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
   } = await supabase.auth.getUser();
 
   if (!user) return [];
+
+  // Record any due renewals into subscription_payments and advance next_billing_date
+  await rollForwardDueRenewals(supabase, user.id);
 
   const { data, error } = await supabase
     .from("user_subscriptions")
@@ -140,6 +163,7 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
           currency,
           interval,
           first_billed_date,
+          last_billed_date,
           next_billing_date,
           is_zombie,
           status,
@@ -150,10 +174,17 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
             amount,
             user_id,
             status
+          ),
+          subscription_payments (
+            id,
+            amount,
+            currency,
+            billed_date,
+            source
           )
         `,
     )
-    .order("next_billing_date", { ascending: true })
+    .order("next_billing_date", { ascending: true, nullsFirst: false })
     .overrideTypes<RawSubscriptionQueryRow[], { merge: false }>();
 
   if (error || !data) {
@@ -181,7 +212,6 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
       let effectiveCost = totalCost;
 
       if (isOwner) {
-        // Count both accepted and pending splits (ignore only rejected)
         const coveredBySplits = splits
           .filter((s) => s.status !== "rejected")
           .reduce((acc, s) => acc + Number(s.amount), 0);
@@ -211,11 +241,9 @@ export async function getSubscriptions(): Promise<SharedSubscriptionRow[]> {
         effective_cost: effectiveCost,
         currency: sub.currency,
         interval: sub.interval,
-        first_billed_date:
-          sub.first_billed_date ||
-          sub.next_billing_date ||
-          new Date().toISOString().split("T")[0],
-        next_billing_date: sub.next_billing_date,
+        first_billed_date: sub.first_billed_date ?? null,
+        last_billed_date: sub.last_billed_date ?? null,
+        next_billing_date: sub.next_billing_date ?? null,
         is_zombie: sub.is_zombie,
         status: sub.status,
         is_owner: isOwner,
@@ -244,6 +272,8 @@ export async function createSubscription(
     }
 
     const cleanCost = Math.max(0, Number(input.cost) || 0);
+    const currency = (input.currency || "EUR").toUpperCase();
+    const interval = (input.interval || "monthly") as BillingInterval;
     const resolvedNextBilling = resolveDate(input.next_billing_date);
     const resolvedFirstBilled = resolveDate(
       input.first_billed_date,
@@ -260,8 +290,8 @@ export async function createSubscription(
         name: input.name.trim(),
         category: input.category || "Other",
         cost: cleanCost,
-        currency: input.currency || "EUR",
-        interval: input.interval || "monthly",
+        currency,
+        interval,
         original_cost: cleanCost,
         first_billed_date: resolvedFirstBilled,
         next_billing_date: resolvedNextBilling,
@@ -274,7 +304,18 @@ export async function createSubscription(
       return { success: false, error: insertError.message };
     }
 
-    // 2. Insert splits
+    // 2. Backfill historical payments from first_billed_date up to today
+    await backfillSubscriptionPayments(supabase, {
+      subscriptionId: sub.id,
+      userId: user.id,
+      amount: cleanCost,
+      currency,
+      interval,
+      firstBilledDate: resolvedFirstBilled,
+      status: "active",
+    });
+
+    // 3. Insert splits
     if (input.splits && input.splits.length > 0) {
       const validSplits = input.splits
         .filter((s) => s.name?.trim() && Number(s.amount) > 0)
@@ -285,7 +326,6 @@ export async function createSubscription(
             name: s.name.trim(),
             email: s.email?.trim() || null,
             amount: Math.max(0, Number(s.amount)),
-            // Manual splits without an email are accepted by default
             status: hasEmail ? "pending" : "accepted",
           };
         });
@@ -300,7 +340,6 @@ export async function createSubscription(
           return { success: false, error: splitsError.message };
         }
 
-        // 3. Email only pending invitees with an email
         const unassignedInvites = (insertedSplits || []).filter(
           (split) =>
             split.email && !split.user_id && split.status === "pending",
@@ -316,7 +355,7 @@ export async function createSubscription(
                   inviterEmail: user.email || "A friend",
                   subscriptionName: input.name.trim(),
                   amount: Number(split.amount),
-                  currency: input.currency || "EUR",
+                  currency,
                 });
               } catch (err) {
                 console.error(
@@ -331,6 +370,7 @@ export async function createSubscription(
     }
 
     revalidatePath("/[locale]/ledger", "page");
+    revalidatePath("/[locale]/ledger/history", "page");
     return { success: true, data: { id: sub.id } };
   } catch (err) {
     return {
@@ -338,11 +378,6 @@ export async function createSubscription(
       error: getErrorMessage(err, "An unexpected error occurred."),
     };
   }
-}
-
-function normalizeOptionalDate(value?: string | null): string | null {
-  if (!value || !value.trim()) return null;
-  return resolveDate(value);
 }
 
 export async function updateSubscription(
@@ -488,6 +523,7 @@ export async function updateSubscription(
     }
 
     revalidatePath("/[locale]/ledger", "page");
+    revalidatePath("/[locale]/ledger/history", "page");
     return { success: true };
   } catch (err) {
     return {
@@ -520,6 +556,7 @@ export async function deleteSubscription(id: string): Promise<ActionResponse> {
     }
 
     revalidatePath("/[locale]/ledger", "page");
+    revalidatePath("/[locale]/ledger/history", "page");
     return { success: true };
   } catch (err) {
     return {
@@ -544,7 +581,6 @@ export async function respondToSplitInvitation(
       return { success: false, error: "Unauthorized" };
     }
 
-    // Dismiss notification first
     await supabase
       .from("notifications")
       .update({ is_read: true })
@@ -552,7 +588,6 @@ export async function respondToSplitInvitation(
       .eq("user_id", user.id);
 
     if (accept) {
-      // 1. Mark accepted and bind to user
       const { error: splitError } = await supabase
         .from("subscription_splits")
         .update({
@@ -563,7 +598,6 @@ export async function respondToSplitInvitation(
 
       if (splitError) return { success: false, error: splitError.message };
     } else {
-      // 2. If rejected, remove it completely from splits
       const { error: deleteError } = await supabase
         .from("subscription_splits")
         .delete()
@@ -582,9 +616,23 @@ export async function respondToSplitInvitation(
   }
 }
 
-const ALLOWED_INTERVALS = new Set(["weekly", "monthly", "quarterly", "yearly"]);
-
-const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function mapSourceToPaymentSource(
+  source: SubscriptionImportDraft["source"],
+): string {
+  switch (source) {
+    case "csv_statement":
+      return "csv_import";
+    case "email_receipt":
+      return "email_receipt";
+    case "screenshot_ocr":
+      return "screenshot_ocr";
+    case "open_banking":
+      return "open_banking";
+    case "catalog_quick_pick":
+    default:
+      return "manual";
+  }
+}
 
 export async function createSubscriptionsBatch(
   drafts: SubscriptionImportDraft[],
@@ -620,6 +668,7 @@ export async function createSubscriptionsBatch(
   for (const draft of selectedDrafts) {
     const cleanName = draft.name.trim();
     const numericCost = Number(draft.cost);
+    const status = draft.status ?? "active";
 
     if (!cleanName) {
       return {
@@ -636,12 +685,40 @@ export async function createSubscriptionsBatch(
         error: `Invalid billing interval for "${cleanName}".`,
       };
     }
-    if (!ISO_DATE_RE.test(draft.nextBillingDate)) {
+    if (!ALLOWED_STATUSES.has(status)) {
+      return {
+        success: false,
+        error: `Invalid status for "${cleanName}".`,
+      };
+    }
+    if (draft.nextBillingDate && !ISO_DATE_RE.test(draft.nextBillingDate)) {
       return {
         success: false,
         error: `Invalid renewal date for "${cleanName}".`,
       };
     }
+    if (status === "active" && !draft.nextBillingDate) {
+      return {
+        success: false,
+        error: `Renewal date is required for active subscription "${cleanName}".`,
+      };
+    }
+
+    const firstBilled =
+      draft.firstBilledDate && ISO_DATE_RE.test(draft.firstBilledDate)
+        ? draft.firstBilledDate
+        : today;
+
+    const lastBilled =
+      draft.lastBilledDate && ISO_DATE_RE.test(draft.lastBilledDate)
+        ? draft.lastBilledDate
+        : null;
+
+    const originalCost =
+      typeof draft.originalCost === "number" &&
+      Number.isFinite(draft.originalCost)
+        ? draft.originalCost
+        : numericCost;
 
     rows.push({
       user_id: user.id,
@@ -652,20 +729,66 @@ export async function createSubscriptionsBatch(
       cost: numericCost,
       currency: (draft.currency || "EUR").toUpperCase(),
       interval: draft.interval,
-      first_billed_date: today,
-      next_billing_date: draft.nextBillingDate,
-      status: "active" as const,
+      original_cost: originalCost,
+      last_hike_date: draft.lastHikeDate ?? null,
+      first_billed_date: firstBilled,
+      last_billed_date: lastBilled,
+      next_billing_date: status === "canceled" ? null : draft.nextBillingDate,
+      status,
     });
   }
 
-  const { error } = await supabase.from("user_subscriptions").insert(rows);
+  const { data: insertedSubs, error } = await supabase
+    .from("user_subscriptions")
+    .insert(rows)
+    .select("id");
 
-  if (error) {
+  if (error || !insertedSubs) {
     console.error("[createSubscriptionsBatch] Supabase error:", error);
     return { success: false, error: "Failed to import subscriptions." };
   }
 
+  // Record payments for every imported subscription (factual statement rows or backfilled schedule)
+  for (let i = 0; i < selectedDrafts.length; i++) {
+    const draft = selectedDrafts[i];
+    const subId = insertedSubs[i]?.id;
+    if (!subId) continue;
+
+    if (draft.payments && draft.payments.length > 0) {
+      const paymentSource = mapSourceToPaymentSource(draft.source);
+      const paymentRows = draft.payments
+        .filter((p) => ISO_DATE_RE.test(p.billedDate) && p.amount >= 0)
+        .map((p) => ({
+          subscription_id: subId,
+          user_id: user.id,
+          amount: p.amount,
+          currency: (p.currency || draft.currency || "EUR").toUpperCase(),
+          billed_date: p.billedDate,
+          source: paymentSource,
+        }));
+
+      if (paymentRows.length > 0) {
+        await supabase.from("subscription_payments").upsert(paymentRows, {
+          onConflict: "subscription_id,billed_date,amount",
+          ignoreDuplicates: true,
+        });
+      }
+    } else {
+      await backfillSubscriptionPayments(supabase, {
+        subscriptionId: subId,
+        userId: user.id,
+        amount: Number(draft.cost),
+        currency: (draft.currency || "EUR").toUpperCase(),
+        interval: draft.interval,
+        firstBilledDate: rows[i].first_billed_date,
+        lastBilledDate: rows[i].last_billed_date,
+        status: rows[i].status as "active" | "paused" | "canceled",
+      });
+    }
+  }
+
   revalidatePath("/[locale]/ledger", "page");
+  revalidatePath("/[locale]/ledger/history", "page");
 
   return { success: true, count: rows.length };
 }

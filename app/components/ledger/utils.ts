@@ -428,14 +428,42 @@ export function calculateLifetimeSpend(
   currentUserEmail?: string,
   asOfDate: Date = new Date(),
 ): LifetimeSpendResult | null {
-  const start = parseCalendarDate(sub.first_billed_date);
+  const asOfIso = `${asOfDate.getFullYear()}-${String(asOfDate.getMonth() + 1).padStart(2, "0")}-${String(asOfDate.getDate()).padStart(2, "0")}`;
+
+  const recordedPayments = (sub.subscription_payments ?? [])
+    .filter((p) => p.billed_date <= asOfIso)
+    .sort((a, b) => a.billed_date.localeCompare(b.billed_date));
+
+  const startStr =
+    sub.first_billed_date ?? recordedPayments[0]?.billed_date ?? null;
+  const start = parseCalendarDate(startStr);
   if (!start) return null;
 
-  const { cycles, elapsedMonths, isUpcoming } = countBillingCycles(
-    start,
-    asOfDate,
-    sub.interval,
-  );
+  // Cap elapsed duration at last_billed_date when paused or canceled
+  let effectiveEndDate = asOfDate;
+  if (sub.status !== "active") {
+    const stopStr =
+      sub.last_billed_date ??
+      recordedPayments[recordedPayments.length - 1]?.billed_date ??
+      null;
+    const stopParsed = parseCalendarDate(stopStr);
+    if (stopParsed) {
+      const stopDate = new Date(
+        stopParsed.year,
+        stopParsed.month,
+        stopParsed.day,
+      );
+      if (stopDate < effectiveEndDate) {
+        effectiveEndDate = stopDate;
+      }
+    }
+  }
+
+  const {
+    cycles: estimatedCycles,
+    elapsedMonths,
+    isUpcoming,
+  } = countBillingCycles(start, effectiveEndDate, sub.interval);
 
   const isOwner =
     typeof sub.is_owner === "boolean"
@@ -448,12 +476,60 @@ export function calculateLifetimeSpend(
   const grossPerCycle = isOwner ? Number(sub.cost) || 0 : netPerCycle;
   const coveredPerCycle = Math.max(0, grossPerCycle - netPerCycle);
 
-  const netPaid = parseFloat((netPerCycle * cycles).toFixed(2));
-  const grossPaid = parseFloat((grossPerCycle * cycles).toFixed(2));
-  const coveredPaid = parseFloat((coveredPerCycle * cycles).toFixed(2));
+  // Prefer actual recorded payment rows when available
+  if (sub.subscription_payments !== undefined) {
+    if (recordedPayments.length === 0) {
+      return {
+        cycles: 0,
+        netPaid: 0,
+        grossPaid: 0,
+        coveredPaid: 0,
+        elapsedMonths,
+        years: Math.floor(elapsedMonths / 12),
+        months: elapsedMonths % 12,
+        isUpcoming,
+      };
+    }
+
+    let grossPaid = 0;
+    let coveredPaid = 0;
+    let netPaid = 0;
+
+    for (const payment of recordedPayments) {
+      const amt = Number(payment.amount) || 0;
+      if (isOwner) {
+        const covered = Math.min(amt, coveredPerCycle);
+        grossPaid += amt;
+        coveredPaid += covered;
+        netPaid += Math.max(0, amt - covered);
+      } else {
+        const share = Math.min(amt, netPerCycle);
+        grossPaid += share;
+        netPaid += share;
+      }
+    }
+
+    return {
+      cycles: recordedPayments.length,
+      netPaid: parseFloat(netPaid.toFixed(2)),
+      grossPaid: parseFloat(grossPaid.toFixed(2)),
+      coveredPaid: parseFloat(coveredPaid.toFixed(2)),
+      elapsedMonths,
+      years: Math.floor(elapsedMonths / 12),
+      months: elapsedMonths % 12,
+      isUpcoming: false,
+    };
+  }
+
+  // Fallback when subscription_payments was not joined
+  const netPaid = parseFloat((netPerCycle * estimatedCycles).toFixed(2));
+  const grossPaid = parseFloat((grossPerCycle * estimatedCycles).toFixed(2));
+  const coveredPaid = parseFloat(
+    (coveredPerCycle * estimatedCycles).toFixed(2),
+  );
 
   return {
-    cycles,
+    cycles: estimatedCycles,
     netPaid,
     grossPaid,
     coveredPaid,

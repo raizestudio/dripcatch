@@ -29,6 +29,20 @@ export interface UserSubscriptionRow {
   subscription_splits?: SubscriptionSplit[];
 }
 
+export interface SubscriptionPaymentRow {
+  id: string;
+  amount: number;
+  currency: string;
+  billed_date: string;
+  source?: string;
+}
+
+export interface DetectedPaymentItem {
+  billedDate: string; // YYYY-MM-DD
+  amount: number;
+  currency: string;
+}
+
 export interface SubscriptionImportDraft {
   tempId: string;
   source:
@@ -44,7 +58,13 @@ export interface SubscriptionImportDraft {
   cost: number;
   currency: string;
   interval: "weekly" | "monthly" | "quarterly" | "yearly";
-  nextBillingDate: string; // YYYY-MM-DD
+  status?: "active" | "paused" | "canceled";
+  firstBilledDate?: string | null;
+  lastBilledDate?: string | null;
+  nextBillingDate: string | null; // YYYY-MM-DD (nullable when paused/canceled)
+  originalCost?: number | null;
+  lastHikeDate?: string | null;
+  payments?: DetectedPaymentItem[];
   confidence: "high" | "medium" | "low";
   selected: boolean;
 }
