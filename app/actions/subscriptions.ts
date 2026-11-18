@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/app/lib/supabase/server";
 import { sendSplitInvitationEmail } from "@/app/lib/mail";
 import { getErrorMessage } from "@/app/lib/utils";
+import type { SubscriptionImportDraft } from "@/app/components/ledger/types";
 
 export interface UserSubscriptionRow {
   id: string;
@@ -554,4 +555,92 @@ export async function respondToSplitInvitation(
       error: getErrorMessage(err, "Failed to respond."),
     };
   }
+}
+
+const ALLOWED_INTERVALS = new Set(["weekly", "monthly", "quarterly", "yearly"]);
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function createSubscriptionsBatch(
+  drafts: SubscriptionImportDraft[],
+): Promise<
+  { success: true; count: number } | { success: false; error: string }
+> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const selectedDrafts = drafts.filter((d) => d.selected);
+  if (selectedDrafts.length === 0) {
+    return {
+      success: false,
+      error: "Select at least one subscription to import.",
+    };
+  }
+
+  if (selectedDrafts.length > 100) {
+    return { success: false, error: "Maximum 100 subscriptions per batch." };
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = [];
+
+  for (const draft of selectedDrafts) {
+    const cleanName = draft.name.trim();
+    const numericCost = Number(draft.cost);
+
+    if (!cleanName) {
+      return {
+        success: false,
+        error: "All imported subscriptions must have a name.",
+      };
+    }
+    if (!Number.isFinite(numericCost) || numericCost < 0) {
+      return { success: false, error: `Invalid cost for "${cleanName}".` };
+    }
+    if (!ALLOWED_INTERVALS.has(draft.interval)) {
+      return {
+        success: false,
+        error: `Invalid billing interval for "${cleanName}".`,
+      };
+    }
+    if (!ISO_DATE_RE.test(draft.nextBillingDate)) {
+      return {
+        success: false,
+        error: `Invalid renewal date for "${cleanName}".`,
+      };
+    }
+
+    rows.push({
+      user_id: user.id,
+      catalog_id: draft.catalogId || null,
+      plan_id: draft.planId || null,
+      name: cleanName,
+      category: draft.category.trim() || "Other",
+      cost: numericCost,
+      currency: (draft.currency || "EUR").toUpperCase(),
+      interval: draft.interval,
+      first_billed_date: today,
+      next_billing_date: draft.nextBillingDate,
+      status: "active" as const,
+    });
+  }
+
+  const { error } = await supabase.from("user_subscriptions").insert(rows);
+
+  if (error) {
+    console.error("[createSubscriptionsBatch] Supabase error:", error);
+    return { success: false, error: "Failed to import subscriptions." };
+  }
+
+  revalidatePath("/[locale]/ledger", "page");
+
+  return { success: true, count: rows.length };
 }

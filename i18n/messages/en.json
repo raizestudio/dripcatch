@@ -279,6 +279,26 @@
       }
     }
   },
+  "Import": {
+    "triggerLabel": "Bulk Import",
+    "modalTitle": "Import Subscriptions",
+    "modalSubtitle": "Pick multiple services from our catalog to set up your ledger in seconds",
+    "reviewTitle": "Review & Confirm Import",
+    "reviewSubtitle": "Verify amounts, billing cycles, and next renewal dates before importing",
+    "close": "Close modal",
+    "backToSelection": "Back to selection",
+    "back": "Back",
+    "selectedSummary": "{count} of {total} selected",
+    "importing": "Importing...",
+    "importSelected": "Import {count, plural, one {# subscription} other {# subscriptions}}",
+    "quickPick": {
+      "searchPlaceholder": "Search Netflix, Spotify, iCloud, Gym...",
+      "allCategories": "All",
+      "noMatches": "No catalog services match your search.",
+      "pickedCount": "{count, plural, =0 {No services selected} one {# service selected} other {# services selected}}",
+      "reviewButton": "Review ({count})"
+    }
+  },
   "Auth": {
     "title": "Login",
     "description": "Sign in or create an account on DripCatch to track and split your subscriptions.",
