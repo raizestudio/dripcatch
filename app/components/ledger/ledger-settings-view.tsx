@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   AlertCircle,
@@ -164,7 +164,7 @@ export function LedgerSettingsView({
       {/* Header */}
       <div className="space-y-2">
         <Link
-          href={`/${locale}/ledger`}
+          href="/ledger"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

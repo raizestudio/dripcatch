@@ -1,6 +1,13 @@
+// app/lib/payments/sync-payments.ts
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type BillingInterval = "weekly" | "monthly" | "quarterly" | "yearly";
+
+export interface RollForwardResult {
+  processedSubscriptions: number;
+  recordedPayments: number;
+}
 
 /**
  * Adds `steps` billing intervals to an anchor YYYY-MM-DD date without
@@ -120,26 +127,39 @@ export async function backfillSubscriptionPayments(
 }
 
 /**
- * Advances any active subscription whose `next_billing_date` is today or in the past,
+ * Advances active subscriptions whose `next_billing_date` is today or in the past,
  * recording the missed/due payments into `subscription_payments` idempotently.
+ * - Pass `userId` for scoped lazy execution on dashboard load.
+ * - Omit `userId` for global multi-user execution via the daily cron job.
  */
 export async function rollForwardDueRenewals(
   supabase: SupabaseClient,
-  userId: string,
-) {
+  userId?: string,
+): Promise<RollForwardResult> {
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const { data: dueSubs, error } = await supabase
+  let query = supabase
     .from("user_subscriptions")
     .select(
-      "id, cost, currency, interval, first_billed_date, next_billing_date",
+      "id, user_id, cost, currency, interval, first_billed_date, next_billing_date",
     )
-    .eq("user_id", userId)
     .eq("status", "active")
     .not("next_billing_date", "is", null)
-    .lte("next_billing_date", todayIso);
+    .lte("next_billing_date", todayIso)
+    .limit(500);
 
-  if (error || !dueSubs || dueSubs.length === 0) return;
+  if (userId) {
+    query = query.eq("user_id", userId);
+  }
+
+  const { data: dueSubs, error } = await query;
+
+  if (error || !dueSubs || dueSubs.length === 0) {
+    return { processedSubscriptions: 0, recordedPayments: 0 };
+  }
+
+  let processedSubscriptions = 0;
+  let recordedPayments = 0;
 
   for (const sub of dueSubs) {
     if (!sub.next_billing_date) continue;
@@ -159,21 +179,31 @@ export async function rollForwardDueRenewals(
 
     const paymentRows = newPaymentDates.map((billedDate) => ({
       subscription_id: sub.id,
-      user_id: userId,
+      user_id: sub.user_id,
       amount: Number(sub.cost),
       currency: sub.currency || "EUR",
       billed_date: billedDate,
       source: "manual",
     }));
 
-    await supabase.from("subscription_payments").upsert(paymentRows, {
-      onConflict: "subscription_id,billed_date,amount",
-      ignoreDuplicates: true,
-    });
+    const { error: upsertError } = await supabase
+      .from("subscription_payments")
+      .upsert(paymentRows, {
+        onConflict: "subscription_id,billed_date,amount",
+        ignoreDuplicates: true,
+      });
+
+    if (upsertError) {
+      console.error(
+        `[rollForwardDueRenewals] Failed upserting payments for sub ${sub.id}:`,
+        upsertError.message,
+      );
+      continue;
+    }
 
     const latestBilled = newPaymentDates[newPaymentDates.length - 1];
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("user_subscriptions")
       .update({
         last_billed_date: latestBilled,
@@ -182,6 +212,19 @@ export async function rollForwardDueRenewals(
         updated_at: new Date().toISOString(),
       })
       .eq("id", sub.id)
-      .eq("user_id", userId);
+      .eq("user_id", sub.user_id);
+
+    if (updateError) {
+      console.error(
+        `[rollForwardDueRenewals] Failed advancing dates for sub ${sub.id}:`,
+        updateError.message,
+      );
+      continue;
+    }
+
+    processedSubscriptions += 1;
+    recordedPayments += paymentRows.length;
   }
+
+  return { processedSubscriptions, recordedPayments };
 }

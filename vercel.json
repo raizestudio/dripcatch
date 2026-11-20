@@ -1,8 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "schedules": {
     "renewals": {
       "schedule": "0 8 * * *",
       "path": "/api/schedule/check-renewals",
+      "requestMethod": "GET",
+      "timezone": "Europe/Paris"
+    },
+    "roll-forward-renewals": {
+      "schedule": "0 1 * * *",
+      "path": "/api/schedule/roll-forward-renewals",
       "requestMethod": "GET",
       "timezone": "Europe/Paris"
     }
