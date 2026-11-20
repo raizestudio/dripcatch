@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Layers, X } from "lucide-react";
+import { Camera, Layers, Sparkles, X } from "lucide-react";
 import type { CatalogItem } from "../add-subscription-modal";
 import type { SubscriptionImportDraft } from "../types";
 import { QuickPickTab } from "./quick-pick-tab";
+import { ScreenshotImportTab } from "@/app/components/ledger/import/import-screenshot-import-tab";
 import { ImportReviewStep } from "./import-review-step";
 
 interface ImportSubscriptionsModalProps {
@@ -29,9 +30,13 @@ export function ImportSubscriptionsModal({
   trigger,
 }: ImportSubscriptionsModalProps) {
   const t = useTranslations("Import");
+  const isOcrEnabled = process.env.NEXT_PUBLIC_ENABLE_OCR === "true";
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"source" | "review">("source");
+  const [activeTab, setActiveTab] = useState<"quick_pick" | "screenshot">(
+    "quick_pick",
+  );
   const [drafts, setDrafts] = useState<SubscriptionImportDraft[]>([]);
   const [defaultBillingDate, setDefaultBillingDate] = useState("2026-12-01");
 
@@ -41,6 +46,7 @@ export function ImportSubscriptionsModal({
       setDefaultBillingDate(getNextMonthFirstIso());
     } else {
       setStep("source");
+      setActiveTab("quick_pick");
       setDrafts([]);
     }
   }
@@ -53,6 +59,7 @@ export function ImportSubscriptionsModal({
   function handleImportSuccess() {
     setOpen(false);
     setStep("source");
+    setActiveTab("quick_pick");
     setDrafts([]);
   }
 
@@ -95,12 +102,60 @@ export function ImportSubscriptionsModal({
 
           <div className="mt-4">
             {step === "source" ? (
-              <QuickPickTab
-                catalog={catalog}
-                baseCurrency={baseCurrency}
-                defaultBillingDate={defaultBillingDate}
-                onDraftsReady={handleDraftsReady}
-              />
+              isOcrEnabled ? (
+                <div className="space-y-4">
+                  {/* Source Switcher */}
+                  <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-zinc-200 bg-zinc-100/80 p-1 dark:border-zinc-800 dark:bg-zinc-950/80">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("quick_pick")}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                        activeTab === "quick_pick"
+                          ? "bg-white text-zinc-950 shadow-xs dark:bg-zinc-800 dark:text-white"
+                          : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      }`}
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>{t("quickPickTab")}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("screenshot")}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                        activeTab === "screenshot"
+                          ? "bg-white text-zinc-950 shadow-xs dark:bg-zinc-800 dark:text-white"
+                          : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      }`}
+                    >
+                      <Camera className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>{t("screenshot.tabLabel")}</span>
+                    </button>
+                  </div>
+
+                  {activeTab === "quick_pick" ? (
+                    <QuickPickTab
+                      catalog={catalog}
+                      baseCurrency={baseCurrency}
+                      defaultBillingDate={defaultBillingDate}
+                      onDraftsReady={handleDraftsReady}
+                    />
+                  ) : (
+                    <ScreenshotImportTab
+                      catalog={catalog}
+                      baseCurrency={baseCurrency}
+                      onDraftsReady={handleDraftsReady}
+                    />
+                  )}
+                </div>
+              ) : (
+                <QuickPickTab
+                  catalog={catalog}
+                  baseCurrency={baseCurrency}
+                  defaultBillingDate={defaultBillingDate}
+                  onDraftsReady={handleDraftsReady}
+                />
+              )
             ) : (
               <ImportReviewStep
                 initialDrafts={drafts}
