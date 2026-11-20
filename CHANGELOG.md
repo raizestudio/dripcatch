@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.15.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.14.0...dripcatch-v0.15.0) (2026-11-20)
+
+
+### Features
+
+* add ocr subscription import ([e242f5f](https://github.com/raizestudio/dripcatch/commit/e242f5f829efb3d934b9f02758476cdafa660e2a))
+* add ocr subscription import ([07bad88](https://github.com/raizestudio/dripcatch/commit/07bad88e98eba884ef276b5f7dd2e07be85e3c5e))
+
+
+### Bug Fixes
+
+* lint issues in import screenshot component ([51c28e7](https://github.com/raizestudio/dripcatch/commit/51c28e7f639a2bec6d12ba933d7366a334ab3f11))
+
 ## [0.14.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.13.0...dripcatch-v0.14.0) (2026-11-20)
 
 
