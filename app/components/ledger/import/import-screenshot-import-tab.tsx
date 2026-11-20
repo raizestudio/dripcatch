@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Camera,
-  Upload,
+  // Upload,
   X,
   Loader2,
   CheckCircle2,
@@ -52,16 +52,16 @@ export function ScreenshotImportTab({
   const [isDragging, setIsDragging] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
-  const [catalog, setCatalog] = useState<CatalogSubscriptionOption[]>(
-    providedCatalog ?? [],
-  );
 
-  // Fetch catalog_subscriptions once if parent did not pass it down
+  const [fetchedCatalog, setFetchedCatalog] = useState<
+    CatalogSubscriptionOption[]
+  >([]);
+
+  const effectiveCatalog = providedCatalog ?? fetchedCatalog;
+
+  // Fetch catalog_subscriptions once only if parent did not pass it down
   useEffect(() => {
-    if (providedCatalog) {
-      setCatalog(providedCatalog);
-      return;
-    }
+    if (providedCatalog) return;
 
     let cancelled = false;
     async function loadCatalog() {
@@ -73,7 +73,7 @@ export function ScreenshotImportTab({
         );
 
       if (!cancelled && data) {
-        setCatalog(
+        setFetchedCatalog(
           data.map((row) => ({
             id: row.id,
             name: row.name,
@@ -92,7 +92,10 @@ export function ScreenshotImportTab({
 
   // Revoke all ephemeral preview URLs when component unmounts
   const itemsRef = useRef<QueuedScreenshot[]>(items);
-  itemsRef.current = items;
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
   useEffect(() => {
     return () => {
       for (const item of itemsRef.current) {
@@ -227,7 +230,7 @@ export function ScreenshotImportTab({
         raw.name,
         raw.interval,
         raw.cost,
-        catalog,
+        effectiveCatalog,
       );
 
       const dedupeKey = `${matched.canonicalName.toLowerCase()}|${raw.cost.toFixed(2)}|${raw.interval}`;

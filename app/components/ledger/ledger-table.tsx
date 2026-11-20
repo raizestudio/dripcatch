@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+// import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { Trash2, Loader2, Users, Shield } from "lucide-react";
 import { deleteSubscription } from "@/app/actions/subscriptions";
@@ -22,7 +22,7 @@ export function LedgerTable({
   currentUserId?: string;
 }) {
   const t = useTranslations("Dashboard");
-  const locale = useLocale();
+  // const locale = useLocale();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
