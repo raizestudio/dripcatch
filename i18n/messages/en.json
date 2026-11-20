@@ -356,6 +356,30 @@
       "noMatches": "No catalog services match your search.",
       "pickedCount": "{count, plural, =0 {No services selected} one {# service selected} other {# services selected}}",
       "reviewButton": "Review ({count})"
+    },
+    "quickPickTab": "Quick Pick",
+    "screenshot": {
+      "tabLabel": "Screenshot",
+      "hintTitle": "Scan iOS, Google Play, or SaaS billing screenshots",
+      "hintBody": "Take a screenshot of Settings → Apple ID → Subscriptions or Google Play → Subscriptions. Images are processed in memory and immediately discarded.",
+      "dropzoneTitle": "Drop up to 3 screenshots here, or click to browse",
+      "dropzoneSubtitle": "PNG, JPEG, or WebP up to 5 MB ({remaining} of {max} slots available)",
+      "removeImage": "Remove screenshot",
+      "privacyNote": "Screenshots are never stored on our servers.",
+      "extractButton": "{count, plural, =1 {Scan 1 screenshot} other {Scan # screenshots}}",
+      "extractingButton": "Extracting subscriptions...",
+      "status": {
+        "scanning": "Scanning...",
+        "found": "{count} found",
+        "failed": "Failed"
+      },
+      "errors": {
+        "maxFiles": "You can upload up to {max} screenshots at once.",
+        "invalidType": "Unsupported image type. Please use PNG, JPEG, or WebP.",
+        "fileTooLarge": "Each screenshot must be 5 MB or smaller.",
+        "scanFailed": "Could not read subscriptions from this image.",
+        "noneDetected": "No active subscriptions were detected in the uploaded screenshots."
+      }
     }
   },
   "Auth": {

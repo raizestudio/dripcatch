@@ -356,6 +356,30 @@
       "noMatches": "Aucun service du catalogue ne correspond à votre recherche.",
       "pickedCount": "{count, plural, =0 {Aucun service sélectionné} one {# service sélectionné} other {# services sélectionnés}}",
       "reviewButton": "Vérifier ({count})"
+    },
+    "quickPickTab": "Choix rapide",
+    "screenshot": {
+      "tabLabel": "Capture d'écran",
+      "hintTitle": "Scannez vos captures iOS, Google Play ou factures SaaS",
+      "hintBody": "Prenez une capture d'écran dans Réglages → Identifiant Apple → Abonnements ou Google Play → Abonnements. Les images sont analysées en mémoire puis supprimées immédiatement.",
+      "dropzoneTitle": "Déposez jusqu'à 3 captures d'écran ici ou cliquez pour parcourir",
+      "dropzoneSubtitle": "PNG, JPEG ou WebP jusqu'à 5 Mo ({remaining} sur {max} emplacements disponibles)",
+      "removeImage": "Supprimer la capture",
+      "privacyNote": "Vos captures d'écran ne sont jamais conservées sur nos serveurs.",
+      "extractButton": "{count, plural, =1 {Analyser 1 capture} other {Analyser # captures}}",
+      "extractingButton": "Extraction des abonnements...",
+      "status": {
+        "scanning": "Analyse...",
+        "found": "{count} trouvé(s)",
+        "failed": "Échec"
+      },
+      "errors": {
+        "maxFiles": "Vous pouvez importer jusqu'à {max} captures d'écran à la fois.",
+        "invalidType": "Format d'image non pris en charge. Utilisez PNG, JPEG ou WebP.",
+        "fileTooLarge": "Chaque capture d'écran doit faire 5 Mo maximum.",
+        "scanFailed": "Impossible de lire les abonnements sur cette image.",
+        "noneDetected": "Aucun abonnement actif n'a été détecté sur ces captures d'écran."
+      }
     }
   },
   "Auth": {
