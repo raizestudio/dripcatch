@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.13.0...dripcatch-v0.14.0) (2026-11-20)
+
+
+### Features
+
+* add daily background cron job to record due subscription renewa… ([7d6fc3a](https://github.com/raizestudio/dripcatch/commit/7d6fc3ae80490993d42e4b42032b517b1dc8066f))
+* add daily background cron job to record due subscription renewal payments ([8e48a40](https://github.com/raizestudio/dripcatch/commit/8e48a40a4212ce2e414637e49faf8ed191c22130))
+
 ## [0.13.0](https://github.com/raizestudio/dripcatch/compare/dripcatch-v0.12.1...dripcatch-v0.13.0) (2026-11-18)
 
 
